@@ -432,36 +432,34 @@
             link.setAttribute("download", `balance_inventario_${BUSINESS_ID}.csv`);
             link.click();
         });
+        
         document.getElementById('btn-limpiar-datos').addEventListener('click', () => {
-            showPasswordModal('Limpiar todos los datos (IRREVERSIBLE)', (password) => {
+            showPasswordModal('Limpiar todos los datos (IRREVERSIBLE)', async (password) => {
                 if (password === ADMIN_PASSWORD) {
-                     showModalConInput(
-                        '¡ADVERTENCIA! ACCIÓN IRREVERSIBLE',
-                        'Esto borrará de forma PERMANENTE todo el catálogo, ventas y conteos para este negocio. Esta acción no se puede deshacer.',
-                        'BORRAR DATOS',
-                        async () => {
-                            showToast('Eliminando datos...');
-                            try {
-                                const colecciones = [stockTeoricoCol, datosVentasCol, datosConteoCol];
-                                for (const coleccion of colecciones) {
-                                    const snapshot = await getDocs(coleccion);
-                                    if (snapshot.empty) continue;
-                                    const batch = writeBatch(db);
-                                    snapshot.forEach(doc => batch.delete(doc.ref));
-                                    await batch.commit();
-                                }
-                                showToast('¡Todos los datos del negocio han sido eliminados!');
-                            } catch (error) {
-                                showModal(`Ocurrió un error al eliminar los datos. Revisa la consola.`);
-                            }
+                    showToast('Eliminando datos...');
+                    try {
+                        const colecciones = [stockTeoricoCol, datosVentasCol, datosConteoCol];
+                        for (const coleccion of colecciones) {
+                            if (!coleccion) continue;
+                            const snapshot = await getDocs(coleccion);
+                            if (snapshot.empty) continue;
+                            const batch = writeBatch(db);
+                            snapshot.forEach(doc => batch.delete(doc.ref));
+                            await batch.commit();
                         }
-                    );
+                        showToast('¡Todos los datos del negocio han sido eliminados!');
+                    } catch (error) {
+                        showModal(`Ocurrió un error al eliminar los datos. Revisa la consola.`);
+                        console.error("Error al limpiar datos:", error);
+                    }
                 } else {
                     showToast('Contraseña incorrecta.', true);
                 }
             });
         });
+
         searchInput.addEventListener('input', () => { const data = getDashboardData(); renderDashboard(data); });
+        
         btnAbrirLogAdmin.addEventListener('click', () => {
             showPasswordModal('Acceso de Administrador de Logs', (password) => {
                 if (password === LOG_PASSWORD) {
@@ -473,6 +471,7 @@
                 }
             });
         });
+        
         logDatePicker.addEventListener('change', renderAdminLog);
 
     </script>
