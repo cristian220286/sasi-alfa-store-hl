@@ -51,8 +51,8 @@
         <div class="modal-content">
             <span class="close-button" id="close-admin-log">&times;</span>
             <div class="flex justify-between items-center mb-4">
-                 <h2 class="text-2xl font-bold text-gray-800">Log de Movimientos de Auditoría</h2>
-                 <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
+                <h2 class="text-2xl font-bold text-gray-800">Log de Movimientos de Auditoría</h2>
+                <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
             </div>
             <div class="mb-4">
                 <label for="log-date-picker" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Fecha:</label>
@@ -74,8 +74,8 @@
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
                 <div><h1 class="text-3xl font-bold text-gray-800">Sasi Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
-                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold text-indigo-700">Cargando...</span></div>
-                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
+                    <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold text-indigo-700">Cargando...</span></div>
+                    <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
                     <button id="btn-limpiar-datos" class="btn btn-danger"><i class="fa-solid fa-bomb"></i>Limpiar Datos Operativos</button>
                     <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
                 </div>
@@ -87,13 +87,13 @@
                 <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required>
                 <button id="btn-login" class="btn btn-primary">Iniciar Sesión</button>
                 <button id="btn-register" class="btn btn-secondary">Registrarse</button>
-                 <p class="text-sm text-gray-500 text-center mt-2">Si no tienes cuenta, se creará una al registrarte.</p>
+                <p class="text-sm text-gray-500 text-center mt-2">Si no tienes cuenta, se creará una al registrarte.</p>
             </div>
 
             <div id="app-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                     <div class="card"><h2 class="text-xl font-semibold mb-4 text-gray-700">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full bg-teal-600 hover:bg-teal-700"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4 text-gray-700">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" disabled><p id="csv-helper" class="text-sm text-gray-500 mt-2">Formato: SKU, Stock</p></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4 text-gray-700">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"><p id="csv-helper" class="text-sm text-gray-500 mt-2">Formato: SKU, Stock</p></div>
                     <div class="card"><h2 class="text-xl font-semibold mb-4 text-gray-700">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field" placeholder="SKU del Producto" required><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
                     <div class="card"><h2 class="text-xl font-semibold mb-4 text-gray-700">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field" placeholder="SKU del Producto" required><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
                 </div>
@@ -133,8 +133,8 @@
                 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                     <div class="card xl:col-span-2">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Últimos 10 SKUs Contados</h2>
-                        <div class="overflow-x-auto max-h-[250px]"><table class="w-full"><thead class="table-header"><tr><th>SKU</th><th>Cantidad Añadida</th><th>Contado Por</th><th>Fecha y Hora</th></tr></thead><tbody id="last-counted-body"></tbody></table></div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Últimos 10 Movimientos Totales</h2>
+                        <div class="overflow-x-auto max-h-[250px]"><table class="w-full"><thead class="table-header"><tr><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Fecha y Hora</th></tr></thead><tbody id="last-movements-body"></tbody></table></div>
                     </div>
                     <div class="card bg-gray-800 text-white"><h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-book"></i> Log de Auditoría</h2><p class="text-gray-400 mb-4">Ver todos los movimientos registrados.</p><button id="btn-abrir-log-admin" class="btn btn-primary w-full bg-gray-600 hover:bg-gray-700">Abrir Log</button></div>
                 </div>
@@ -150,46 +150,39 @@
     <footer class="text-center p-4 text-gray-500 text-sm mt-auto"><p>By Mor</p></footer>
 
     <script type="module">
-        // --- CONFIGURACIÓN DE FIREBASE ---
         const firebaseConfig = {
-          apiKey: "AIzaSyAzGc3KVQFYIoQ7W_WZAj585AbUpiU5HUI",
-          authDomain: "sasi-alfa-store-pps.firebaseapp.com",
-          projectId: "sasi-alfa-store-pps",
-          storageBucket: "sasi-alfa-store-pps.firebasestorage.app",
-          messagingSenderId: "739926676625",
-          appId: "1:739926676625:web:b4ff509e304f980ff71b30"
+            apiKey: "AIzaSyAzGc3KVQFYIoQ7W_WZAj585AbUpiU5HUI",
+            authDomain: "sasi-alfa-store-pps.firebaseapp.com",
+            projectId: "sasi-alfa-store-pps",
+            storageBucket: "sasi-alfa-store-pps.firebasestorage.app",
+            messagingSenderId: "739926676625",
+            appId: "1:739926676625:web:b4ff509e304f980ff71b30"
         };
 
-        // --- IMPORTACIONES DE FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, setDoc, addDoc, query, orderBy, serverTimestamp, writeBatch, getDocs, where, updateDoc, deleteDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, collection, onSnapshot, setDoc, addDoc, query, orderBy, serverTimestamp, writeBatch, getDocs, getDoc, where, updateDoc, deleteDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- INICIALIZACIÓN DE FIREBASE ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         
-        // --- SECRETOS DE LA APLICACIÓN ---
-        // Para un entorno de producción, estos valores deberían ser manejados de forma más segura.
         const BUSINESS_ID = 'Sasi Alfa Store HL'; 
         const getAdminPassword = () => '10234567';
         const getLogPassword = () => 'P1CL3S';
 
-        // --- VARIABLES GLOBALES Y ESTADO ---
         let stockTeorico = [], datosVentas = [], datosConteo = [], auditLog = [];
         let userId = null, userEmail = null;
         let nombreContador = localStorage.getItem(`${BUSINESS_ID}_nombreContador`) || 'N/A';
-        let unsubscribes = []; // Para limpiar listeners al salir
+        let unsubscribes = [];
 
-        // --- SELECTORES DEL DOM ---
         const formVentas = document.getElementById('form-ventas');
         const formConteo = document.getElementById('form-conteo');
         const formCorreccionAdmin = document.getElementById('form-correccion-admin');
         const formReposicionCsv = document.getElementById('form-reposicion-csv');
         const formAnulacion = document.getElementById('form-anulacion');
         const dashboardBody = document.getElementById('dashboard-body');
-        const lastCountedBody = document.getElementById('last-counted-body');
+        const lastMovementsBody = document.getElementById('last-movements-body');
         const authSection = document.getElementById('auth-section');
         const appContent = document.getElementById('app-content');
         const myModal = document.getElementById('myModal');
@@ -207,7 +200,6 @@
         const repoCsvInput = document.getElementById('repo-csv-input');
         const btnLimpiarLog = document.getElementById('btn-limpiar-log');
 
-        // --- FUNCIONES DE UTILIDAD ---
         const showToast = (message, isError = false) => {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -245,22 +237,34 @@
         
         const sanitizeForFirestoreId = (text) => {
             if (!text) return '';
-            // Firestore IDs cannot contain '/'
             return text.replace(/\//g, '_');
         };
 
-        // --- LÓGICA DE AUTENTICACIÓN ---
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                userId = user.uid;
-                userEmail = user.email;
-                document.getElementById('user-id-display').textContent = userEmail || userId;
-                authSection.style.display = 'none';
-                appContent.style.display = 'block';
-                document.getElementById('csv-file-input').disabled = false;
-                contadorDisplay.textContent = nombreContador;
-                contadorNombreInput.value = nombreContador !== 'N/A' ? nombreContador : '';
-                setupFirestoreListeners();
+                const userDocRef = doc(db, "users", user.uid);
+                try {
+                    const userDoc = await getDoc(userDocRef);
+                    if (userDoc.exists() && userDoc.data().businessId === BUSINESS_ID) {
+                        userId = user.uid;
+                        userEmail = user.email;
+                        document.getElementById('user-id-display').textContent = userEmail || userId;
+                        
+                        authSection.style.display = 'none';
+                        appContent.style.display = 'block';
+                        
+                        contadorDisplay.textContent = nombreContador;
+                        contadorNombreInput.value = nombreContador !== 'N/A' ? nombreContador : '';
+                        setupFirestoreListeners();
+                    } else {
+                        await signOut(auth);
+                        showToast('Acceso denegado. No perteneces a este negocio.', true);
+                    }
+                } catch (error) {
+                    console.error("Error al verificar perfil de usuario:", error);
+                    await signOut(auth);
+                    showToast('Error de permisos al verificar tu perfil.', true);
+                }
             } else {
                 userId = null;
                 userEmail = null;
@@ -274,8 +278,11 @@
             }
         });
 
-        // --- LISTENERS DE FIRESTORE ---
         function setupFirestoreListeners() {
+            if (unsubscribes.length > 0) {
+                unsubscribes.forEach(unsub => unsub());
+                unsubscribes = [];
+            }
             const collections = {
                 stockTeorico: collection(db, `businesses/${BUSINESS_ID}/stockTeorico`),
                 datosVentas: query(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), orderBy("timestamp", "desc")),
@@ -285,14 +292,14 @@
 
             unsubscribes.push(onSnapshot(collections.stockTeorico, s => { stockTeorico = s.docs.map(d => ({ id: d.id, ...d.data() })); renderAll(); }));
             unsubscribes.push(onSnapshot(collections.datosVentas, s => { datosVentas = s.docs.map(d => ({ ...d.data(), id: d.id })); renderAll(); }));
-            unsubscribes.push(onSnapshot(collections.datosConteo, s => { datosConteo = s.docs.map(d => ({ ...d.data(), id: d.id })); renderAll(); renderLastCounted(); }));
+            unsubscribes.push(onSnapshot(collections.datosConteo, s => { datosConteo = s.docs.map(d => ({ ...d.data(), id: d.id })); renderAll(); }));
             unsubscribes.push(onSnapshot(collections.auditLog, s => { auditLog = s.docs.map(d => ({ ...d.data(), id: d.id })); renderAdminLog(); }));
         }
         
-        // --- LÓGICA DE RENDERIZADO ---
         function renderAll() {
             const data = getDashboardData();
             renderDashboard(data);
+            renderLastMovements();
         }
 
         function getDashboardData() {
@@ -301,80 +308,60 @@
                 const sku = normalizarSku(producto.sku);
                 const stockTeoricoInicial = Number(producto.stock) || 0;
 
-                // Obtener todos los eventos para este SKU
                 const ventasFiltradas = datosVentas.filter(v => normalizarSku(v.sku) === sku);
                 const conteosFiltrados = datosConteo.filter(c => normalizarSku(c.sku) === sku);
 
-                // Encontrar el timestamp del último conteo físico
                 const conteosManuales = conteosFiltrados.filter(c => c.tipo === 'conteo');
-                const ultimoConteo = conteosManuales[0]; // Ya están ordenados por fecha desc
+                const ultimoConteo = conteosManuales[0];
                 const horaConteo = ultimoConteo?.timestamp;
-
-                // Calcular el total contado físicamente (C)
                 const fisicoContado = conteosManuales.reduce((sum, item) => sum + item.cantidad, 0);
 
-                // Inicializar variables
-                let stockFinal = 0; // A
-                let diferenciaConteo = 'N/A'; // B
-                let totalVendido = ventasFiltradas.reduce((s, v) => s + v.cantidad, 0); // E (total)
+                let stockFinal = 0;
+                let diferenciaConteo = 'N/A';
+                let totalVendido = ventasFiltradas.reduce((s, v) => s + v.cantidad, 0);
                 let fechaUltimaRepo = null;
                 let contador = 'N/A';
 
                 if (horaConteo) {
-                    // Escenario: Se ha realizado al menos un conteo físico.
                     contador = ultimoConteo.contador;
-
-                    // Separar eventos antes y después del último conteo
                     const ventasPostConteo = ventasFiltradas.filter(v => v.timestamp.toDate() > horaConteo.toDate());
-                    const reposPostConteo = conteosFiltrados.filter(c => (c.tipo === 'reposicion' || c.tipo === 'anulacion') && c.timestamp.toDate() > horaConteo.toDate());
+                    const reposYAnulPostConteo = conteosFiltrados.filter(c => (c.tipo === 'reposicion' || c.tipo === 'anulacion') && c.timestamp.toDate() > horaConteo.toDate());
                     
                     const ventasPreConteo = ventasFiltradas.filter(v => v.timestamp.toDate() <= horaConteo.toDate());
-                    const reposPreConteo = conteosFiltrados.filter(c => (c.tipo === 'reposicion' || c.tipo === 'anulacion') && c.timestamp.toDate() <= horaConteo.toDate());
+                    const reposYAnulPreConteo = conteosFiltrados.filter(c => (c.tipo === 'reposicion' || c.tipo === 'anulacion') && c.timestamp.toDate() <= horaConteo.toDate());
 
                     const totalVentasPostConteo = ventasPostConteo.reduce((s, v) => s + v.cantidad, 0);
-                    const totalReposPostConteo = reposPostConteo.reduce((s, r) => s + r.cantidad, 0);
+                    const totalReposYAnulPostConteo = reposYAnulPostConteo.reduce((s, r) => s + r.cantidad, 0);
                     
                     const totalVentasPreConteo = ventasPreConteo.reduce((s, v) => s + v.cantidad, 0);
-                    const totalReposPreConteo = reposPreConteo.reduce((s, r) => s + r.cantidad, 0);
+                    const totalReposYAnulPreConteo = reposYAnulPreConteo.reduce((s, r) => s + r.cantidad, 0);
                     
-                    // Calcular Stock Final (A)
-                    // Parte del conteo físico y aplica movimientos posteriores.
-                    stockFinal = fisicoContado + totalReposPostConteo - totalVentasPostConteo;
+                    stockFinal = fisicoContado + totalReposYAnulPostConteo - totalVentasPostConteo;
                     
-                    // Calcular Diferencia (B)
-                    // Es el físico contado vs. lo que teóricamente debería haber en ese momento.
-                    const stockTeoricoAlMomentoDelConteo = stockTeoricoInicial + totalReposPreConteo - totalVentasPreConteo;
+                    const stockTeoricoAlMomentoDelConteo = stockTeoricoInicial + totalReposYAnulPreConteo - totalVentasPreConteo;
                     diferenciaConteo = fisicoContado - stockTeoricoAlMomentoDelConteo;
 
-                    // Encontrar la fecha de la última reposición
-                    const allRepos = [...reposPreConteo, ...reposPostConteo].sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate());
+                    const allRepos = [...reposYAnulPreConteo, ...reposYAnulPostConteo].sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate());
                     fechaUltimaRepo = allRepos[0]?.timestamp;
 
                 } else {
-                    // Escenario: Aún no se ha realizado ningún conteo físico.
-                    const totalReposiciones = conteosFiltrados
+                    const totalReposicionesYAnulaciones = conteosFiltrados
                         .filter(c => c.tipo === 'reposicion' || c.tipo === 'anulacion')
                         .reduce((sum, item) => sum + item.cantidad, 0);
                     
-                    // Stock Final (A) es simplemente teórico +/- todos los movimientos.
-                    stockFinal = stockTeoricoInicial + totalReposiciones - totalVendido;
-                    
-                    // No se puede calcular la diferencia.
+                    stockFinal = stockTeoricoInicial + totalReposicionesYAnulaciones - totalVendido;
                     diferenciaConteo = 'N/A';
                     
-                    // Encontrar la fecha de la última reposición
-                    const allRepos = conteosFiltrados.filter(c => c.tipo === 'reposicion' || c.tipo === 'anulacion'); // Ya están ordenados
+                    const allRepos = conteosFiltrados.filter(c => c.tipo === 'reposicion' || c.tipo === 'anulacion');
                     fechaUltimaRepo = allRepos[0]?.timestamp;
                 }
 
-                // Determinar estado y prioridad
                 let estadoCalculado, prioridad;
                 if (!horaConteo) { estadoCalculado = 'Pendiente'; prioridad = 3; } 
                 else if (diferenciaConteo === 0) { estadoCalculado = 'Cuadrado'; prioridad = 4; }
                 else if (diferenciaConteo > 0) { estadoCalculado = 'Sobrante'; prioridad = 2; }
                 else { estadoCalculado = 'Faltante'; prioridad = 1; }
 
-                // Devolver el objeto final para la fila
                 return { 
                     ...producto, 
                     stockTeorico: stockTeoricoInicial, 
@@ -383,7 +370,7 @@
                     horaConteo, 
                     fechaIngresoTeorico: producto.fechaIngreso, 
                     fechaUltimaRepo,
-                    horaVenta: ventasFiltradas[0]?.timestamp, // Ya están ordenados
+                    horaVenta: ventasFiltradas[0]?.timestamp,
                     diferenciaConteo, 
                     stockFinal, 
                     estadoCalculado, 
@@ -428,19 +415,25 @@
             }).join('');
         }
 
-        function renderLastCounted() {
-            const conteosRecientes = datosConteo
-                .filter(c => c.tipo === 'conteo')
+        function renderLastMovements() {
+            const ventasConTipo = datosVentas.map(v => ({...v, tipoMov: 'Venta', responsable: v.vendedor}));
+            const conteosConTipo = datosConteo.map(c => ({...c, tipoMov: c.tipo.charAt(0).toUpperCase() + c.tipo.slice(1), responsable: c.responsable || c.contador}));
+
+            const allMovements = [...ventasConTipo, ...conteosConTipo]
+                .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
                 .slice(0, 10);
-            lastCountedBody.innerHTML = conteosRecientes.map(c => `
+            
+            lastMovementsBody.innerHTML = allMovements.map(m => `
                 <tr>
-                    <td class="table-cell font-semibold">${c.sku}</td>
-                    <td class="table-cell">${c.cantidad}</td>
-                    <td class="table-cell">${c.contador}</td>
-                    <td class="table-cell">${formatDate(c.timestamp)}</td>
+                    <td class="table-cell">${m.tipoMov}</td>
+                    <td class="table-cell font-semibold">${m.sku}</td>
+                    <td class="table-cell">${m.cantidad}</td>
+                    <td class="table-cell">${m.responsable}</td>
+                    <td class="table-cell">${formatDate(m.timestamp)}</td>
                 </tr>
             `).join('');
         }
+
 
         function renderAdminLog() {
             let filteredLog = auditLog;
@@ -465,7 +458,6 @@
             `).join('');
         }
         
-        // --- LÓGICA DE MANEJO DE DATOS ---
         async function logAction(type, sku, quantity, responsable, details = '') {
             const auditLogCol = collection(db, `businesses/${BUSINESS_ID}/auditLog`);
             await addDoc(auditLogCol, {
@@ -500,7 +492,6 @@
                 const data = rows.map(row => {
                     const parts = row.split(delimiter);
                     if (parts.length < 2) {
-                        console.warn(`Fila omitida (pocas columnas): ${row}`);
                         return null;
                     }
                     
@@ -508,19 +499,18 @@
                     const stock = Number(parts[1].trim());
 
                     if (sku.toLowerCase() === 'sku' || sku.toLowerCase() === 'código' || sku.includes('SISTEMA')) {
-                        return null; // Skip header or invalid rows
+                        return null;
                     }
 
                     if (!sku || isNaN(stock)) {
-                        console.warn(`Fila omitida por formato inválido: ${row}`);
                         return null;
                     }
                     return { sku, stock };
                 }).filter(item => item !== null);
 
                 if (data.length === 0) {
-                     showToast("No se encontraron datos válidos en el CSV.", true);
-                     return;
+                        showToast("No se encontraron datos válidos en el CSV.", true);
+                        return;
                 }
                 onData(data);
             };
@@ -547,7 +537,6 @@
                 const sanitizedId = sanitizeForFirestoreId(originalSku);
 
                 if (!sanitizedId || sanitizedId.length === 0) {
-                    console.warn(`SKU inválido omitido: ${originalSku}`);
                     return;
                 }
 
@@ -599,25 +588,16 @@
                 showToast("No hay datos para descargar.", true);
                 return;
             }
-            const headers = "Prioridad,SKU,Estado,Stock Final,Diferencia Conteo,Fisico Contado,Stock Teórico,Total Vendido,Contado Por,Fecha Ingreso Teórico,Fecha Última Reposición,Fecha Conteo,Fecha Venta";
-            const csvContent = "data:text/csv;charset=utf-8," 
-                + headers + "\n"
-                + data.map(item => [
-                    item.prioridad,
-                    item.sku,
-                    item.estadoCalculado,
-                    item.stockFinal,
-                    item.diferenciaConteo,
-                    item.fisicoContado,
-                    item.stockTeorico,
-                    item.totalVendido,
-                    (item.contador || '').replace(/,/g, ''),
-                    formatDate(item.fechaIngresoTeorico),
-                    formatDate(item.fechaUltimaRepo),
-                    formatDate(item.horaConteo),
-                    formatDate(item.horaVenta)
-                ].join(',')).join('\n');
-            
+            const headers = [ "Prioridad", "SKU", "Estado", "Stock Final", "Dif. Conteo", "Físico Contado", "Stock Teórico", "Total Vendido", "Contado por", "Fecha Ing. Teórico", "Fecha Últ. Repo.", "Fecha Conteo", "Fecha Venta" ].join(';');
+            const csvRows = data.map(item => {
+                return [
+                    item.prioridad, item.sku, item.estadoCalculado, item.stockFinal, item.diferenciaConteo,
+                    item.fisicoContado, item.stockTeorico, item.totalVendido, item.contador || 'N/A',
+                    formatDate(item.fechaIngresoTeorico), formatDate(item.fechaUltimaRepo),
+                    formatDate(item.horaConteo), formatDate(item.horaVenta)
+                ].join(';');
+            });
+            const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + csvRows.join('\n');
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -628,7 +608,6 @@
             showToast("Descarga iniciada.", false);
         }
 
-        // --- MANEJADORES DE EVENTOS ---
         btnGuardarContador.addEventListener('click', () => {
             const nombre = contadorNombreInput.value.trim();
             if (nombre) {
@@ -643,7 +622,7 @@
 
         csvFileInput.addEventListener('change', (e) => {
             procesarStockCSV(e.target.files[0], handleInitialStockUpload);
-            e.target.value = ''; // Reset input
+            e.target.value = '';
         });
 
         formReposicionCsv.addEventListener('submit', (e) => {
@@ -767,16 +746,15 @@
             }
             showPasswordModal(async () => {
                 try {
-                    const datosConteoCol = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
-                    await addDoc(datosConteoCol, {
+                    const datosVentasCol = collection(db, `businesses/${BUSINESS_ID}/datosVentas`);
+                    await addDoc(datosVentasCol, {
                         sku,
-                        cantidad, // Positivo porque anula una venta
-                        tipo: 'anulacion',
-                        responsable: adminName,
+                        cantidad: -cantidad,
+                        vendedor: `Anulado por ${adminName}`,
                         timestamp: serverTimestamp()
                     });
-                    await logAction('Anulación Venta', sku, cantidad, adminName);
-                    showToast("Venta anulada con éxito (stock devuelto).", false);
+                    await logAction('Anulación Venta', sku, -cantidad, adminName);
+                    showToast("Venta anulada con éxito (se descontó del total vendido).", false);
                     formAnulacion.reset();
                 } catch (error) {
                     showToast("Error al anular la venta.", true);
@@ -793,14 +771,31 @@
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             signInWithEmailAndPassword(auth, email, password)
-                .catch(error => showToast(`Error: ${error.message}`, true));
+                .catch(error => showToast(`Error al iniciar sesión: ${error.code}`, true));
         });
 
         document.getElementById('btn-register').addEventListener('click', () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
+            if (!email || !password) {
+                showToast("Email y contraseña son requeridos.", true);
+                return;
+            }
             createUserWithEmailAndPassword(auth, email, password)
-                .catch(error => showToast(`Error: ${error.message}`, true));
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const userDocRef = doc(db, "users", user.uid);
+                    return setDoc(userDocRef, {
+                        email: user.email,
+                        businessId: BUSINESS_ID
+                    });
+                })
+                .then(() => {
+                    showToast("Usuario registrado con éxito.", false);
+                })
+                .catch(error => {
+                    showToast(`Error en el registro: ${error.code}`, true);
+                });
         });
 
         document.getElementById('btn-descargar-csv').addEventListener('click', downloadCSV);
