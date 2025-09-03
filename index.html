@@ -37,16 +37,6 @@
     </div>
   </div>
 
-  <div id="scanner-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="scanner-title" aria-describedby="scanner-desc">
-    <div class="modal-content max-w-md">
-      <span id="scanner-close" class="close-button" role="button" tabindex="0" aria-label="Cerrar escáner">&times;</span>
-      <h2 id="scanner-title" class="text-xl font-semibold mb-4">Escanear SKU</h2>
-      <div id="scanner-desc" class="mb-4">Apunte la cámara al código de barras o QR.</div>
-      <div id="qr-reader" class="w-full h-64"></div>
-      <button id="manual-entry-btn" class="mt-4 w-full font-medium py-2 px-4 rounded-md transition-colors duration-200 ease-in-out bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">Ingresar Manualmente</button>
-    </div>
-  </div>
-
   <main class="flex-grow max-w-screen-2xl mx-auto w-full">
     <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
       <h1 class="text-3xl font-bold text-gray-800">Sasi Alfa Store HL - Enterprise</h1>
@@ -84,12 +74,8 @@
         <form id="form-count-sku" class="flex flex-col sm:flex-row gap-4 items-center">
           <div class="flex-grow">
             <label for="count-sku" class="sr-only">SKU</label>
-            <input type="text" id="count-sku" class="w-full block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring" placeholder="SKU" readonly aria-describedby="count-sku-desc" required />
-            <p id="count-sku-desc" class="text-xs text-gray-500 mt-1">Use el escáner o ingrese manualmente.</p>
+            <input type="text" id="count-sku" class="w-full block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring" placeholder="Ingresar SKU manualmente" required />
           </div>
-          <button type="button" id="btn-scan-sku" class="font-medium py-2 px-4 rounded-md transition-colors duration-200 ease-in-out bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-            <i class="fa-solid fa-camera"></i> Escanear SKU
-          </button>
           <input type="number" id="count-quantity" class="w-24 block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none focus:ring" placeholder="Cantidad" min="1" required />
           <button type="submit" class="font-medium py-2 px-4 rounded-md transition-colors duration-200 ease-in-out bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fa-solid fa-plus"></i> Añadir Conteo</button>
         </form>
@@ -137,9 +123,6 @@
   <footer class="text-center p-4 text-gray-500 text-sm mt-auto">By Mor - Enterprise Edition</footer>
 
   <script type="module">
-    // ESTA ES LA CORRECCIÓN FINAL
-    import Html5Qrcode from "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js";
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, getIdTokenResult } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, query, where, getDocs, getDoc, addDoc, updateDoc, arrayUnion, serverTimestamp, onSnapshot, runTransaction, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -175,12 +158,7 @@
     const formCountSku = document.getElementById('form-count-sku');
     const inputCountSku = document.getElementById('count-sku');
     const inputCountQuantity = document.getElementById('count-quantity');
-    const btnScanSku = document.getElementById('btn-scan-sku');
     const sessionCountsBody = document.getElementById('session-counts-body');
-    const scannerModal = document.getElementById('scanner-modal');
-    const qrReaderDiv = document.getElementById('qr-reader');
-    const scannerClose = document.getElementById('scanner-close');
-    const manualEntryBtn = document.getElementById('manual-entry-btn');
     const submitBtn = formCountSku.querySelector('button[type="submit"]');
 
     // Estado
@@ -239,11 +217,8 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         const modal = document.getElementById('modal');
-        const scannerModal = document.getElementById('scanner-modal');
         if (modal.style.display === 'flex') {
           showConfirmationModal('Cancelar', '¿Desea cancelar la operación?', () => {}, () => {});
-        } else if (scannerModal.style.display === 'flex') {
-          document.getElementById('scanner-close').click();
         }
       }
     });
@@ -373,7 +348,7 @@
         inputCountQuantity.value = '';
         submitBtn.textContent = 'Añadir Conteo';
         delete submitBtn.dataset.editing;
-        inputCountSku.readOnly = true;
+        inputCountSku.readOnly = false;
         sessionCountsBody.innerHTML = '';
         if (unsubscribeCounts) {
           unsubscribeCounts();
@@ -449,7 +424,7 @@
         inputCountQuantity.value = '';
         submitBtn.textContent = 'Añadir Conteo';
         delete submitBtn.dataset.editing;
-        inputCountSku.readOnly = true;
+        inputCountSku.readOnly = false;
       } catch (error) {
         showToast('Error al cargar sesión activa.', true);
       }
@@ -558,7 +533,6 @@
           showToast('Conteo actualizado con éxito.', false);
           submitBtn.textContent = 'Añadir Conteo';
           delete submitBtn.dataset.editing;
-          inputCountSku.readOnly = true;
           inputCountSku.value = '';
           inputCountQuantity.value = '';
         } else {
@@ -576,7 +550,6 @@
                   showToast('Conteo sobrescrito con éxito.', false);
                   inputCountSku.value = '';
                   inputCountQuantity.value = '';
-                  inputCountSku.readOnly = true;
                 } catch (error) {
                   showToast(`Error al sobrescribir conteo: ${error.message}`, true);
                 } finally {
@@ -590,7 +563,6 @@
                   showToast('Cantidad añadida con éxito.', false);
                   inputCountSku.value = '';
                   inputCountQuantity.value = '';
-                  inputCountSku.readOnly = true;
                 } catch (error) {
                   showToast(`Error al añadir cantidad: ${error.message}`, true);
                 } finally {
@@ -603,7 +575,6 @@
             showToast('Conteo añadido con éxito.', false);
             inputCountSku.value = '';
             inputCountQuantity.value = '';
-            inputCountSku.readOnly = true;
           }
         }
       } catch (error) {
@@ -615,7 +586,8 @@
 
     async function startEditCount(sku) {
       if (!currentSession) return;
-      toggleButtonState(submitBtn, true, 'Guardar Cambios');
+      const originalText = submitBtn.textContent;
+      toggleButtonState(submitBtn, true, originalText);
       const countDocRef = doc(db, `sessions/${currentSession.id}/counts`, sku);
       try {
         const countDocSnap = await getDoc(countDocRef);
@@ -626,7 +598,7 @@
         const data = countDocSnap.data();
         inputCountSku.value = data.sku;
         inputCountQuantity.value = data.quantity;
-        inputCountSku.readOnly = true;
+        inputCountSku.readOnly = false;
         inputCountQuantity.focus();
         submitBtn.textContent = 'Guardar Cambios';
         submitBtn.dataset.editing = sku;
@@ -652,38 +624,6 @@
         () => {}
       );
     }
-
-    btnScanSku.addEventListener('click', () => {
-      scannerModal.style.display = 'flex';
-      const html5QrCode = new Html5Qrcode("qr-reader");
-
-      function stopScanner() {
-        html5QrCode.stop().catch(() => {}).finally(() => {
-          qrReaderDiv.innerHTML = '';
-          scannerModal.style.display = 'none';
-        });
-      }
-
-      scannerClose.onclick = () => stopScanner();
-      manualEntryBtn.onclick = () => {
-        stopScanner();
-        inputCountSku.readOnly = false;
-        inputCountSku.focus();
-      };
-
-      html5QrCode.start(
-        { facingMode: "environment" }, { fps: 10, qrbox: 250 },
-        (decodedText) => {
-          inputCountSku.value = decodedText.toUpperCase();
-          inputCountSku.readOnly = true;
-          stopScanner();
-        },
-        () => {}
-      ).catch(err => {
-        showToast('Error al iniciar el escáner: ' + err, true);
-        scannerModal.style.display = 'none';
-      });
-    });
   </script>
 </body>
 </html>
