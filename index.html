@@ -334,13 +334,13 @@
             }));
 
             // Suscribirse a los datos de ventas
-            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), (snapshot) => {
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), (snapshot) => {
                 salesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderDashboard();
             }));
 
             // Suscribirse a los datos de conteo
-            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/datosConteo`), (snapshot) => {
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), (snapshot) => {
                 countData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderDashboard();
             }));
@@ -621,7 +621,7 @@
 
             toggleButton(submitButton, false);
             try {
-                await addDoc(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), {
+                await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), {
                     sku,
                     quantity,
                     timestamp: serverTimestamp()
@@ -629,6 +629,7 @@
                 await logAction('Venta', sku, quantity, 'N/A', `Vendido ${quantity} unidades.`);
                 showToast("Venta registrada con éxito.", false);
                 formSales.reset();
+                salesSkuInput.focus();
             } catch (error) {
                 showToast("Error al registrar venta.", true);
                 console.error(error);
@@ -665,10 +666,13 @@
                 quantityInput.classList.remove('invalid');
             }
 
+            const originalButtonText = submitButton.textContent;
             toggleButton(submitButton, false);
+            submitButton.textContent = 'Añadiendo...';
+            showToast("Aún no se ha guardado el producto, espera un momento.", false);
 
             try {
-                const countColRef = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
+                const countColRef = collection(db, `businesses/${BUSINESS_ID}/countData`);
                 const q = query(countColRef, where("sku", "==", sku), where("type", "==", "conteo"));
                 
                 await runTransaction(db, async (transaction) => {
@@ -704,6 +708,7 @@
                 console.error("Error en transacción de conteo:", error);
             } finally {
                 toggleButton(submitButton, true);
+                submitButton.textContent = originalButtonText;
             }
         });
         
@@ -768,7 +773,7 @@
 
             showModal(`¿Confirma la corrección de stock físico para SKU ${sku} a ${quantity}? Esta acción es irreversible.`, true, async () => {
                 try {
-                    const countColRef = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
+                    const countColRef = collection(db, `businesses/${BUSINESS_ID}/countData`);
                     const q = query(countColRef, where("sku", "==", sku), where("type", "==", "conteo"));
                     const countSnapshot = await getDocs(q);
                     
@@ -815,7 +820,7 @@
 
             showModal(`¿Confirma la anulación de ${quantity} unidades del SKU ${sku}?`, true, async () => {
                 try {
-                    await addDoc(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), {
+                    await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), {
                         sku,
                         quantity: -quantity,
                         type: 'anulacion',
@@ -872,7 +877,7 @@
 
                 showModal(`¿Confirma la reposición de ${dataToUpload.length} items? Se omitieron ${skusWithErrorsCount} líneas con errores.`, true, async () => {
                     const batch = writeBatch(db);
-                    const salesColRef = collection(db, `businesses/${BUSINESS_ID}/datosVentas`);
+                    const salesColRef = collection(db, `businesses/${BUSINESS_ID}/salesData`);
                     
                     dataToUpload.forEach(item => {
                         const newDocRef = doc(salesColRef);
@@ -939,19 +944,26 @@
         }
 
         btnClearLog.addEventListener('click', () => {
-            showModal('¿Está seguro de que desea limpiar todo el Log de Auditoría? Esta acción es irreversible.', true, async () => {
-                try {
-                    const logsColRef = collection(db, `businesses/${BUSINESS_ID}/auditLog`);
-                    const logsSnapshot = await getDocs(logsColRef);
-                    const batch = writeBatch(db);
-                    logsSnapshot.forEach(doc => {
-                        batch.delete(doc.ref);
-                    });
-                    await batch.commit();
-                    showToast("Log de auditoría limpiado con éxito.", false);
-                } catch (error) {
-                    showToast("Error al limpiar el log.", true);
-                    console.error(error);
+            showModal('¿Está seguro de que desea limpiar todo el Log de Auditoría? Esta acción es irreversible.', true, () => {
+                const password = prompt("Para confirmar la eliminación, ingrese la contraseña de Administrador:");
+                if (password === ADMIN_PASSWORD) {
+                    (async () => {
+                        try {
+                            const logsColRef = collection(db, `businesses/${BUSINESS_ID}/auditLog`);
+                            const logsSnapshot = await getDocs(logsColRef);
+                            const batch = writeBatch(db);
+                            logsSnapshot.forEach(doc => {
+                                batch.delete(doc.ref);
+                            });
+                            await batch.commit();
+                            showToast("Log de auditoría limpiado con éxito.", false);
+                        } catch (error) {
+                            showToast("Error al limpiar el log.", true);
+                            console.error(error);
+                        }
+                    })();
+                } else if (password !== null) {
+                    showToast("Contraseña incorrecta. Operación cancelada.", true);
                 }
             });
         });
@@ -977,20 +989,27 @@
         });
         
         btnClearData.addEventListener('click', () => {
-            showModal('¡ATENCIÓN! ¿Está seguro de que desea eliminar TODO el stock, ventas y conteos de este espacio? Esta acción es irreversible.', true, async () => {
-                const collectionsToClear = ['stockTeorico', 'datosVentas', 'datosConteo', 'auditLog'];
-                try {
-                    for (const colName of collectionsToClear) {
-                        const colRef = collection(db, `businesses/${BUSINESS_ID}/${colName}`);
-                        const docs = await getDocs(colRef);
-                        const batch = writeBatch(db);
-                        docs.forEach(doc => batch.delete(doc.ref));
-                        await batch.commit();
-                    }
-                    showToast("Todos los datos del negocio han sido eliminados.", false);
-                } catch (error) {
-                    showToast("Error al limpiar los datos.", true);
-                    console.error("Error al limpiar datos del negocio:", error);
+            showModal('¡ATENCIÓN! ¿Desea eliminar todos los datos operativos (stock, ventas, conteos)? El Log de Auditoría NO se borrará. Esta acción es irreversible.', true, () => {
+                const password = prompt("Para confirmar la eliminación, ingrese la contraseña de Administrador:");
+                if (password === ADMIN_PASSWORD) {
+                    (async () => {
+                        const collectionsToClear = ['stockTeorico', 'salesData', 'countData'];
+                        try {
+                            for (const colName of collectionsToClear) {
+                                const colRef = collection(db, `businesses/${BUSINESS_ID}/${colName}`);
+                                const docs = await getDocs(colRef);
+                                const batch = writeBatch(db);
+                                docs.forEach(doc => batch.delete(doc.ref));
+                                await batch.commit();
+                            }
+                            showToast("Todos los datos del negocio han sido eliminados.", false);
+                        } catch (error) {
+                            showToast("Error al limpiar los datos.", true);
+                            console.error("Error al limpiar datos del negocio:", error);
+                        }
+                    })();
+                } else if (password !== null) {
+                    showToast("Contraseña incorrecta. Operación cancelada.", true);
                 }
             });
         });
