@@ -328,7 +328,7 @@
             if (!BUSINESS_ID) return;
             
             // Suscribirse al stock teórico (catálogo)
-            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/stockTeorico`), (snapshot) => {
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), (snapshot) => {
                 theoreticalStock = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderDashboard();
             }));
@@ -545,9 +545,10 @@
                 
                 const skusWithErrors = [];
                 const dataToUpload = lines.map((line, index) => {
-                    const cols = line.split(',');
+                    const cols = line.split(';');
                     const sku = cols[0]?.trim()?.toUpperCase();
-                    const stock = parseInt(cols[1]);
+                    // Reemplaza la coma con un punto para el parseo
+                    const stock = parseInt(cols[1]?.replace(',', '.'));
 
                     if (!validateSku(sku) || isNaN(stock)) {
                         skusWithErrors.push({ sku: sku || 'N/A', line: index + 1 });
@@ -556,12 +557,6 @@
                     return { sku, stock };
                 }).filter(item => item !== null);
 
-                if (dataToUpload.length === 0) {
-                    showToast("Archivo CSV vacío o con formato incorrecto. Ningún producto cargado.", true);
-                    e.target.value = '';
-                    return;
-                }
-
                 let message = `¿Confirma la carga de ${dataToUpload.length} productos? Esto reemplazará el catálogo teórico actual.`;
                 if (skusWithErrors.length > 0) {
                     message += ` Se omitieron ${skusWithErrors.length} productos con errores.`;
@@ -569,7 +564,7 @@
 
                 showModal(message, true, async () => {
                     const batch = writeBatch(db);
-                    const stockTeoricoColRef = collection(db, `businesses/${BUSINESS_ID}/stockTeorico`);
+                    const stockTeoricoColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
                     
                     const oldDocs = await getDocs(stockTeoricoColRef);
                     oldDocs.forEach(doc => batch.delete(doc.ref));
@@ -857,9 +852,9 @@
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
                 
                 const dataToUpload = lines.map((line, index) => {
-                    const cols = line.split(',');
+                    const cols = line.split(';');
                     const sku = cols[0]?.trim()?.toUpperCase();
-                    const quantity = parseInt(cols[1]);
+                    const quantity = parseInt(cols[1]?.replace(',', '.'));
 
                     if (!validateSku(sku) || isNaN(quantity) || quantity <= 0) {
                         return null;
@@ -870,7 +865,7 @@
                 const skusWithErrorsCount = lines.length - dataToUpload.length;
 
                 if (dataToUpload.length === 0) {
-                    showToast("Archivo CSV vacío o con formato incorrecto. Formato: SKU, Cantidad. Ningún producto cargado.", true);
+                    showToast("Archivo CSV vacío o con formato incorrecto. Formato: SKU;Cantidad. Ningún producto cargado.", true);
                     toggleButton(submitButton, true);
                     return;
                 }
@@ -912,11 +907,17 @@
 
         // Log de Auditoría
         btnOpenAdminLog.addEventListener('click', async () => {
-            adminLogModal.style.display = 'flex';
-            const allLogsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
-            const logsSnapshot = await getDocs(allLogsQuery);
-            const allLogs = logsSnapshot.docs.map(doc => doc.data());
-            renderAdminLog(allLogs);
+            const password = prompt("Ingrese la contraseña para ver el log de auditoría:");
+            if (password === LOG_PASSWORD) {
+                adminLogModal.style.display = 'flex';
+                const allLogsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
+                getDocs(allLogsQuery).then(logsSnapshot => {
+                    const allLogs = logsSnapshot.docs.map(doc => doc.data());
+                    renderAdminLog(allLogs);
+                });
+            } else if (password !== null) {
+                showToast("Contraseña incorrecta.", true);
+            }
         });
 
         closeAdminLogBtn.addEventListener('click', () => {
@@ -993,7 +994,7 @@
                 const password = prompt("Para confirmar la eliminación, ingrese la contraseña de Administrador:");
                 if (password === ADMIN_PASSWORD) {
                     (async () => {
-                        const collectionsToClear = ['stockTeorico', 'salesData', 'countData'];
+                        const collectionsToClear = ['theoreticalStock', 'salesData', 'countData'];
                         try {
                             for (const colName of collectionsToClear) {
                                 const colRef = collection(db, `businesses/${BUSINESS_ID}/${colName}`);
@@ -1044,7 +1045,6 @@
         
         // Llamada inicial para configurar la validación de los inputs
         setupSkuInputValidation();
-
     </script>
 </body>
 </html>
