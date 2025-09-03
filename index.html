@@ -137,11 +137,11 @@
   <footer class="text-center p-4 text-gray-500 text-sm mt-auto">By Mor - Enterprise Edition</footer>
 
   <script type="module">
+    import { Html5Qrcode } from "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.7/minified/html5-qrcode.min.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, getIdTokenResult } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, query, where, getDocs, getDoc, addDoc, updateDoc, arrayUnion, serverTimestamp, onSnapshot, runTransaction, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
-    import { Html5Qrcode } from "https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js";
 
     // Configuración Firebase
     const firebaseConfig = {
@@ -300,7 +300,7 @@
         callback(counts);
       });
     }
-    
+
     async function upsertCount(sessionId, sku, quantity, userUid, mode = 'add') {
       const countDocRef = doc(db, `sessions/${sessionId}/counts`, sku);
       await runTransaction(db, async (transaction) => {
