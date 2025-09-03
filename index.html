@@ -270,6 +270,17 @@
             }
             myModal.style.display = 'flex';
         }
+        
+        function downloadCsv(filename, data) {
+            const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
         function toggleButton(button, enable) {
             button.disabled = !enable;
@@ -533,7 +544,7 @@
             }
         });
         
-        // Cargar CSV (Stock Teórico)
+        // Cargar Catálogo (CSV)
         csvFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -548,10 +559,18 @@
                     const cols = line.split(';');
                     const sku = cols[0]?.trim()?.toUpperCase();
                     // Reemplaza la coma con un punto para el parseo
-                    const stock = parseInt(cols[1]?.replace(',', '.'));
+                    const stockString = cols[1]?.replace(',', '.');
+                    const stock = parseFloat(stockString);
 
                     if (!validateSku(sku) || isNaN(stock)) {
-                        skusWithErrors.push({ sku: sku || 'N/A', line: index + 1 });
+                        let errorMessage = '';
+                        if (!validateSku(sku)) {
+                            errorMessage += 'SKU inválido. ';
+                        }
+                        if (isNaN(stock)) {
+                            errorMessage += 'Stock no es un número. ';
+                        }
+                        skusWithErrors.push({ sku: sku || 'N/A', line: index + 1, error: errorMessage.trim(), originalLine: line });
                         return null;
                     }
                     return { sku, stock };
@@ -579,7 +598,33 @@
                     
                     try {
                         await batch.commit();
-                        showToast(`Catálogo cargado con éxito. Se cargaron ${dataToUpload.length} productos y se omitieron ${skusWithErrors.length}.`, false);
+                        let successMessage = `Catálogo cargado con éxito. Se cargaron ${dataToUpload.length} productos.`;
+                        if (skusWithErrors.length > 0) {
+                            successMessage += ` Se omitieron ${skusWithErrors.length} productos con errores.`;
+
+                            const errorCsvHeader = ['SKU', 'Stock', 'Motivo del Error'];
+                            const errorCsvRows = skusWithErrors.map(errorItem => {
+                                const originalCols = errorItem.originalLine.split(';');
+                                return [
+                                    `"${originalCols[0]?.trim() || ''}"`,
+                                    `"${originalCols[1]?.trim() || ''}"`,
+                                    `"${errorItem.error}"`
+                                ];
+                            });
+
+                            const errorCsvContent = [
+                                errorCsvHeader.join(';'),
+                                ...errorCsvRows.map(row => row.join(';'))
+                            ].join('\n');
+
+                            downloadCsv(`errores_catalogo_${new Date().toISOString()}.csv`, errorCsvContent);
+
+                            showToast(successMessage + " Se ha descargado un archivo con los errores para que los puedas corregir.", false);
+
+                        } else {
+                            showToast(successMessage, false);
+                        }
+                        
                         await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail, `Cargado ${dataToUpload.length} items desde CSV.`);
                         e.target.value = '';
                     } catch (error) {
@@ -906,7 +951,7 @@
         });
 
         // Log de Auditoría
-        btnOpenAdminLog.addEventListener('click', async () => {
+        btnOpenAdminLog.addEventListener('click', () => {
             const password = prompt("Ingrese la contraseña para ver el log de auditoría:");
             if (password === LOG_PASSWORD) {
                 adminLogModal.style.display = 'flex';
