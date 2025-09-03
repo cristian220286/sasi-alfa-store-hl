@@ -185,54 +185,54 @@
         
         // --- CONSTANTES GLOBALES Y DE CONFIGURACIÓN ---
         let BUSINESS_ID = null; 
-        const getAdminPassword = () => '10234567';
-        const getLogPassword = () => 'P1CL3S';
+        const ADMIN_PASSWORD = '10234567';
+        const LOG_PASSWORD = 'P1CL3S';
 
         // --- ESTADO DE LA APLICACIÓN ---
-        let stockTeorico = [], datosVentas = [], datosConteo = [], auditLog = [];
+        let theoreticalStock = [], salesData = [], countData = [], auditLog = [];
         let userId = null, userEmail = null;
-        let nombreContador = 'N/A';
+        let counterName = 'N/A';
         let unsubscribes = [];
 
         // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
         const authSection = document.getElementById('auth-section');
         const appContent = document.getElementById('app-content');
         const userIdDisplay = document.getElementById('user-id-display');
-        const contadorDisplay = document.getElementById('contador-display');
+        const counterDisplay = document.getElementById('contador-display');
         const btnLogout = document.getElementById('btn-logout');
-        const btnLimpiarDatos = document.getElementById('btn-limpiar-datos');
+        const btnClearData = document.getElementById('btn-limpiar-datos');
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
         const authEmailInput = document.getElementById('auth-email');
         const authPasswordInput = document.getElementById('auth-password');
-        const contadorNombreInput = document.getElementById('contador-nombre');
-        const btnGuardarContador = document.getElementById('btn-guardar-contador');
+        const counterNameInput = document.getElementById('contador-nombre');
+        const btnSaveCounterName = document.getElementById('btn-guardar-contador');
         const csvFileInput = document.getElementById('csv-file-input');
         const repoCsvInput = document.getElementById('repo-csv-input');
-        const repoNombreAdminInput = document.getElementById('repo-nombre-admin');
-        const formVentas = document.getElementById('form-ventas');
-        const ventaSkuInput = document.getElementById('venta-sku');
-        const ventaCantidadInput = document.getElementById('venta-cantidad');
-        const formConteo = document.getElementById('form-conteo');
-        const conteoSkuInput = document.getElementById('conteo-sku');
-        const conteoCantidadInput = document.getElementById('conteo-cantidad');
-        const formCorreccionAdmin = document.getElementById('form-correccion-admin');
-        const correcSkuInput = document.getElementById('correc-sku');
-        const correcCantidadInput = document.getElementById('correc-cantidad');
-        const correcNombreAdminInput = document.getElementById('correc-nombre-admin');
-        const formAnulacion = document.getElementById('form-anulacion');
-        const anularSkuInput = document.getElementById('anular-sku');
-        const anularCantidadInput = document.getElementById('anular-cantidad');
-        const anularNombreAdminInput = document.getElementById('anular-nombre-admin');
+        const repoAdminNameInput = document.getElementById('repo-nombre-admin');
+        const formSales = document.getElementById('form-ventas');
+        const salesSkuInput = document.getElementById('venta-sku');
+        const salesQuantityInput = document.getElementById('venta-cantidad');
+        const formCount = document.getElementById('form-conteo');
+        const countSkuInput = document.getElementById('conteo-sku');
+        const countQuantityInput = document.getElementById('conteo-cantidad');
+        const formCorrectionAdmin = document.getElementById('form-correccion-admin');
+        const correctionSkuInput = document.getElementById('correc-sku');
+        const correctionQuantityInput = document.getElementById('correc-cantidad');
+        const correctionAdminNameInput = document.getElementById('correc-nombre-admin');
+        const formCancellation = document.getElementById('form-anulacion');
+        const cancellationSkuInput = document.getElementById('anular-sku');
+        const cancellationQuantityInput = document.getElementById('anular-cantidad');
+        const cancellationAdminNameInput = document.getElementById('anular-nombre-admin');
         const dashboardBody = document.getElementById('dashboard-body');
         const lastMovementsBody = document.getElementById('last-movements-body');
         const searchInput = document.getElementById('search-input');
-        const btnDescargarCsv = document.getElementById('btn-descargar-csv');
-        const btnAbrirLogAdmin = document.getElementById('btn-abrir-log-admin');
+        const btnDownloadCsv = document.getElementById('btn-descargar-csv');
+        const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
         const adminLogModal = document.getElementById('adminLogModal');
         const closeAdminLogBtn = document.getElementById('close-admin-log');
         const adminLogBody = document.getElementById('admin-log-body');
-        const btnLimpiarLog = document.getElementById('btn-limpiar-log');
+        const btnClearLog = document.getElementById('btn-limpiar-log');
         const logDatePicker = document.getElementById('log-date-picker');
         const myModal = document.getElementById('myModal');
         const modalMessage = document.getElementById('modal-message');
@@ -328,19 +328,19 @@
             
             // Suscribirse al stock teórico (catálogo)
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/stockTeorico`), (snapshot) => {
-                stockTeorico = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                theoreticalStock = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderDashboard();
             }));
 
             // Suscribirse a los datos de ventas
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), (snapshot) => {
-                datosVentas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                salesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderDashboard();
             }));
 
             // Suscribirse a los datos de conteo
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/datosConteo`), (snapshot) => {
-                datosConteo = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                countData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderDashboard();
             }));
 
@@ -357,15 +357,15 @@
             unsubscribes = [];
         }
         
-        async function logAction(tipo, sku, cantidad, responsable, detalle) {
+        async function logAction(type, sku, quantity, responsible, detail) {
             if (!BUSINESS_ID) return;
             const logCol = collection(db, `businesses/${BUSINESS_ID}/auditLog`);
             await addDoc(logCol, {
-                tipo,
+                type,
                 sku: sku.toUpperCase(),
-                cantidad,
-                responsable,
-                detalle,
+                quantity,
+                responsible,
+                detail,
                 timestamp: serverTimestamp()
             });
         }
@@ -374,65 +374,63 @@
         function getDashboardData() {
             const searchTerm = searchInput.value.trim().toUpperCase();
             
-            const conteoMap = new Map();
-            datosConteo.forEach(conteo => {
-                const sku = conteo.sku.toUpperCase().trim();
-                if (conteo.tipo === 'conteo') {
-                    conteoMap.set(sku, {
-                        fisicoContado: conteo.cantidad,
-                        contador: conteo.contador,
-                        fechaConteo: conteo.timestamp
+            const countMap = new Map();
+            countData.forEach(count => {
+                const sku = count.sku.toUpperCase().trim();
+                if (count.type === 'conteo') {
+                    countMap.set(sku, {
+                        physicalCounted: count.quantity,
+                        counter: count.counter,
+                        countDate: count.timestamp
                     });
                 }
             });
 
-            let dashboardData = stockTeorico.map(producto => {
-                const sku = producto.sku.toUpperCase().trim();
-                const stockTeoricoInicial = Number(producto.stock) || 0;
+            let dashboardData = theoreticalStock.map(product => {
+                const sku = product.sku.toUpperCase().trim();
+                const initialTheoreticalStock = Number(product.stock) || 0;
                 
-                const ventasFiltradas = datosVentas.filter(v => v.sku.toUpperCase().trim() === sku);
-                const totalVendido = ventasFiltradas.reduce((sum, venta) => sum + Number(venta.cantidad || 0), 0);
-                const ultimaVenta = ventasFiltradas.length > 0 ? ventasFiltradas.reduce((a, b) => a.timestamp > b.timestamp ? a : b) : null;
+                const filteredSales = salesData.filter(v => v.sku.toUpperCase().trim() === sku);
+                const totalSold = filteredSales.reduce((sum, sale) => sum + Number(sale.quantity || 0), 0);
+                const lastSale = filteredSales.length > 0 ? filteredSales.reduce((a, b) => a.timestamp > b.timestamp ? a : b) : null;
                 
-                const conteoData = conteoMap.get(sku) || {};
-                const fisicoContado = conteoData.fisicoContado || 0;
-                const contador = conteoData.contador || 'N/A';
-                const fechaConteo = conteoData.fechaConteo || null;
+                const countDataForSku = countMap.get(sku) || {};
+                const physicalCounted = countDataForSku.physicalCounted || 0;
+                const counter = countDataForSku.counter || 'N/A';
+                const countDate = countDataForSku.countDate || null;
                 
-                const stockFinal = stockTeoricoInicial - totalVendido;
-                const diferenciaConteo = fisicoContado - stockFinal;
+                const currentTheoreticalStock = initialTheoreticalStock - totalSold;
+                const countDifference = physicalCounted - currentTheoreticalStock;
 
-                let estadoCalculado, prioridad;
-                if (diferenciaConteo === 0 && fechaConteo) { estadoCalculado = 'Cuadrado'; prioridad = 4; }
-                else if (diferenciaConteo > 0 && fechaConteo) { estadoCalculado = 'Sobrante'; prioridad = 2; }
-                else if (diferenciaConteo < 0 && fechaConteo) { estadoCalculado = 'Faltante'; prioridad = 1; }
-                else { estadoCalculado = 'Pendiente'; prioridad = 3; }
+                let calculatedStatus, priority;
+                if (countDifference === 0 && countDate) { calculatedStatus = 'Cuadrado'; priority = 4; }
+                else if (countDifference > 0 && countDate) { calculatedStatus = 'Sobrante'; priority = 2; }
+                else if (countDifference < 0 && countDate) { calculatedStatus = 'Faltante'; priority = 1; }
+                else { calculatedStatus = 'Pendiente'; priority = 3; }
                 
                 return {
                     sku,
-                    stockFinal,
-                    diferenciaConteo,
-                    fisicoContado,
-                    stockTeoricoInicial,
-                    totalVendido,
-                    contador,
-                    fechaConteo,
-                    fechaVenta: ultimaVenta?.timestamp || null,
-                    fechaTeorico: producto.timestamp,
-                    estado: estadoCalculado,
-                    prioridad
+                    currentTheoreticalStock,
+                    countDifference,
+                    physicalCounted,
+                    initialTheoreticalStock,
+                    totalSold,
+                    counter,
+                    countDate,
+                    saleDate: lastSale?.timestamp || null,
+                    theoreticalDate: product.timestamp,
+                    status: calculatedStatus,
+                    priority
                 };
             });
             
-            // Filtrado por búsqueda
             if (searchTerm) {
                 dashboardData = dashboardData.filter(item => item.sku.includes(searchTerm));
             }
 
-            // Ordenar por prioridad, luego por SKU
             return dashboardData.sort((a, b) => {
-                if (a.prioridad !== b.prioridad) {
-                    return a.prioridad - b.prioridad;
+                if (a.priority !== b.priority) {
+                    return a.priority - b.priority;
                 }
                 return a.sku.localeCompare(b.sku);
             });
@@ -446,22 +444,22 @@
                 return;
             }
             data.forEach(item => {
-                const badgeClass = `badge badge-${item.estado.toLowerCase()}`;
+                const badgeClass = `badge badge-${item.status.toLowerCase()}`;
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="table-cell">${item.prioridad}</td>
+                    <td class="table-cell">${item.priority}</td>
                     <td class="table-cell font-semibold">${item.sku}</td>
-                    <td class="table-cell"><span class="${badgeClass}">${item.estado}</span></td>
-                    <td class="table-cell text-right">${item.stockFinal}</td>
-                    <td class="table-cell text-right">${item.diferenciaConteo}</td>
-                    <td class="table-cell text-right">${item.fisicoContado}</td>
-                    <td class="table-cell text-right">${item.stockTeoricoInicial}</td>
-                    <td class="table-cell text-right">${item.totalVendido}</td>
-                    <td class="table-cell">${item.contador}</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.fechaTeorico)}</td>
+                    <td class="table-cell"><span class="${badgeClass}">${item.status}</span></td>
+                    <td class="table-cell text-right">${item.currentTheoreticalStock}</td>
+                    <td class="table-cell text-right">${item.countDifference}</td>
+                    <td class="table-cell text-right">${item.physicalCounted}</td>
+                    <td class="table-cell text-right">${item.initialTheoreticalStock}</td>
+                    <td class="table-cell text-right">${item.totalSold}</td>
+                    <td class="table-cell">${item.counter}</td>
+                    <td class="table-cell">${formatFirebaseTimestamp(item.theoreticalDate)}</td>
                     <td class="table-cell">N/A</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.fechaConteo)}</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.fechaVenta)}</td>
+                    <td class="table-cell">${formatFirebaseTimestamp(item.countDate)}</td>
+                    <td class="table-cell">${formatFirebaseTimestamp(item.saleDate)}</td>
                 `;
                 dashboardBody.appendChild(row);
             });
@@ -476,10 +474,10 @@
             auditLog.forEach(log => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="table-cell">${log.tipo}</td>
+                    <td class="table-cell">${log.type}</td>
                     <td class="table-cell">${log.sku}</td>
-                    <td class="table-cell text-right">${log.cantidad}</td>
-                    <td class="table-cell">${log.responsable}</td>
+                    <td class="table-cell text-right">${log.quantity}</td>
+                    <td class="table-cell">${log.responsible}</td>
                     <td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td>
                 `;
                 lastMovementsBody.appendChild(row);
@@ -525,12 +523,12 @@
         });
 
         // Configuración de contador
-        btnGuardarContador.addEventListener('click', () => {
-            const nuevoNombre = contadorNombreInput.value.trim();
-            if (nuevoNombre) {
-                nombreContador = nuevoNombre;
-                contadorDisplay.textContent = nombreContador;
-                showToast(`Nombre de contador fijado: ${nombreContador}`, false);
+        btnSaveCounterName.addEventListener('click', () => {
+            const newName = counterNameInput.value.trim();
+            if (newName) {
+                counterName = newName;
+                counterDisplay.textContent = counterName;
+                showToast(`Nombre de contador fijado: ${counterName}`, false);
             }
         });
         
@@ -544,43 +542,37 @@
                 const text = event.target.result;
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
                 
-                const skusConEspacios = [];
+                const skusWithErrors = [];
                 const dataToUpload = lines.map((line, index) => {
                     const cols = line.split(',');
                     const sku = cols[0]?.trim()?.toUpperCase();
                     const stock = parseInt(cols[1]);
 
-                    if (sku && sku.includes(' ')) {
-                        skusConEspacios.push({ sku, linea: index + 1 });
+                    if (!validateSku(sku) || isNaN(stock)) {
+                        skusWithErrors.push({ sku: sku || 'N/A', line: index + 1 });
+                        return null;
                     }
                     return { sku, stock };
-                }).filter(item => item.sku && !isNaN(item.stock));
+                }).filter(item => item !== null);
 
-                if (skusConEspacios.length > 0) {
-                    let mensaje = "Se detectaron SKUs con espacios en el archivo CSV:\n";
-                    skusConEspacios.forEach(item => {
-                        mensaje += `- Línea ${item.linea}: "${item.sku}"\n`;
-                    });
-                    mensaje += "Por favor, corrija estos SKUs antes de continuar.";
-                    alert(mensaje);
+                if (dataToUpload.length === 0) {
+                    showToast("Archivo CSV vacío o con formato incorrecto. Ningún producto cargado.", true);
                     e.target.value = '';
                     return;
                 }
-                
-                if (dataToUpload.length === 0) {
-                    showToast("Archivo CSV vacío o con formato incorrecto.", true);
-                    return;
+
+                let message = `¿Confirma la carga de ${dataToUpload.length} productos? Esto reemplazará el catálogo teórico actual.`;
+                if (skusWithErrors.length > 0) {
+                    message += ` Se omitieron ${skusWithErrors.length} productos con errores.`;
                 }
 
-                showModal(`¿Confirma la carga de ${dataToUpload.length} productos? Esto reemplazará el catálogo teórico actual.`, true, async () => {
+                showModal(message, true, async () => {
                     const batch = writeBatch(db);
                     const stockTeoricoColRef = collection(db, `businesses/${BUSINESS_ID}/stockTeorico`);
                     
-                    // Eliminar catálogo anterior (opcional, pero útil)
                     const oldDocs = await getDocs(stockTeoricoColRef);
                     oldDocs.forEach(doc => batch.delete(doc.ref));
 
-                    // Agregar nuevos productos
                     dataToUpload.forEach(item => {
                         const newDocRef = doc(stockTeoricoColRef);
                         batch.set(newDocRef, {
@@ -591,9 +583,9 @@
                     
                     try {
                         await batch.commit();
-                        showToast("Catálogo cargado con éxito.", false);
+                        showToast(`Catálogo cargado con éxito. Se cargaron ${dataToUpload.length} productos y se omitieron ${skusWithErrors.length}.`, false);
                         await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail, `Cargado ${dataToUpload.length} items desde CSV.`);
-                        e.target.value = ''; // Limpiar el input file
+                        e.target.value = '';
                     } catch (error) {
                         showToast("Error al cargar el catálogo.", true);
                         console.error(error);
@@ -605,52 +597,58 @@
         });
         
         // Registrar Venta
-        formVentas.addEventListener('submit', async (e) => {
+        formSales.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const sku = ventaSkuInput.value.trim().toUpperCase();
-            const cantidad = Number(ventaCantidadInput.value);
-            toggleButton(e.target.querySelector('button[type="submit"]'), false);
-            
+            const sku = salesSkuInput.value.trim().toUpperCase();
+            const quantity = Number(salesQuantityInput.value);
+            const submitButton = e.target.querySelector('button[type="submit"]');
+
             if (!validateSku(sku)) {
-                ventaSkuInput.classList.add('invalid');
+                salesSkuInput.classList.add('invalid');
                 showToast("SKU inválido.", true);
-                toggleButton(e.target.querySelector('button[type="submit"]'), true);
                 return;
             } else {
-                ventaSkuInput.classList.remove('invalid');
+                salesSkuInput.classList.remove('invalid');
+            }
+            if (!quantity || quantity <= 0) {
+                salesQuantityInput.classList.add('invalid');
+                showToast("Cantidad debe ser mayor que cero.", true);
+                return;
+            } else {
+                salesQuantityInput.classList.remove('invalid');
             }
 
+            toggleButton(submitButton, false);
             try {
                 await addDoc(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), {
                     sku,
-                    cantidad,
+                    quantity,
                     timestamp: serverTimestamp()
                 });
-                await logAction('Venta', sku, cantidad, 'N/A', `Vendido ${cantidad} unidades.`);
+                await logAction('Venta', sku, quantity, 'N/A', `Vendido ${quantity} unidades.`);
                 showToast("Venta registrada con éxito.", false);
-                formVentas.reset();
+                formSales.reset();
             } catch (error) {
                 showToast("Error al registrar venta.", true);
                 console.error(error);
             } finally {
-                toggleButton(e.target.querySelector('button[type="submit"]'), true);
+                toggleButton(submitButton, true);
             }
         });
         
         // Añadir Conteo Físico
-        formConteo.addEventListener('submit', async (e) => {
+        formCount.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const skuInput = conteoSkuInput;
-            const cantidadInput = conteoCantidadInput;
+            const skuInput = countSkuInput;
+            const quantityInput = countQuantityInput;
             const sku = skuInput.value.trim().toUpperCase();
-            const cantidad = Number(cantidadInput.value);
+            const quantity = Number(quantityInput.value);
             const submitButton = e.target.querySelector('button[type="submit"]');
 
-            if (nombreContador === 'N/A') {
+            if (counterName === 'N/A') {
                 showToast("Por favor, fije un nombre de contador primero.", true);
                 return;
             }
-
             if (!validateSku(sku)) {
                 skuInput.classList.add('invalid');
                 showToast("SKU inválido.", true);
@@ -658,49 +656,48 @@
             } else {
                 skuInput.classList.remove('invalid');
             }
-
-            if (!cantidad || cantidad <= 0) {
-                cantidadInput.classList.add('invalid');
+            if (!quantity || quantity <= 0) {
+                quantityInput.classList.add('invalid');
                 showToast("Cantidad debe ser mayor que cero.", true);
                 return;
             } else {
-                cantidadInput.classList.remove('invalid');
+                quantityInput.classList.remove('invalid');
             }
 
             toggleButton(submitButton, false);
 
             try {
-                const conteoColRef = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
-                const q = query(conteoColRef, where("sku", "==", sku), where("tipo", "==", "conteo"));
+                const countColRef = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
+                const q = query(countColRef, where("sku", "==", sku), where("type", "==", "conteo"));
                 
                 await runTransaction(db, async (transaction) => {
-                    const conteoSnapshot = await getDocs(q);
+                    const countSnapshot = await getDocs(q);
                     
-                    if (conteoSnapshot.empty) {
-                        const newCountRef = doc(conteoColRef);
+                    if (countSnapshot.empty) {
+                        const newCountRef = doc(countColRef);
                         transaction.set(newCountRef, {
                             sku,
-                            cantidad,
-                            tipo: 'conteo',
-                            contador: nombreContador,
+                            quantity,
+                            type: 'conteo',
+                            counter: counterName,
                             timestamp: serverTimestamp()
                         });
                     } else {
-                        const existingDoc = conteoSnapshot.docs[0];
+                        const existingDoc = countSnapshot.docs[0];
                         const existingData = existingDoc.data();
-                        const newTotal = (existingData.cantidad || 0) + cantidad;
+                        const newTotal = (existingData.quantity || 0) + quantity;
                         transaction.update(existingDoc.ref, { 
-                            cantidad: newTotal,
-                            contador: nombreContador, 
+                            quantity: newTotal,
+                            counter: counterName, 
                             timestamp: serverTimestamp()
                         });
                     }
                 });
                 
-                await logAction('Conteo Físico', sku, cantidad, nombreContador, `Añadidas ${cantidad} unidades.`);
+                await logAction('Conteo Físico', sku, quantity, counterName, `Añadidas ${quantity} unidades.`);
                 showToast("Conteo actualizado con éxito.", false);
-                formConteo.reset();
-                conteoSkuInput.focus();
+                formCount.reset();
+                countSkuInput.focus();
             } catch (error) {
                 showToast("Error al actualizar conteo.", true);
                 console.error("Error en transacción de conteo:", error);
@@ -713,28 +710,28 @@
         searchInput.addEventListener('input', renderDashboard);
         
         // Descargar CSV
-        btnDescargarCsv.addEventListener('click', () => {
+        btnDownloadCsv.addEventListener('click', () => {
             const data = getDashboardData();
             if (data.length === 0) {
                 showToast("No hay datos para descargar.", true);
                 return;
             }
 
-            const header = ['Prioridad', 'SKU', 'Estado', 'Stock Final', 'Diferencia Conteo', 'Físico Contado', 'Stock Teórico', 'Total Vendido', 'Contado por', 'Fecha Ing. Teórico', 'Fecha Últ. Repo.', 'Fecha Conteo', 'Fecha Venta'];
+            const header = ['Prioridad', 'SKU', 'Estado', 'Stock Teórico Actual', 'Diferencia Conteo', 'Físico Contado', 'Stock Teórico Inicial', 'Total Vendido', 'Contado por', 'Fecha Ing. Teórico', 'Fecha Últ. Repo.', 'Fecha Conteo', 'Fecha Venta'];
             const rows = data.map(item => [
-                item.prioridad,
+                item.priority,
                 `"${item.sku}"`,
-                item.estado,
-                item.stockFinal,
-                item.diferenciaConteo,
-                item.fisicoContado,
-                item.stockTeoricoInicial,
-                item.totalVendido,
-                `"${item.contador}"`,
-                item.fechaTeorico ? item.fechaTeorico.toDate().toISOString() : 'N/A',
+                item.status,
+                item.currentTheoreticalStock,
+                item.countDifference,
+                item.physicalCounted,
+                item.initialTheoreticalStock,
+                item.totalSold,
+                `"${item.counter}"`,
+                item.theoreticalDate ? item.theoreticalDate.toDate().toISOString() : 'N/A',
                 'N/A',
-                item.fechaConteo ? item.fechaConteo.toDate().toISOString() : 'N/A',
-                item.fechaVenta ? item.fechaVenta.toDate().toISOString() : 'N/A'
+                item.countDate ? item.countDate.toDate().toISOString() : 'N/A',
+                item.saleDate ? item.saleDate.toDate().toISOString() : 'N/A'
             ]);
             
             const csvContent = [
@@ -754,45 +751,45 @@
         });
 
         // Operaciones de Administrador
-        formCorreccionAdmin.addEventListener('submit', async (e) => {
+        formCorrectionAdmin.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const sku = correcSkuInput.value.trim().toUpperCase();
-            const cantidad = Number(correcCantidadInput.value);
-            const nombre = correcNombreAdminInput.value.trim();
+            const sku = correctionSkuInput.value.trim().toUpperCase();
+            const quantity = Number(correctionQuantityInput.value);
+            const name = correctionAdminNameInput.value.trim();
             const submitButton = e.target.querySelector('button[type="submit"]');
             
-            if (!validateSku(sku) || cantidad < 0 || isNaN(cantidad) || !nombre) {
+            if (!validateSku(sku) || quantity < 0 || isNaN(quantity) || !name) {
                 showToast("Datos de corrección inválidos.", true);
                 return;
             }
             
             toggleButton(submitButton, false);
 
-            showModal(`¿Confirma la corrección de stock físico para SKU ${sku} a ${cantidad}? Esta acción es irreversible.`, true, async () => {
+            showModal(`¿Confirma la corrección de stock físico para SKU ${sku} a ${quantity}? Esta acción es irreversible.`, true, async () => {
                 try {
-                    const conteoColRef = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
-                    const q = query(conteoColRef, where("sku", "==", sku), where("tipo", "==", "conteo"));
-                    const conteoSnapshot = await getDocs(q);
+                    const countColRef = collection(db, `businesses/${BUSINESS_ID}/datosConteo`);
+                    const q = query(countColRef, where("sku", "==", sku), where("type", "==", "conteo"));
+                    const countSnapshot = await getDocs(q);
                     
-                    if (!conteoSnapshot.empty) {
-                        const existingDoc = conteoSnapshot.docs[0];
+                    if (!countSnapshot.empty) {
+                        const existingDoc = countSnapshot.docs[0];
                         await updateDoc(existingDoc.ref, {
-                            cantidad,
-                            contador: nombre,
+                            quantity,
+                            counter: name,
                             timestamp: serverTimestamp()
                         });
                     } else {
-                        await addDoc(conteoColRef, {
+                        await addDoc(countColRef, {
                             sku,
-                            cantidad,
-                            tipo: 'conteo',
-                            contador: nombre,
+                            quantity,
+                            type: 'conteo',
+                            counter: name,
                             timestamp: serverTimestamp()
                         });
                     }
-                    await logAction('Corrección Admin', sku, cantidad, nombre, `Stock físico corregido a ${cantidad}.`);
+                    await logAction('Corrección Admin', sku, quantity, name, `Stock físico corregido a ${quantity}.`);
                     showToast("Stock físico corregido con éxito.", false);
-                    formCorreccionAdmin.reset();
+                    formCorrectionAdmin.reset();
                 } catch (error) {
                     showToast("Error al corregir stock.", true);
                     console.error(error);
@@ -801,32 +798,32 @@
             toggleButton(submitButton, true);
         });
         
-        formAnulacion.addEventListener('submit', async (e) => {
+        formCancellation.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const sku = anularSkuInput.value.trim().toUpperCase();
-            const cantidad = Number(anularCantidadInput.value);
-            const nombre = anularNombreAdminInput.value.trim();
+            const sku = cancellationSkuInput.value.trim().toUpperCase();
+            const quantity = Number(cancellationQuantityInput.value);
+            const name = cancellationAdminNameInput.value.trim();
             const submitButton = e.target.querySelector('button[type="submit"]');
 
-            if (!validateSku(sku) || cantidad <= 0 || isNaN(cantidad) || !nombre) {
+            if (!validateSku(sku) || quantity <= 0 || isNaN(quantity) || !name) {
                 showToast("Datos de anulación inválidos.", true);
                 return;
             }
 
             toggleButton(submitButton, false);
 
-            showModal(`¿Confirma la anulación de ${cantidad} unidades del SKU ${sku}?`, true, async () => {
+            showModal(`¿Confirma la anulación de ${quantity} unidades del SKU ${sku}?`, true, async () => {
                 try {
                     await addDoc(collection(db, `businesses/${BUSINESS_ID}/datosVentas`), {
                         sku,
-                        cantidad: -cantidad,
-                        tipo: 'anulacion',
-                        responsable: nombre,
+                        quantity: -quantity,
+                        type: 'anulacion',
+                        responsible: name,
                         timestamp: serverTimestamp()
                     });
-                    await logAction('Anulación', sku, -cantidad, nombre, `Anuladas ${cantidad} unidades.`);
+                    await logAction('Anulación', sku, -quantity, name, `Anuladas ${quantity} unidades.`);
                     showToast("Venta anulada con éxito.", false);
-                    formAnulacion.reset();
+                    formCancellation.reset();
                 } catch (error) {
                     showToast("Error al anular venta.", true);
                     console.error(error);
@@ -838,10 +835,10 @@
         formReposicionCsv.addEventListener('submit', function(e) {
             e.preventDefault();
             const file = repoCsvInput.files[0];
-            const nombre = repoNombreAdminInput.value.trim();
+            const name = repoAdminNameInput.value.trim();
             const submitButton = e.target.querySelector('button[type="submit"]');
 
-            if (!file || !nombre) {
+            if (!file || !name) {
                 showToast("Debe seleccionar un archivo y especificar su nombre.", true);
                 return;
             }
@@ -856,41 +853,41 @@
                 const dataToUpload = lines.map((line, index) => {
                     const cols = line.split(',');
                     const sku = cols[0]?.trim()?.toUpperCase();
-                    const cantidad = parseInt(cols[1]);
+                    const quantity = parseInt(cols[1]);
 
-                    if (sku && sku.includes(' ')) {
-                        showToast(`Error en línea ${index + 1}: SKU "${sku}" contiene espacios.`, true);
-                        repoCsvInput.value = '';
+                    if (!validateSku(sku) || isNaN(quantity) || quantity <= 0) {
                         return null;
                     }
-                    return { sku, cantidad };
-                }).filter(item => item && item.sku && !isNaN(item.cantidad) && item.cantidad > 0);
+                    return { sku, quantity };
+                }).filter(item => item !== null);
+
+                const skusWithErrorsCount = lines.length - dataToUpload.length;
 
                 if (dataToUpload.length === 0) {
-                    showToast("Archivo CSV vacío o con formato incorrecto. Formato: SKU, Cantidad", true);
+                    showToast("Archivo CSV vacío o con formato incorrecto. Formato: SKU, Cantidad. Ningún producto cargado.", true);
                     toggleButton(submitButton, true);
                     return;
                 }
 
-                showModal(`¿Confirma la reposición de ${dataToUpload.length} items?`, true, async () => {
+                showModal(`¿Confirma la reposición de ${dataToUpload.length} items? Se omitieron ${skusWithErrorsCount} líneas con errores.`, true, async () => {
                     const batch = writeBatch(db);
-                    const ventasColRef = collection(db, `businesses/${BUSINESS_ID}/datosVentas`);
+                    const salesColRef = collection(db, `businesses/${BUSINESS_ID}/datosVentas`);
                     
                     dataToUpload.forEach(item => {
-                        const newDocRef = doc(ventasColRef);
+                        const newDocRef = doc(salesColRef);
                         batch.set(newDocRef, {
                             sku: item.sku,
-                            cantidad: -item.cantidad, // Las reposiciones se registran como ventas negativas
-                            tipo: 'reposicion',
-                            responsable: nombre,
+                            quantity: -item.quantity,
+                            type: 'reposicion',
+                            responsible: name,
                             timestamp: serverTimestamp()
                         });
                     });
                     
                     try {
                         await batch.commit();
-                        showToast("Reposición cargada con éxito.", false);
-                        await logAction('Reposición', 'N/A', dataToUpload.length, nombre, `Reposición de ${dataToUpload.length} items desde CSV.`);
+                        showToast(`Reposición cargada con éxito. Se cargaron ${dataToUpload.length} items.`, false);
+                        await logAction('Reposición', 'N/A', dataToUpload.length, name, `Reposición de ${dataToUpload.length} items desde CSV.`);
                         formReposicionCsv.reset();
                     } catch (error) {
                         showToast("Error al cargar la reposición.", true);
@@ -908,7 +905,7 @@
         });
 
         // Log de Auditoría
-        btnAbrirLogAdmin.addEventListener('click', async () => {
+        btnOpenAdminLog.addEventListener('click', async () => {
             adminLogModal.style.display = 'flex';
             const allLogsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
             const logsSnapshot = await getDocs(allLogsQuery);
@@ -930,17 +927,17 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td>
-                    <td class="table-cell">${log.tipo}</td>
+                    <td class="table-cell">${log.type}</td>
                     <td class="table-cell">${log.sku}</td>
-                    <td class="table-cell text-right">${log.cantidad}</td>
-                    <td class="table-cell">${log.responsable}</td>
-                    <td class="table-cell">${log.detalle}</td>
+                    <td class="table-cell text-right">${log.quantity}</td>
+                    <td class="table-cell">${log.responsible}</td>
+                    <td class="table-cell">${log.detail}</td>
                 `;
                 adminLogBody.appendChild(row);
             });
         }
 
-        btnLimpiarLog.addEventListener('click', () => {
+        btnClearLog.addEventListener('click', () => {
             showModal('¿Está seguro de que desea limpiar todo el Log de Auditoría? Esta acción es irreversible.', true, async () => {
                 try {
                     const logsColRef = collection(db, `businesses/${BUSINESS_ID}/auditLog`);
@@ -971,7 +968,6 @@
                 const filteredLogs = logsSnapshot.docs.map(doc => doc.data());
                 renderAdminLog(filteredLogs);
             } else {
-                // Si se borra la fecha, mostrar todos los logs
                 const allLogsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
                 const logsSnapshot = await getDocs(allLogsQuery);
                 const allLogs = logsSnapshot.docs.map(doc => doc.data());
@@ -979,8 +975,7 @@
             }
         });
         
-        // Limpiar Datos Completos del Negocio
-        btnLimpiarDatos.addEventListener('click', () => {
+        btnClearData.addEventListener('click', () => {
             showModal('¡ATENCIÓN! ¿Está seguro de que desea eliminar TODO el stock, ventas y conteos de este espacio? Esta acción es irreversible.', true, async () => {
                 const collectionsToClear = ['stockTeorico', 'datosVentas', 'datosConteo', 'auditLog'];
                 try {
@@ -1010,7 +1005,6 @@
                 appContent.style.display = 'block';
                 stopFirestoreListeners();
                 startFirestoreListeners();
-                setupSkuInputValidation();
             } else {
                 userId = null;
                 userEmail = null;
@@ -1019,14 +1013,18 @@
                 authSection.style.display = 'flex';
                 appContent.style.display = 'none';
                 stopFirestoreListeners();
-                stockTeorico = [];
-                datosVentas = [];
-                datosConteo = [];
+                theoreticalStock = [];
+                salesData = [];
+                countData = [];
                 auditLog = [];
                 renderDashboard();
                 renderLastMovements();
             }
         });
+        
+        // Llamada inicial para configurar la validación de los inputs
+        setupSkuInputValidation();
+
     </script>
 </body>
 </html>
