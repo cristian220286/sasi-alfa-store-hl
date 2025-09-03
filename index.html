@@ -186,7 +186,7 @@
         // --- CONSTANTES GLOBALES Y DE CONFIGURACIÓN ---
         let BUSINESS_ID = null; 
         const ADMIN_PASSWORD = '10234567';
-        const LOG_PASSWORD = 'P1CL3S';
+        const LOG_PASSWORD = 'Acces0r10s@lf@';
 
         // --- ESTADO DE LA APLICACIÓN ---
         let theoreticalStock = [], salesData = [], countData = [], auditLog = [];
@@ -544,7 +544,7 @@
             }
         });
         
-        // Cargar Catálogo (CSV)
+        // Cargar CSV (Stock Teórico)
         csvFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -600,7 +600,7 @@
                         await batch.commit();
                         let successMessage = `Catálogo cargado con éxito. Se cargaron ${dataToUpload.length} productos.`;
                         if (skusWithErrors.length > 0) {
-                            successMessage += ` Se omitieron ${skusWithErrors.length} productos con errores.`;
+                            successMessage += ` Se omitieron ${skusWithErrors.length} productos con errores. Se ha descargado un archivo con los errores para que los puedas corregir.`;
 
                             const errorCsvHeader = ['SKU', 'Stock', 'Motivo del Error'];
                             const errorCsvRows = skusWithErrors.map(errorItem => {
@@ -619,11 +619,8 @@
 
                             downloadCsv(`errores_catalogo_${new Date().toISOString()}.csv`, errorCsvContent);
 
-                            showToast(successMessage + " Se ha descargado un archivo con los errores para que los puedas corregir.", false);
-
-                        } else {
-                            showToast(successMessage, false);
                         }
+                        showToast(successMessage, false);
                         
                         await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail, `Cargado ${dataToUpload.length} items desde CSV.`);
                         e.target.value = '';
@@ -781,18 +778,11 @@
             ]);
             
             const csvContent = [
-                header.join(','),
-                ...rows.map(e => e.join(','))
+                header.join(';'),
+                ...rows.map(e => e.join(';'))
             ].join('\n');
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `dashboard_sasi_${new Date().toISOString()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            downloadCsv(`dashboard_sasi_${new Date().toISOString()}.csv`, csvContent);
             showToast("CSV descargado con éxito.", false);
         });
 
@@ -1048,6 +1038,7 @@
                                 docs.forEach(doc => batch.delete(doc.ref));
                                 await batch.commit();
                             }
+                            await logAction('Limpieza de Datos', 'SISTEMA', 0, userEmail, 'Se eliminaron todos los datos operativos.');
                             showToast("Todos los datos del negocio han sido eliminados.", false);
                         } catch (error) {
                             showToast("Error al limpiar los datos.", true);
