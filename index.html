@@ -62,28 +62,6 @@
 </head>
 <body class="p-4 sm:p-6 lg:p-8 flex flex-col min-h-screen">
 
-    <div id="toast"></div>
-    <div id="myModal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><div id="modal-message" class="text-lg font-semibold mb-4"></div><div id="modal-buttons" class="flex justify-end gap-4"></div></div></div>
-    <div id="adminLogModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="close-admin-log">&times;</span>
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Log de Movimientos de Auditoría</h2>
-                <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
-            </div>
-            <div class="mb-4">
-                <label for="log-date-picker" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
-                <input type="date" id="log-date-picker" class="input-field w-full max-w-xs">
-            </div>
-            <div class="overflow-x-auto max-h-[70vh]">
-                <table class="w-full">
-                    <thead class="table-header"><tr><th>Fecha y Hora</th><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Detalle</th></tr></thead>
-                    <tbody id="admin-log-body"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
@@ -166,6 +144,28 @@
 
     <footer class="text-center p-4 text-gray-500 text-sm mt-auto"><p>By Mor</p></footer>
 
+    <div id="toast"></div>
+    <div id="myModal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><div id="modal-message" class="text-lg font-semibold mb-4"></div><div id="modal-buttons" class="flex justify-end gap-4"></div></div></div>
+    <div id="adminLogModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-admin-log">&times;</span>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Log de Movimientos de Auditoría</h2>
+                <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
+            </div>
+            <div class="mb-4">
+                <label for="log-date-picker" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
+                <input type="date" id="log-date-picker" class="input-field w-full max-w-xs">
+            </div>
+            <div class="overflow-x-auto max-h-[70vh]">
+                <table class="w-full">
+                    <thead class="table-header"><tr><th>Fecha y Hora</th><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Detalle</th></tr></thead>
+                    <tbody id="admin-log-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
     <script type="module">
         // --- CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE ---
         const firebaseConfig = {
@@ -274,7 +274,7 @@
         /**
          * Muestra un modal para solicitar una contraseña de forma segura.
          * @returns {Promise<string>} Una promesa que se resuelve con la contraseña si el usuario confirma,
-         * o se rechaza si el usuario cancela.
+         * o se resuelve con null si el usuario cancela.
          */
         function requestPassword() {
             return new Promise((resolve, reject) => {
@@ -324,7 +324,7 @@
                 passwordInput.focus(); // Pone el cursor en el campo de contraseña
             });
         }
-        
+        
         function downloadCsv(filename, data) {
             const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -909,8 +909,6 @@
                     });
                 } else if (password !== null) {
                     showToast("Contraseña incorrecta. Operación cancelada.", true);
-                } else {
-                    showToast("Operación cancelada.", true);
                 }
             } catch(error) {
                 showToast("Operación cancelada.", true);
@@ -1016,15 +1014,15 @@
                         
                         // LÓGICA CORRECTA: Actualiza el stock teórico
                         for (const item of dataToUpload) {
-                            const stockDocRef = doc(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), item.sku);
+                            const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
                             try {
                                 await runTransaction(db, async (transaction) => {
-                                    const q = query(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), where('sku', '==', item.sku));
+                                    const q = query(stockColRef, where('sku', '==', item.sku));
                                     const theoreticalStockSnapshot = await transaction.get(q);
 
                                     if (theoreticalStockSnapshot.empty) {
                                         // Si el producto no existe, lo crea
-                                        transaction.set(doc(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`)), {
+                                        transaction.set(doc(stockColRef), {
                                             sku: item.sku,
                                             stock: item.quantity,
                                             timestamp: serverTimestamp()
