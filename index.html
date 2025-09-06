@@ -35,6 +35,7 @@
         .badge-sobrante { background-color: var(--success); color: #065F46; }
         .badge-cuadrado { background-color: var(--info); color: #3730A3; }
         .badge-pendiente { background-color: var(--warning); color: #92400E; }
+        .badge-no-en-catalogo { background-color: #9CA3AF; color: #1F2937; }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
         .btn:disabled { background-color: #D1D5DB; cursor: not-allowed; opacity: 0.6; }
         .btn-primary { background-color: var(--primary); color: white; }
@@ -389,6 +390,25 @@
             });
         }
 
+        function setCountingModuleState(enabled) {
+            const form = document.getElementById('form-conteo');
+            const card = form.closest('.card');
+            const inputs = form.querySelectorAll('input');
+            const button = form.querySelector('button');
+
+            if (enabled) {
+                card.style.opacity = '1';
+                card.style.pointerEvents = 'auto';
+                inputs.forEach(input => input.disabled = false);
+                button.disabled = false;
+            } else {
+                card.style.opacity = '0.5';
+                card.style.pointerEvents = 'none';
+                inputs.forEach(input => input.disabled = true);
+                button.disabled = true;
+            }
+        }
+
         // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
         function startFirestoreListeners() {
             if (!BUSINESS_ID) return;
@@ -438,69 +458,351 @@
         }
         
         // --- LÓGICA DE CÁLCULO Y RENDERIZADO DEL DASHBOARD ---
-        function getDashboardData() {
-            const searchTerm = searchInput.value.trim().toUpperCase();
-            
-            const countMap = new Map();
-            countData.forEach(count => {
-                const sku = count.sku.toUpperCase().trim();
-                if (count.type === 'conteo') {
-                    countMap.set(sku, {
-                        physicalCounted: count.quantity,
-                        counter: count.counter,
-                        countDate: count.timestamp
-                    });
-                }
-            });
 
-            let dashboardData = theoreticalStock.map(product => {
-                const sku = product.sku.toUpperCase().trim();
-                const initialTheoreticalStock = Number(product.stock) || 0;
-                
-                const filteredSales = salesData.filter(v => v.sku.toUpperCase().trim() === sku);
-                const totalSold = filteredSales.reduce((sum, sale) => sum + Number(sale.quantity || 0), 0);
-                const lastSale = filteredSales.length > 0 ? filteredSales.reduce((a, b) => a.timestamp > b.timestamp ? a : b) : null;
-                
-                const countDataForSku = countMap.get(sku) || {};
-                const physicalCounted = countDataForSku.physicalCounted || 0;
-                const counter = countDataForSku.counter || 'N/A';
-                const countDate = countDataForSku.countDate || null;
-                
-                const currentTheoreticalStock = initialTheoreticalStock - totalSold;
-                const countDifference = physicalCounted - currentTheoreticalStock;
+        // --- Utilidades ---
 
-                let calculatedStatus, priority;
-                if (countDifference === 0 && countDate) { calculatedStatus = 'Cuadrado'; priority = 4; }
-                else if (countDifference > 0 && countDate) { calculatedStatus = 'Sobrante'; priority = 2; }
-                else if (countDifference < 0 && countDate) { calculatedStatus = 'Faltante'; priority = 1; }
-                else { calculatedStatus = 'Pendiente'; priority = 3; }
-                
-                return {
-                    sku,
-                    currentTheoreticalStock,
-                    countDifference,
-                    physicalCounted,
-                    initialTheoreticalStock,
-                    totalSold,
-                    counter,
-                    countDate,
-                    saleDate: lastSale?.timestamp || null,
-                    theoreticalDate: product.timestamp,
-                    status: calculatedStatus,
-                    priority
-                };
-            });
-            
-            if (searchTerm) {
-                dashboardData = dashboardData.filter(item => item.sku.includes(searchTerm));
+        function normalizeSku(sku) {
+            if (typeof sku !== 'string') return null;
+            const trimmed = sku.trim().toUpperCase();
+            if (!trimmed) return null;
+            if (!/^[A-Z0-9_-]+$/.test(trimmed)) return null;
+            return trimmed;
+        }
+
+        const timestampCache = new WeakMap();
+        function toDateCached(timestamp) {
+            if (!timestamp) return null;
+            if (timestampCache.has(timestamp)) return timestampCache.get(timestamp);
+            try {
+                const date = timestamp.toDate();
+                timestampCache.set(timestamp, date);
+                return date;
+            } catch {
+                return null;
+            }
+        }
+
+        function safeSumQuantities(items) {
+            return items.reduce((sum, item) => {
+                const qty = Number(item.quantity);
+                return sum + (isNaN(qty) ? 0 : qty);
+            }, 0);
+        }
+
+        function daysBetween(date1, date2) {
+            if (!(date1 instanceof Date) || !(date2 instanceof Date)) return null;
+            const diffMs = Math.abs(date2 - date1);
+            return diffMs / (1000 * 60 * 60 * 24);
+        }
+
+        // --- Clase SkuData enriquecida ---
+
+        class SkuData {
+            constructor(sku) {
+                this.sku = sku;
+                this.ventas = [];
+                this.conteos = [];
+                this.errors = [];
             }
 
-            return dashboardData.sort((a, b) => {
-                if (a.priority !== b.priority) {
-                    return a.priority - b.priority;
+            addVenta(venta) {
+                if (!venta || typeof venta.quantity !== 'number' || isNaN(venta.quantity)) {
+                    this.errors.push(`Venta inválida para SKU ${this.sku}: cantidad inválida.`);
+                    return;
                 }
+                if (!venta.timestamp || typeof venta.timestamp.toDate !== 'function') {
+                    this.errors.push(`Venta sin timestamp válido para SKU ${this.sku}.`);
+                    return;
+                }
+                if (venta.quantity === 0) return; // Ignorar ventas con cantidad cero
+                this.ventas.push(venta);
+            }
+
+            addConteo(conteo) {
+                if (!conteo || typeof conteo.quantity !== 'number' || isNaN(conteo.quantity)) {
+                    this.errors.push(`Conteo inválido para SKU ${this.sku}: cantidad inválida.`);
+                    return;
+                }
+                if (!conteo.timestamp || typeof conteo.timestamp.toDate !== 'function') {
+                    this.errors.push(`Conteo sin timestamp válido para SKU ${this.sku}.`);
+                    return;
+                }
+                if (conteo.quantity === 0) return; // Ignorar conteos con cantidad cero
+                this.conteos.push(conteo);
+            }
+
+            getLatestConteo() {
+                if (this.conteos.length === 0) return null;
+                return this.conteos.reduce((a, b) => {
+                    const dateA = toDateCached(a.timestamp);
+                    const dateB = toDateCached(b.timestamp);
+                    if (!dateA) return b;
+                    if (!dateB) return a;
+                    return dateA > dateB ? a : b;
+                });
+            }
+
+            getVentaMasReciente() {
+                if (this.ventas.length === 0) return null;
+                return this.ventas.reduce((a, b) => {
+                    const dateA = toDateCached(a.timestamp);
+                    const dateB = toDateCached(b.timestamp);
+                    if (!dateA) return b;
+                    if (!dateB) return a;
+                    return dateA > dateB ? a : b;
+                });
+            }
+
+            getFechaPrimeraVenta() {
+                if (this.ventas.length === 0) return null;
+                return this.ventas.reduce((a, b) => {
+                    const dateA = toDateCached(a.timestamp);
+                    const dateB = toDateCached(b.timestamp);
+                    if (!dateA) return b;
+                    if (!dateB) return a;
+                    return dateA < dateB ? a : b;
+                }).timestamp;
+            }
+
+            getVelocidadDeVenta() {
+                const primeraVenta = toDateCached(this.getFechaPrimeraVenta());
+                const ultimaVenta = toDateCached(this.getVentaMasReciente()?.timestamp);
+                if (!primeraVenta || !ultimaVenta) return null;
+
+                const totalVendido = safeSumQuantities(this.ventas);
+                if (totalVendido === 0) return 0;
+                
+                const dias = daysBetween(primeraVenta, ultimaVenta);
+                if (!dias || dias === 0) return null;
+
+                return totalVendido / dias;
+            }
+
+            getDiasDesdeUltimoConteo() {
+                const ultimoConteo = this.getLatestConteo();
+                if (!ultimoConteo) return null;
+                const fechaConteo = toDateCached(ultimoConteo.timestamp);
+                if (!fechaConteo) return null;
+                const hoy = new Date();
+                return Math.floor(daysBetween(fechaConteo, hoy));
+            }
+
+            calcularEstado(stock_teorico_inicial) {
+                stock_teorico_inicial = Number(stock_teorico_inicial);
+                if (isNaN(stock_teorico_inicial) || stock_teorico_inicial < 0) {
+                    this.errors.push(`Stock teórico inicial inválido para SKU ${this.sku}. Se usará 0.`);
+                    stock_teorico_inicial = 0;
+                }
+
+                const ventasValidas = this.ventas.filter(v => {
+                    const qty = Number(v.quantity);
+                    return !isNaN(qty) && qty !== 0 && v.timestamp && typeof v.timestamp.toDate === 'function';
+                });
+
+                const total_vendido = safeSumQuantities(ventasValidas);
+                const stock_teorico_actual = stock_teorico_inicial - total_vendido;
+
+                const conteo = this.getLatestConteo();
+
+                let conteo_fisico = 0;
+                let fecha_conteo = null;
+                let diferencia_historica = null;
+                let stock_teorico_al_contar = null;
+
+                if (conteo) {
+                    conteo_fisico = Number(conteo.quantity);
+                    fecha_conteo = toDateCached(conteo.timestamp);
+
+                    if (!fecha_conteo) {
+                        this.errors.push(`Timestamp inválido en conteo para SKU ${this.sku}.`);
+                    } else {
+                        const ventasAntesConteo = ventasValidas.filter(v => toDateCached(v.timestamp) < fecha_conteo);
+                        const total_vendido_antes = safeSumQuantities(ventasAntesConteo);
+
+                        stock_teorico_al_contar = stock_teorico_inicial - total_vendido_antes;
+                        diferencia_historica = conteo_fisico - stock_teorico_al_contar;
+                    }
+                }
+
+                const stock_fisico_proyectado = (diferencia_historica !== null) ? (stock_teorico_actual + diferencia_historica) : null;
+
+                let estado = 'Pendiente';
+                if (diferencia_historica !== null) {
+                    if (diferencia_historica === 0) estado = 'Cuadrado';
+                    else if (diferencia_historica > 0) estado = 'Sobrante';
+                    else if (diferencia_historica < 0) estado = 'Faltante';
+                }
+
+                const lastSale = this.getVentaMasReciente();
+
+                return {
+                    sku: this.sku,
+                    estado,
+                    conteo_fisico,
+                    stock_teorico_al_contar,
+                    diferencia_historica,
+                    stock_teorico_actual,
+                    stock_fisico_proyectado,
+                    total_vendido,
+                    fecha_conteo,
+                    theoreticalDate: null,
+                    saleDate: lastSale ? toDateCached(lastSale.timestamp) : null,
+                    counter: conteo ? (conteo.counter || 'N/A') : 'N/A',
+                    errors: [...this.errors],
+                    fechaPrimeraVenta: toDateCached(this.getFechaPrimeraVenta()),
+                    velocidadDeVenta: this.getVelocidadDeVenta(),
+                    diasDesdeUltimoConteo: this.getDiasDesdeUltimoConteo()
+                };
+            }
+        }
+
+        // --- Memoización y cache global ---
+
+        const memoCache = {
+            lastSalesData: null,
+            lastCountData: null,
+            lastTheoreticalStock: null,
+            cachedDashboardData: null
+        };
+
+        function deepEqual(a, b) {
+            // Implementa una comparación profunda simple o usa una librería como lodash.isEqual
+            // Aquí un ejemplo simple para arrays y objetos planos:
+            try {
+                return JSON.stringify(a) === JSON.stringify(b);
+            } catch {
+                return false;
+            }
+        }
+
+        /**
+         * Función principal con memoización.
+         * Solo recalcula dashboardData si cambian los datos base.
+         * El filtro de búsqueda se aplica sobre el resultado cacheado.
+         */
+        function getDashboardData() {
+            const searchTerm = (searchInput.value || '').trim().toUpperCase();
+
+            // Verificar si los datos base cambiaron
+            const salesChanged = !deepEqual(salesData, memoCache.lastSalesData);
+            const countChanged = !deepEqual(countData, memoCache.lastCountData);
+            const stockChanged = !deepEqual(theoreticalStock, memoCache.lastTheoreticalStock);
+
+            if (salesChanged || countChanged || stockChanged || !memoCache.cachedDashboardData) {
+                // Actualizar cache base
+                memoCache.lastSalesData = JSON.parse(JSON.stringify(salesData));
+                memoCache.lastCountData = JSON.parse(JSON.stringify(countData));
+                memoCache.lastTheoreticalStock = JSON.parse(JSON.stringify(theoreticalStock));
+
+                // Construir mapa SKU
+                const skuMap = new Map();
+
+                for (const sale of salesData) {
+                    const sku = normalizeSku(sale.sku);
+                    if (!sku) continue;
+                    if (!skuMap.has(sku)) skuMap.set(sku, new SkuData(sku));
+                    skuMap.get(sku).addVenta(sale);
+                }
+
+                for (const count of countData) {
+                    if (count.type !== 'conteo') continue;
+                    const sku = normalizeSku(count.sku);
+                    if (!sku) continue;
+                    if (!skuMap.has(sku)) skuMap.set(sku, new SkuData(sku));
+                    skuMap.get(sku).addConteo(count);
+                }
+
+                const dashboardData = [];
+
+                for (const product of theoreticalStock) {
+                    const sku = normalizeSku(product.sku);
+                    if (!sku) continue;
+
+                    const skuData = skuMap.get(sku) || new SkuData(sku);
+                    const resultado = skuData.calcularEstado(product.stock);
+                    resultado.theoreticalDate = toDateCached(product.timestamp);
+
+                    dashboardData.push(resultado);
+                    skuMap.delete(sku);
+                }
+
+                for (const [sku, skuData] of skuMap.entries()) {
+                    const resultado = skuData.calcularEstado(0);
+                    resultado.estado = 'No en Catálogo';
+                    resultado.theoreticalDate = null;
+                    dashboardData.push(resultado);
+                }
+
+                memoCache.cachedDashboardData = dashboardData;
+            }
+
+            // Aplicar filtro de búsqueda sobre cache
+            let filtered = memoCache.cachedDashboardData;
+            if (searchTerm) {
+                filtered = filtered.filter(d => d.sku.includes(searchTerm));
+            }
+
+            // Ordenar
+            const prioridadEstado = {
+                'Faltante': 1,
+                'Sobrante': 2,
+                'Pendiente': 3,
+                'Cuadrado': 4,
+                'No en Catálogo': 5
+            };
+
+            filtered.sort((a, b) => {
+                const pA = prioridadEstado[a.estado] || 99;
+                const pB = prioridadEstado[b.estado] || 99;
+                if (pA !== pB) return pA - pB;
                 return a.sku.localeCompare(b.sku);
             });
+
+            // Actualizar UI con alertas visuales y log global de errores
+            mostrarAlertasYLogErrores(filtered);
+
+            return filtered;
+        }
+
+        // --- Función para mostrar alertas visuales y log global de errores ---
+
+        function mostrarAlertasYLogErrores(dashboardData) {
+            // Ejemplo: agregar ícono ⚠️ junto a SKU con errores y tooltip con detalles
+            dashboardData.forEach(item => {
+                const rowElement = document.querySelector(`[data-sku="${item.sku}"]`);
+                if (!rowElement) return;
+
+                // Remover alertas previas
+                const existingAlert = rowElement.querySelector('.error-alert');
+                if (existingAlert) existingAlert.remove();
+
+                if (item.errors && item.errors.length > 0) {
+                    const alertIcon = document.createElement('span');
+                    alertIcon.className = 'error-alert';
+                    alertIcon.textContent = '⚠️';
+                    alertIcon.title = item.errors.join('\n');
+                    alertIcon.style.cursor = 'help';
+                    alertIcon.style.marginLeft = '0.5rem';
+                    rowElement.querySelector('.sku-cell').appendChild(alertIcon);
+                }
+            });
+
+            // Log global de errores para administrador
+            const erroresGlobales = dashboardData.flatMap(d => d.errors);
+            if (erroresGlobales.length > 0) {
+                // Aquí puedes abrir un modal o actualizar una sección con la lista de erroresGlobales
+                // Ejemplo simple:
+                const logContainer = document.getElementById('error-log-container');
+                if (logContainer) {
+                    logContainer.innerHTML = erroresGlobales.map(e => `<div>${e}</div>`).join('');
+                    logContainer.style.display = 'block';
+                }
+            } else {
+                const logContainer = document.getElementById('error-log-container');
+                if (logContainer) {
+                    logContainer.style.display = 'none';
+                }
+            }
         }
         
         function renderDashboard() {
@@ -511,21 +813,21 @@
                 return;
             }
             data.forEach(item => {
-                const badgeClass = `badge badge-${item.status.toLowerCase()}`;
+                const badgeClass = `badge badge-${item.estado.toLowerCase().replace(/ /g, '-')}`;
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="table-cell">${item.priority}</td>
+                    <td class="table-cell">${item.estado === 'No en Catálogo' ? '5' : (item.diferencia_historica !== null ? item.diferencia_historica : item.estado === 'Pendiente' ? '3' : 'N/A')}</td>
                     <td class="table-cell font-semibold">${item.sku}</td>
-                    <td class="table-cell"><span class="${badgeClass}">${item.status}</span></td>
-                    <td class="table-cell text-right">${item.currentTheoreticalStock}</td>
-                    <td class="table-cell text-right">${item.countDifference}</td>
-                    <td class="table-cell text-right">${item.physicalCounted}</td>
-                    <td class="table-cell text-right">${item.initialTheoreticalStock}</td>
-                    <td class="table-cell text-right">${item.totalSold}</td>
+                    <td class="table-cell"><span class="${badgeClass}">${item.estado}</span></td>
+                    <td class="table-cell text-right">${item.stock_teorico_actual !== null ? item.stock_teorico_actual : 'N/A'}</td>
+                    <td class="table-cell text-right">${item.diferencia_historica !== null ? item.diferencia_historica : 'N/A'}</td>
+                    <td class="table-cell text-right">${item.conteo_fisico !== null ? item.conteo_fisico : 'N/A'}</td>
+                    <td class="table-cell text-right">${item.stock_teorico_al_contar !== null ? item.stock_teorico_al_contar : 'N/A'}</td>
+                    <td class="table-cell text-right">${item.total_vendido !== null ? item.total_vendido : 'N/A'}</td>
                     <td class="table-cell">${item.counter}</td>
                     <td class="table-cell">${formatFirebaseTimestamp(item.theoreticalDate)}</td>
                     <td class="table-cell">N/A</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.countDate)}</td>
+                    <td class="table-cell">${formatFirebaseTimestamp(item.fecha_conteo)}</td>
                     <td class="table-cell">${formatFirebaseTimestamp(item.saleDate)}</td>
                 `;
                 dashboardBody.appendChild(row);
@@ -591,11 +893,33 @@
 
         // Configuración de contador
         btnSaveCounterName.addEventListener('click', () => {
-            const newName = counterNameInput.value.trim();
-            if (newName) {
-                counterName = newName;
+            if (counterNameInput.disabled) {
+                // --- MODO "CAMBIAR NOMBRE" ---
+                counterNameInput.disabled = false;
+                counterNameInput.focus();
+                btnSaveCounterName.innerHTML = '<i class="fa-solid fa-user-check"></i> Fijar Nombre';
+                
+                // Resetea el estado y deshabilita el módulo de conteo
+                counterName = 'N/A';
                 counterDisplay.textContent = counterName;
-                showToast(`Nombre de contador fijado: ${counterName}`, false);
+                setCountingModuleState(false); 
+                showToast('Sesión de conteo terminada. Ingrese un nuevo nombre.', false);
+
+            } else {
+                // --- MODO "FIJAR NOMBRE" ---
+                const newName = counterNameInput.value.trim();
+                if (newName) {
+                    counterName = newName;
+                    counterDisplay.textContent = counterName;
+                    counterNameInput.disabled = true;
+                    btnSaveCounterName.innerHTML = '<i class="fa-solid fa-pencil"></i> Cambiar Nombre';
+
+                    // Habilita el módulo de conteo
+                    setCountingModuleState(true); 
+                    showToast(`Sesión de conteo iniciada para: ${counterName}`, false);
+                } else {
+                    showToast('Por favor, ingrese un nombre válido.', true);
+                }
             }
         });
         
@@ -608,32 +932,67 @@
             reader.onload = async function(event) {
                 const text = event.target.result;
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
-                
-                const skusWithErrors = [];
-                const dataToUpload = lines.map((line, index) => {
+
+                // --- INICIO DE LA NUEVA LÓGICA DE VALIDACIÓN DETALLADA ---
+                // PASO 1: Pre-validación línea por línea
+                const allLinesData = lines.map((line, index) => {
                     const cols = line.split(';');
                     const sku = cols[0]?.trim()?.toUpperCase();
-                    // Reemplaza la coma con un punto para el parseo
-                    const stockString = cols[1]?.replace(',', '.');
+                    const stockString = cols[1]?.trim().replace(',', '.');
                     const stock = parseFloat(stockString);
+                    const errors = [];
 
-                    if (!validateSku(sku) || isNaN(stock)) {
-                        let errorMessage = '';
-                        if (!validateSku(sku)) {
-                            errorMessage += `SKU inválido: "${sku}". `;
+                    // Validaciones de SKU
+                    if (!sku) {
+                        errors.push('El SKU está vacío.');
+                    } else {
+                        if (sku.includes(' ')) {
+                            errors.push('El SKU no debe contener espacios.');
                         }
-                        if (isNaN(stock)) {
-                            errorMessage += `Stock inválido: "${cols[1] || 'N/A'}". `;
+                        if (!/^[A-Z0-9_-]+$/.test(sku)) {
+                            errors.push('El SKU contiene caracteres no válidos (solo letras, números, - y _).');
                         }
-                        skusWithErrors.push({ originalLine: line, error: errorMessage.trim() });
-                        return null;
                     }
-                    return { sku, stock };
-                }).filter(item => item !== null);
+
+                    // Validaciones de Stock
+                    if (cols[1] === undefined || cols[1].trim() === '') {
+                        errors.push('El Stock está vacío.');
+                    } else if (isNaN(stock)) {
+                        errors.push('El Stock no es un número válido.');
+                    } else if (stock < 0) {
+                        errors.push('El Stock no puede ser negativo.');
+                    }
+
+                    return { sku, stock, originalLine: line, lineNumber: index + 1, errors };
+                });
+
+                // PASO 2: Verificación de SKUs duplicados en todo el archivo
+                const seenSkus = new Map();
+                allLinesData.forEach(lineData => {
+                    if (lineData.sku && lineData.errors.length === 0) { // Solo revisamos SKUs que ya son válidos
+                        if (seenSkus.has(lineData.sku)) {
+                            // Marcamos este como duplicado
+                            lineData.errors.push(`SKU duplicado (la primera vez aparece en la línea ${seenSkus.get(lineData.sku).lineNumber}).`);
+                            // Y también marcamos el primero que encontramos
+                            const firstOccurrence = seenSkus.get(lineData.sku);
+                            if (!firstOccurrence.errors.some(e => e.startsWith('SKU duplicado'))) {
+                                firstOccurrence.errors.push(`SKU duplicado (se repite más adelante en la línea ${lineData.lineNumber}).`);
+                            }
+                        } else {
+                            seenSkus.set(lineData.sku, lineData);
+                        }
+                    }
+                });
+
+                // PASO 3: Separar las líneas válidas de las que tienen errores
+                const dataToUpload = allLinesData.filter(item => item.errors.length === 0);
+                const skusWithErrors = allLinesData.filter(item => item.errors.length > 0);
+
+                // --- FIN DE LA NUEVA LÓGICA DE VALIDACIÓN ---
 
                 let message = `¿Confirma la carga de ${dataToUpload.length} productos? Esto reemplazará el catálogo teórico actual.`;
                 if (skusWithErrors.length > 0) {
-                    message += ` Se omitieron ${skusWithErrors.length} productos con errores.`;
+                    message += ` Se omitirán ${skusWithErrors.length} productos con errores.`;
                 }
 
                 showModal(message, true, async () => {
@@ -646,7 +1005,8 @@
                     dataToUpload.forEach(item => {
                         const newDocRef = doc(stockTeoricoColRef);
                         batch.set(newDocRef, {
-                            ...item,
+                            sku: item.sku,
+                            stock: item.stock,
                             timestamp: serverTimestamp()
                         });
                     });
@@ -655,28 +1015,26 @@
                         await batch.commit();
                         let successMessage = `Catálogo cargado con éxito. Se cargaron ${dataToUpload.length} productos.`;
                         if (skusWithErrors.length > 0) {
-                            successMessage += ` Se omitieron ${skusWithErrors.length} productos con errores. Se ha descargado un archivo con los errores para que los puedas corregir.`;
+                            successMessage += ` Se omitieron ${skusWithErrors.length} productos con errores. Se ha descargado un archivo CSV con los detalles.`;
 
-                            const errorCsvHeader = ['SKU', 'Stock', 'Motivo del Error'];
+                            // Generar el CSV de errores con los nuevos mensajes detallados
+                            const errorCsvHeader = ['SKU_Original', 'Stock_Original', 'Motivo_del_Error'];
                             const errorCsvRows = skusWithErrors.map(errorItem => {
                                 const originalCols = errorItem.originalLine.split(';');
+                                const errorReason = errorItem.errors.join('; '); // Une todos los errores encontrados para esa línea
                                 return [
                                     `"${originalCols[0]?.trim() || ''}"`,
                                     `"${originalCols[1]?.trim() || ''}"`,
-                                    `"${errorItem.error}"`
+                                    `"${errorReason}"`
                                 ];
                             });
-
                             const errorCsvContent = [
-                                errorCsvHeader.join(';'),
-                                ...errorCsvRows.map(row => row.join(';'))
+                                errorCsvHeader.join(','),
+                                ...errorCsvRows.map(row => row.join(','))
                             ].join('\n');
-
                             downloadCsv(`errores_catalogo_${new Date().toISOString()}.csv`, errorCsvContent);
-
                         }
                         showToast(successMessage, false);
-                        
                         await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail, `Cargado ${dataToUpload.length} items desde CSV.`);
                         e.target.value = '';
                     } catch (error) {
@@ -819,16 +1177,16 @@
             const rows = data.map(item => [
                 item.priority,
                 `"${item.sku}"`,
-                item.status,
-                item.currentTheoreticalStock,
-                item.countDifference,
-                item.physicalCounted,
-                item.initialTheoreticalStock,
-                item.totalSold,
+                item.estado,
+                item.stock_teorico_actual !== null ? item.stock_teorico_actual : 'N/A',
+                item.diferencia_historica !== null ? item.diferencia_historica : 'N/A',
+                item.conteo_fisico !== null ? item.conteo_fisico : 'N/A',
+                item.stock_teorico_al_contar !== null ? item.stock_teorico_al_contar : 'N/A',
+                item.total_vendido !== null ? item.total_vendido : 'N/A',
                 `"${item.counter}"`,
                 item.theoreticalDate ? item.theoreticalDate.toDate().toISOString() : 'N/A',
                 'N/A',
-                item.countDate ? item.countDate.toDate().toISOString() : 'N/A',
+                item.fecha_conteo ? item.fecha_conteo.toDate().toISOString() : 'N/A',
                 item.saleDate ? item.saleDate.toDate().toISOString() : 'N/A'
             ]);
             
@@ -1209,6 +1567,8 @@
         
         // Llamada inicial para configurar la validación de los inputs
         setupSkuInputValidation();
+        // Deshabilitar el módulo de conteo por defecto al cargar la app
+        setCountingModuleState(false);
     </script>
 </body>
 </html>
