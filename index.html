@@ -238,7 +238,7 @@
         const myModal = document.getElementById('myModal');
         const modalMessage = document.getElementById('modal-message');
         const modalButtons = document.getElementById('modal-buttons');
-        
+
         // --- FUNCIONES DE UTILIDAD ---
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
@@ -818,34 +818,41 @@
             
             toggleButton(submitButton, false);
 
-            showModal(`¿Confirma la corrección de stock físico para SKU ${sku} a ${quantity}? Esta acción es irreversible.`, true, async () => {
-                try {
-                    const countColRef = collection(db, `businesses/${BUSINESS_ID}/countData`);
-                    const q = query(countColRef, where("sku", "==", sku), where("type", "==", "conteo"));
-                    const countSnapshot = await getDocs(q);
-                    
-                    if (!countSnapshot.empty) {
-                        const existingDoc = countSnapshot.docs[0];
-                        await updateDoc(existingDoc.ref, {
-                            quantity,
-                            counter: name,
-                            timestamp: serverTimestamp()
-                        });
-                    } else {
-                        await addDoc(countColRef, {
-                            sku,
-                            quantity,
-                            type: 'conteo',
-                            counter: name,
-                            timestamp: serverTimestamp()
-                        });
-                    }
-                    await logAction('Corrección Admin', sku, quantity, name, `Stock físico corregido a ${quantity}.`);
-                    showToast("Stock físico corregido con éxito.", false);
-                    formCorrectionAdmin.reset();
-                } catch (error) {
-                    showToast("Error al corregir stock.", true);
-                    console.error(error);
+            showModal(`¿Confirma la corrección de stock físico para SKU ${sku} a ${quantity}? Esta acción es irreversible.`, true, () => {
+                const password = prompt("Para confirmar la corrección, ingrese la contraseña de Administrador:");
+                if (password === ADMIN_PASSWORD) {
+                    (async () => {
+                        try {
+                            const countColRef = collection(db, `businesses/${BUSINESS_ID}/countData`);
+                            const q = query(countColRef, where("sku", "==", sku), where("type", "==", "conteo"));
+                            const countSnapshot = await getDocs(q);
+                            
+                            if (!countSnapshot.empty) {
+                                const existingDoc = countSnapshot.docs[0];
+                                await updateDoc(existingDoc.ref, {
+                                    quantity,
+                                    counter: name,
+                                    timestamp: serverTimestamp()
+                                });
+                            } else {
+                                await addDoc(countColRef, {
+                                    sku,
+                                    quantity,
+                                    type: 'conteo',
+                                    counter: name,
+                                    timestamp: serverTimestamp()
+                                });
+                            }
+                            await logAction('Corrección Admin', sku, quantity, name, `Stock físico corregido a ${quantity}.`);
+                            showToast("Stock físico corregido con éxito.", false);
+                            formCorrectionAdmin.reset();
+                        } catch (error) {
+                            showToast("Error al corregir stock.", true);
+                            console.error(error);
+                        }
+                    })();
+                } else if (password !== null) {
+                    showToast("Contraseña incorrecta. Operación cancelada.", true);
                 }
             });
             toggleButton(submitButton, true);
@@ -882,21 +889,28 @@
 
             toggleButton(submitButton, false);
 
-            showModal(`¿Confirma la anulación de ${quantity} unidades del SKU ${sku}?`, true, async () => {
-                try {
-                    await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), {
-                        sku,
-                        quantity: -quantity,
-                        type: 'anulacion',
-                        responsible: name,
-                        timestamp: serverTimestamp()
-                    });
-                    await logAction('Anulación', sku, -quantity, name, `Anuladas ${quantity} unidades.`);
-                    showToast("Venta anulada con éxito.", false);
-                    formCancellation.reset();
-                } catch (error) {
-                    showToast("Error al anular venta.", true);
-                    console.error(error);
+            showModal(`¿Confirma la anulación de ${quantity} unidades del SKU ${sku}?`, true, () => {
+                const password = prompt("Para confirmar la anulación, ingrese la contraseña de Administrador:");
+                if (password === ADMIN_PASSWORD) {
+                    (async () => {
+                        try {
+                            await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), {
+                                sku,
+                                quantity: -quantity,
+                                type: 'anulacion',
+                                responsible: name,
+                                timestamp: serverTimestamp()
+                            });
+                            await logAction('Anulación', sku, -quantity, name, `Anuladas ${quantity} unidades.`);
+                            showToast("Venta anulada con éxito.", false);
+                            formCancellation.reset();
+                        } catch (error) {
+                            showToast("Error al anular venta.", true);
+                            console.error(error);
+                        }
+                    })();
+                } else if (password !== null) {
+                    showToast("Contraseña incorrecta. Operación cancelada.", true);
                 }
             });
             toggleButton(submitButton, true);
@@ -922,63 +936,73 @@
 
             toggleButton(submitButton, false);
 
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                const text = event.target.result;
-                const lines = text.split(/\r?\n/).filter(line => line.trim());
-                
-                const dataToUpload = lines.map((line, index) => {
-                    const cols = line.split(';');
-                    const sku = cols[0]?.trim()?.toUpperCase();
-                    const quantity = parseInt(cols[1]?.replace(',', '.'));
+            showModal(`¿Confirma la reposición de los productos del CSV?`, true, () => {
+                const password = prompt("Para confirmar la reposición, ingrese la contraseña de Administrador:");
+                if (password === ADMIN_PASSWORD) {
+                    const reader = new FileReader();
+                    reader.onload = async function(event) {
+                        const text = event.target.result;
+                        const lines = text.split(/\r?\n/).filter(line => line.trim());
+                        
+                        const dataToUpload = lines.map((line, index) => {
+                            const cols = line.split(';');
+                            const sku = cols[0]?.trim()?.toUpperCase();
+                            const quantity = parseInt(cols[1]?.replace(',', '.'));
 
-                    if (!validateSku(sku) || isNaN(quantity) || quantity <= 0) {
-                        return null;
-                    }
-                    return { sku, quantity };
-                }).filter(item => item !== null);
+                            if (!validateSku(sku) || isNaN(quantity) || quantity <= 0) {
+                                return null;
+                            }
+                            return { sku, quantity };
+                        }).filter(item => item !== null);
 
-                const skusWithErrorsCount = lines.length - dataToUpload.length;
+                        const skusWithErrorsCount = lines.length - dataToUpload.length;
 
-                if (dataToUpload.length === 0) {
-                    showToast("Archivo CSV vacío o con formato incorrecto. Formato: SKU;Cantidad. Ningún producto cargado.", true);
-                    toggleButton(submitButton, true);
-                    return;
-                }
+                        if (dataToUpload.length === 0) {
+                            showToast("Archivo CSV vacío o con formato incorrecto. Formato: SKU;Cantidad. Ningún producto cargado.", true);
+                            toggleButton(submitButton, true);
+                            return;
+                        }
 
-                showModal(`¿Confirma la reposición de ${dataToUpload.length} items? Se omitieron ${skusWithErrorsCount} líneas con errores.`, true, async () => {
-                    const batch = writeBatch(db);
-                    const salesColRef = collection(db, `businesses/${BUSINESS_ID}/salesData`);
-                    
-                    dataToUpload.forEach(item => {
-                        const newDocRef = doc(salesColRef);
-                        batch.set(newDocRef, {
-                            sku: item.sku,
-                            quantity: -item.quantity,
-                            type: 'reposicion',
-                            responsible: name,
-                            timestamp: serverTimestamp()
+                        showModal(`¿Confirma la reposición de ${dataToUpload.length} items? Se omitieron ${skusWithErrorsCount} líneas con errores.`, true, async () => {
+                            const batch = writeBatch(db);
+                            const salesColRef = collection(db, `businesses/${BUSINESS_ID}/salesData`);
+                            
+                            dataToUpload.forEach(item => {
+                                const newDocRef = doc(salesColRef);
+                                batch.set(newDocRef, {
+                                    sku: item.sku,
+                                    quantity: -item.quantity,
+                                    type: 'reposicion',
+                                    responsible: name,
+                                    timestamp: serverTimestamp()
+                                });
+                            });
+                            
+                            try {
+                                await batch.commit();
+                                showToast(`Reposición cargada con éxito. Se cargaron ${dataToUpload.length} items.`, false);
+                                await logAction('Reposición', 'N/A', dataToUpload.length, name, `Reposición de ${dataToUpload.length} items desde CSV.`);
+                                formReposicionCsv.reset();
+                            } catch (error) {
+                                showToast("Error al cargar la reposición.", true);
+                                console.error(error);
+                            } finally {
+                                toggleButton(submitButton, true);
+                            }
                         });
-                    });
-                    
-                    try {
-                        await batch.commit();
-                        showToast(`Reposición cargada con éxito. Se cargaron ${dataToUpload.length} items.`, false);
-                        await logAction('Reposición', 'N/A', dataToUpload.length, name, `Reposición de ${dataToUpload.length} items desde CSV.`);
-                        formReposicionCsv.reset();
-                    } catch (error) {
-                        showToast("Error al cargar la reposición.", true);
-                        console.error(error);
-                    } finally {
+                    };
+                    reader.onerror = () => {
+                        showToast("Error leyendo el archivo CSV.", true);
                         toggleButton(submitButton, true);
-                    }
-                });
-            };
-            reader.onerror = () => {
-                showToast("Error leyendo el archivo CSV.", true);
-                toggleButton(submitButton, true);
-            };
-            reader.readAsText(file);
+                    };
+                    reader.readAsText(file);
+                } else if (password !== null) {
+                    showToast("Contraseña incorrecta. Operación cancelada.", true);
+                    toggleButton(submitButton, true);
+                } else {
+                    toggleButton(submitButton, true);
+                }
+            });
         });
 
         // Log de Auditoría
