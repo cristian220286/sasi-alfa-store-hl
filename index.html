@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alfa Store HL</title>
+    <title>Sasi Smart Group PPS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,7 +62,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -371,7 +371,7 @@
                     };
                 }
 
-                // --- LÓGICA HÍBRIDA DEFINITIVA ---
+                // --- LÓGICA HÍBRIDA DEFINITIVA Y CORRECTA ---
                 const fechaConteo = ultimoConteo.timestamp.toDate();
                 const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
                 
@@ -382,15 +382,15 @@
                 const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
                 const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
 
-                // La Diferencia Histórica compara el FÍSICO TOTAL contra el TEÓRICO INICIAL.
+                // REGLA 1: La Diferencia Histórica compara el FÍSICO TOTAL contra el TEÓRICO INICIAL.
                 const diferenciaHistorica = conteoFisicoTotal - stockTeoricoInicial;
-
-                // El Físico Proyectado es tu stock real actual: lo que contaste MENOS lo que vendiste DESPUÉS.
+                
+                // REGLA 2: El Físico Proyectado es tu stock real actual: lo que contaste MENOS lo que vendiste DESPUÉS.
                 const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
-
+                
                 const totalVendidoGeneral = totalVendidoAntes + totalVendidoDespues;
                 const stockTeoricoActual = stockTeoricoInicial - totalVendidoGeneral;
-
+                
                 let estado = 'Cuadrado';
                 if (diferenciaHistorica > 0) estado = 'Sobrante';
                 else if (diferenciaHistorica < 0) estado = 'Faltante';
