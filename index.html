@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Sasi Smart Group PPS</title>
+    <title>Alfa Store HL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -66,14 +66,10 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
+                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
-                    <button id="btn-toggle-log" class="btn btn-secondary">
-                        <i class="fa-solid fa-clipboard-list"></i>
-                        <span>Ver Log</span>
-                    </button>
                     <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
                 </div>
             </header>
@@ -136,7 +132,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex flex-col lg:flex-row gap-6 mt-8">
                     <div class="w-full lg:flex-grow">
                         <div class="card">
@@ -169,7 +165,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div id="log-panel" class="w-full lg:w-1/3 xl:w-1/4 hidden">
                         <div class="card p-0">
                              <div class="p-4 border-b">
@@ -543,13 +539,6 @@
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), snap => { theoreticalStock = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), snap => { salesData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), snap => { countData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
-
-            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc')), snap => {
-                fullAdminLogData = snap.docs.map(doc => doc.data());
-                if (logPanel && !logPanel.classList.contains('hidden')) {
-                    renderAndAnalyzeAdminLog();
-                }
-            }, errHandler));
         };
         const stopFirestoreListeners = () => { unsubscribes.forEach(unsub => unsub()); unsubscribes = []; };
         const logAction = async (type, sku, quantity, responsible, detail = '') => {
@@ -860,44 +849,30 @@
             downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
         });
 
-        btnToggleLog.addEventListener('click', async () => {
-            const isVisible = !logPanel.classList.contains('hidden');
-            const icon = btnToggleLog.querySelector('i');
-            const text = btnToggleLog.querySelector('span');
-            
-            if (isVisible) {
-                logPanel.classList.add('hidden');
-                icon.classList.remove('fa-clipboard-check');
-                icon.classList.add('fa-clipboard-list');
-                text.textContent = 'Ver Log';
-            } else {
-                const password = await requestPassword();
-                if (password !== LOG_PASSWORD) {
-                    if (password !== null) showToast("Contraseña incorrecta.", true);
-                    return;
-                }
-
-                if (!BUSINESS_ID) {
-                    showToast("No hay negocio autenticado.", true);
-                    return;
-                }
-
-                logFilterDate.value = '';
-                logFilterSku.value = '';
-                logFilterResp.value = '';
-                
-                logPanel.classList.remove('hidden');
-                icon.classList.remove('fa-clipboard-list');
-                icon.classList.add('fa-clipboard-check');
-                text.textContent = 'Ocultar Log';
-
-                const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
-                const logsSnapshot = await getDocs(logsQuery);
-                fullAdminLogData = logsSnapshot.docs.map(doc => doc.data());
-                renderAndAnalyzeAdminLog();
+        btnOpenLogModal.addEventListener('click', async () => {
+            const password = await requestPassword();
+            if (password !== LOG_PASSWORD) {
+                if (password !== null) showToast("Contraseña incorrecta.", true);
+                return;
             }
+
+            if (!BUSINESS_ID) {
+                showToast("No hay negocio autenticado.", true);
+                return;
+            }
+            
+            adminLogModal.style.display = 'flex';
+
+            const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
+            const logsSnapshot = await getDocs(logsQuery);
+            fullAdminLogData = logsSnapshot.docs.map(doc => doc.data());
+            renderAndAnalyzeAdminLog();
         });
-        
+
+        closeAdminLogBtn.addEventListener('click', () => {
+            adminLogModal.style.display = 'none';
+        });
+
         btnClearLog.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
