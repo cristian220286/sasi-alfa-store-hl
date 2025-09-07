@@ -435,22 +435,22 @@
             // Suscribirse al stock teórico (catálogo)
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), (snapshot) => {
                 theoreticalStock = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderDashboard();
+                debouncedRender();
             }));
 
             // Suscribirse a los datos de ventas
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), (snapshot) => {
                 salesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderDashboard();
+                debouncedRender();
             }));
 
             // Suscribirse a los datos de conteo
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), (snapshot) => {
                 countData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderDashboard();
+                debouncedRender();
             }));
 
-            // Suscribirse al log de auditoría
+            // El listener de auditLog no afecta al dashboard principal, así que puede quedar como está
             const auditQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10));
             unsubscribes.push(onSnapshot(auditQuery, (snapshot) => {
                 auditLog = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -478,7 +478,18 @@
         
         // --- LÓGICA DE CÁLCULO Y RENDERIZADO DEL DASHBOARD ---
 
+        // Función para evitar múltiples renders en ráfagas de cambios
+        const debouncedRender = debounce(renderDashboard, 150);
+
         // --- Utilidades ---
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
 
         function normalizeSku(sku) {
             if (typeof sku !== 'string') return null;
@@ -1169,21 +1180,19 @@
                 return;
             }
 
-            const header = ['Prioridad', 'SKU', 'Estado', 'Stock Teórico Actual', 'Diferencia Conteo', 'Físico Contado', 'Stock Teórico Inicial', 'Total Vendido', 'Contado por', 'Fecha Ing. Teórico', 'Fecha Últ. Repo.', 'Fecha Conteo', 'Fecha Venta'];
+            const header = ['Prioridad', 'SKU', 'Estado', 'Físico Proyectado', 'Dif. (Histórica)', 'Físico Contado', 'Teórico (al Contar)', 'Teórico (Actual)', 'Total Vendido', 'Contado por', 'Fecha Conteo', 'Fecha Venta'];
             const rows = data.map(item => [
-                item.priority,
-                `"${item.sku}"`,
+                item.sku,
                 item.estado,
-                item.stock_teorico_actual !== null ? item.stock_teorico_actual : 'N/A',
+                item.stock_fisico_proyectado !== null ? item.stock_fisico_proyectado : 'N/A',
                 item.diferencia_historica !== null ? item.diferencia_historica : 'N/A',
-                item.conteo_fisico !== null ? item.conteo_fisico : 'N/A',
+                item.conteo_fisico,
                 item.stock_teorico_al_contar !== null ? item.stock_teorico_al_contar : 'N/A',
-                item.total_vendido !== null ? item.total_vendido : 'N/A',
+                item.stock_teorico_actual,
+                item.total_vendido,
                 `"${item.counter}"`,
-                item.theoreticalDate ? item.theoreticalDate.toDate().toISOString() : 'N/A',
-                'N/A',
-                item.fecha_conteo ? item.fecha_conteo.toDate().toISOString() : 'N/A',
-                item.saleDate ? item.saleDate.toDate().toISOString() : 'N/A'
+                item.fecha_conteo ? item.fecha_conteo.toISOString() : 'N/A',
+                item.saleDate ? item.saleDate.toISOString() : 'N/A'
             ]);
             
             const csvContent = [
