@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Alfa Store HL</title>
+    <title>Sasi Smart Group PPS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* Tus estilos personalizados aquí (igual que antes) */
+        /* Paleta de Colores Pastel Femenina y Profesional */
         :root {
-            --bg-main: #FDF8FA;
+            --bg-main: #FDF8FA;      /* Rosa muy claro */
             --bg-card: #FFFFFF;
-            --primary: #EAB3A8;
-            --primary-hover: #D69A8F;
+            --primary: #EAB3A8;      /* Rosa pastel principal */
+            --primary-hover: #D69A8F; /* Rosa pastel más oscuro */
             --secondary: #E5E7EB;
             --secondary-hover: #D1D5DB;
-            --text-dark: #4B4B4B;
+            --text-dark: #4B4B4B;    /* Gris oscuro suave */
             --text-light: #6B7280;
             --border-color: #F3E8EB;
-            --danger: #FCA5A5;
+            --danger: #FCA5A5;        /* Rojo coral suave */
             --danger-hover: #EF4444;
-            --success: #A7F3D0;
-            --warning: #FDE68A;
-            --info: #A5B4FC;
+            --success: #A7F3D0;        /* Menta */
+            --warning: #FDE68A;        /* Amarillo pastel */
+            --info: #A5B4FC;          /* Lavanda */
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -66,11 +66,14 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
-                    <button id="btn-toggle-log" class="btn btn-secondary"><i class="fa-solid fa-clipboard-list"></i><span>Ver Log</span></button>
+                    <button id="btn-toggle-log" class="btn btn-secondary">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Ver Log</span>
+                    </button>
                     <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
                 </div>
             </header>
@@ -133,7 +136,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <div class="flex flex-col lg:flex-row gap-6 mt-8">
                     <div class="w-full lg:flex-grow">
                         <div class="card">
@@ -836,7 +839,8 @@
             reader.readAsText(file);
         });
 
-        searchInput.addEventListener('input', debouncedRender);
+        searchInput.addEventListener('input', debounce(() => { renderDashboard(getDashboardData()); }, 250));
+
         btnDownloadCsv.addEventListener('click', () => {
             if (memoizedDashboardData.length === 0) return showToast("No hay datos para descargar.", true);
             const headers = ["SKU", "Estado", "Fisico_Proyectado", "Diferencia_Historica", "Fisico_Contado", "Teorico_al_Contar", "Teorico_Actual", "Total_Vendido", "Contado_Por", "Fecha_Conteo", "Fecha_Ultima_Venta"];
@@ -847,24 +851,46 @@
             ].join(';'))].join('\n');
             downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
         });
-        
-        btnToggleLog.addEventListener('click', () => {
-            logPanel.classList.toggle('hidden');
+
+        btnToggleLog.addEventListener('click', async () => {
+            const isVisible = !logPanel.classList.contains('hidden');
             const icon = btnToggleLog.querySelector('i');
             const text = btnToggleLog.querySelector('span');
-
-            if (logPanel.classList.contains('hidden')) {
+            
+            if (isVisible) {
+                logPanel.classList.add('hidden');
                 icon.classList.remove('fa-clipboard-check');
                 icon.classList.add('fa-clipboard-list');
                 text.textContent = 'Ver Log';
             } else {
+                const password = await requestPassword();
+                if (password !== LOG_PASSWORD) {
+                    if (password !== null) showToast("Contraseña incorrecta.", true);
+                    return;
+                }
+
+                if (!BUSINESS_ID) {
+                    showToast("No hay negocio autenticado.", true);
+                    return;
+                }
+
+                logFilterDate.value = '';
+                logFilterSku.value = '';
+                logFilterResp.value = '';
+                
+                logPanel.classList.remove('hidden');
                 icon.classList.remove('fa-clipboard-list');
                 icon.classList.add('fa-clipboard-check');
                 text.textContent = 'Ocultar Log';
+
+                // Obtener todos los logs una sola vez al abrir el panel
+                const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
+                const logsSnapshot = await getDocs(logsQuery);
+                fullAdminLogData = logsSnapshot.docs.map(doc => doc.data());
                 renderAndAnalyzeAdminLog();
             }
         });
-
+        
         btnClearLog.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
