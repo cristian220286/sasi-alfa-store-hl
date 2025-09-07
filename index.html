@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sasi Smart Group PPS</title>
+    <title>Alfa Store HL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,7 +25,6 @@
             --warning: #FDE68A;      /* Amarillo pastel */
             --info: #A5B4FC;        /* Lavanda */
         }
-
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-dark); }
         .card { background-color: var(--bg-card); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
         .table-header th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-main); position: sticky; top: 0; z-index: 10; }
@@ -36,35 +35,21 @@
         .badge-cuadrado { background-color: var(--info); color: #3730A3; }
         .badge-pendiente { background-color: var(--warning); color: #92400E; }
         .badge-no-en-catalogo { background-color: #9CA3AF; color: #1F2937; }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
-        .btn:disabled { background-color: #D1D5DB; cursor: not-allowed; opacity: 0.6; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn:disabled { background-color: #D1D5DB; color: #6B7280; cursor: not-allowed; opacity: 0.7; }
         .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-        .btn-danger:hover:not(:disabled) { background-color: var(--danger-hover); color: white; }
-        .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
-        .input-field { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; transition: border-color 0.2s, box-shadow 0.2s; background-color: #fff; }
+        .input-field { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; transition: border-color 0.2s, box-shadow 0.2s; }
         .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px #FBCFE8; }
         .input-field.invalid { border-color: var(--danger); box-shadow: 0 0 0 2px #FECACA; }
-        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); width: 90%; max-width: 1024px; text-align: left; }
-        #auth-section { display: flex; flex-direction: column; gap: 1rem; padding: 2rem; background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05); max-width: 400px; margin: 50px auto; }
-        #app-content { display: none; }
-        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 0.5rem; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; font-size: 17px; }
-        #toast.show { visibility: visible; -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 0.5rem; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         #toast.error { background-color: var(--danger); color: #B91C1C; }
         #toast.success { background-color: var(--success); color: #065F46; }
-        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        
-        /* Animación para resaltar cambios en el dashboard */
-        @keyframes flash-yellow {
-            from { background-color: #FDE68A; } /* Amarillo pastel */
-            to { background-color: transparent; }
-        }
-        .flash-yellow {
-            animation: flash-yellow 1.5s ease-out;
-        }
+        .btn-processing { background-color: var(--success) !important; color: #065F46 !important; cursor: wait !important; }
+        .btn-processing i { animation: fa-spin 1s infinite linear; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8 flex flex-col min-h-screen">
@@ -72,52 +57,52 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
+                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
-                    <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">Cargando...</span></div>
+                    <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
-                    <button id="btn-limpiar-datos" class="btn btn-danger"><i class="fa-solid fa-bomb"></i>Limpiar Datos</button>
                     <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
                 </div>
             </header>
 
-            <div id="auth-section">
-                <h2 class="text-2xl font-bold text-center">Iniciar Sesión</h2>
-                <p class="text-sm text-gray-500 text-center">Usa un email (puede ser inventado) para crear o acceder a tu espacio de trabajo.</p>
-                <input type="email" id="auth-email" class="input-field" placeholder="Email del espacio de trabajo" required>
-                <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required>
-                <button id="btn-login" class="btn btn-primary w-full">Iniciar Sesión</button>
-                <button id="btn-register" class="btn btn-secondary w-full">Crear Nuevo Espacio</button>
+            <div id="auth-section" class="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
+                <div class="space-y-4">
+                    <input type="email" id="auth-email" class="input-field" placeholder="Email del espacio de trabajo" required>
+                    <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required>
+                    <button id="btn-login" class="btn btn-primary w-full">Iniciar Sesión</button>
+                    <button id="btn-register" class="btn btn-secondary w-full">Crear Nuevo Espacio</button>
+                </div>
             </div>
 
-            <div id="app-content">
+            <div id="app-content" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                     <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
                     <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"><p class="text-sm text-gray-500 mt-2">Formato: SKU;Stock</p></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden sku-warning">¡Ojo! Los códigos no llevan espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden sku-warning">¡Ojo! Los códigos no llevan espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
                 </div>
 
-                <div class="card border-2" style="border-color: var(--primary);" >
+                <div class="card border-2" style="border-color: var(--primary);">
                     <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-user-shield"></i> Operaciones de Administrador</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6">
                         <form id="form-correccion-admin">
-                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-pen-to-square"></i> Corregir Stock Físico</h3>
+                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-pen-to-square"></i> Corregir Físico</h3>
                             <div class="space-y-3">
                                 <input type="text" id="correc-sku" class="input-field sku-input" placeholder="SKU a corregir" required>
-                                <div class="text-xs text-red-400 hidden sku-warning">¡Ojo! Los códigos no llevan espacios.</div>
+                                <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
                                 <input type="number" id="correc-cantidad" class="input-field" placeholder="Nuevo Stock Físico TOTAL" required min="0">
-                                <input type="text" id="correc-nombre-admin" class="input-field" placeholder="Su Nombre para auditoría" required>
+                                <input type="text" id="correc-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
                                 <button type="submit" class="btn btn-primary w-full">Corregir</button>
                             </div>
                         </form>
-                           <form id="form-anulacion">
+                        <form id="form-anulacion">
                             <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-undo"></i> Anular Venta</h3>
                             <div class="space-y-3">
-                                <input type="text" id="anular-sku" class="input-field sku-input" placeholder="SKU de la venta a anular" required>
-                                <div class="text-xs text-red-400 hidden sku-warning">¡Ojo! Los códigos no llevan espacios.</div>
+                                <input type="text" id="anular-sku" class="input-field sku-input" placeholder="SKU de la venta" required>
+                                <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
                                 <input type="number" id="anular-cantidad" class="input-field" placeholder="Cantidad a anular" required min="1">
-                                <input type="text" id="anular-nombre-admin" class="input-field" placeholder="Su Nombre para auditoría" required>
+                                <input type="text" id="anular-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
                                 <button type="submit" class="btn btn-primary w-full">Anular</button>
                             </div>
                         </form>
@@ -125,39 +110,36 @@
                             <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-truck-ramp-box"></i> Reponer Stock (CSV)</h3>
                             <div class="space-y-3">
                                 <input type="file" id="repo-csv-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" required>
-                                <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Su Nombre para auditoría" required>
+                                <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
                                 <p class="text-xs text-gray-500 mt-1">Formato: SKU;Cantidad</p>
                                 <button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-dolly"></i>Cargar Reposición</button>
                             </div>
                         </form>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-bomb"></i> Zona Peligrosa</h3>
+                            <div class="space-y-3">
+                                <button id="btn-limpiar-datos" class="btn btn-danger w-full">Limpiar Datos Operativos</button>
+                                <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Ver Log de Auditoría</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
-                    <div class="card xl:col-span-2">
-                        <h2 class="text-2xl font-bold mb-4">Últimos 10 Movimientos</h2>
-                        <div class="overflow-x-auto max-h-[250px]"><table class="w-full"><thead class="table-header"><tr><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Fecha y Hora</th></tr></thead><tbody id="last-movements-body"></tbody></table></div>
-                    </div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-book"></i> Log de Auditoría</h2><p class="text-gray-400 mb-4">Ver todos los movimientos registrados.</p><button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Abrir Log</button></div>
                 </div>
 
                 <div class="card mt-6">
-                    <div class="flex justify-between items-center mb-4 gap-4 flex-wrap"><h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2><div class="flex gap-4 items-center"><input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs"><button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button></div></div>
+                    <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
+                        <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
+                        <div class="flex gap-4 items-center">
+                            <input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs">
+                            <button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button>
+                        </div>
+                    </div>
                     <div class="overflow-x-auto max-h-[65vh]">
                         <table class="w-full">
                             <thead class="table-header">
                                 <tr>
-                                    <th>SKU</th>
-                                    <th>Estado</th>
-                                    <th>Físico Proyectado</th>
-                                    <th>Dif. (Histórica)</th>
-                                    <th>Físico Contado</th>
-                                    <th>Teórico (al Contar)</th>
-                                    <th>Teórico (Actual)</th>
-                                    <th>Total Vendido</th>
-                                    <th>Contado por</th>
-                                    <th>Fecha Conteo</th>
-                                    <th>Fecha Venta</th>
+                                    <th>SKU</th> <th>Estado</th> <th>Físico Proyectado</th> <th>Dif. (Histórica)</th>
+                                    <th>Físico Contado</th> <th>Teórico (al Contar)</th> <th>Teórico (Actual)</th>
+                                    <th>Total Vendido</th> <th>Contado por</th> <th>Fecha Conteo</th> <th>Fecha Venta</th>
                                 </tr>
                             </thead>
                             <tbody id="dashboard-body"></tbody>
@@ -172,10 +154,15 @@
     </main>
 
     <div id="toast"></div>
-    <div id="myModal" class="modal"><div class="modal-content"><span class="close-button">&times;</span><div id="modal-message" class="text-lg font-semibold mb-4"></div><div id="modal-buttons" class="flex justify-end gap-4"></div></div></div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div id="modal-message" class="text-lg font-semibold mb-4"></div>
+            <div id="modal-buttons" class="flex justify-end gap-4"></div>
+        </div>
+    </div>
     <div id="adminLogModal" class="modal">
         <div class="modal-content">
-            <span class="close-button" id="close-admin-log">&times;</span>
+            <span class="close-button" id="close-admin-log" style="float:right; cursor:pointer; font-size: 1.5rem;">&times;</span>
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Log de Movimientos de Auditoría</h2>
                 <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
@@ -227,7 +214,6 @@
         const userIdDisplay = document.getElementById('user-id-display');
         const counterDisplay = document.getElementById('contador-display');
         const btnLogout = document.getElementById('btn-logout');
-        const btnClearData = document.getElementById('btn-limpiar-datos');
         const btnLogin = document.getElementById('btn-login');
         const btnRegister = document.getElementById('btn-register');
         const authEmailInput = document.getElementById('auth-email');
@@ -245,7 +231,7 @@
         const correctionSkuInput = document.getElementById('correc-sku');
         const correctionQuantityInput = document.getElementById('correc-cantidad');
         const correctionAdminNameInput = document.getElementById('correc-nombre-admin');
-        const formCancellation = document.getElementById('form-anulacion');
+        const formAnulacion = document.getElementById('form-anulacion');
         const cancellationSkuInput = document.getElementById('anular-sku');
         const cancellationQuantityInput = document.getElementById('anular-cantidad');
         const cancellationAdminNameInput = document.getElementById('anular-nombre-admin');
@@ -265,6 +251,7 @@
         const myModal = document.getElementById('myModal');
         const modalMessage = document.getElementById('modal-message');
         const modalButtons = document.getElementById('modal-buttons');
+        const btnClearData = document.getElementById('btn-limpiar-datos');
 
         // --- FUNCIONES DE UTILIDAD ---
         const showToast = (message, isError = false) => {
@@ -274,6 +261,9 @@
             setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
         };
         const showModal = (message, isConfirm = false, onConfirm = null) => {
+            const modalMessage = document.getElementById('modal-message');
+            const modalButtons = document.getElementById('modal-buttons');
+            const myModal = document.getElementById('myModal');
             modalMessage.textContent = message;
             modalButtons.innerHTML = '';
             const closeBtn = document.createElement('button');
@@ -291,6 +281,9 @@
             myModal.style.display = 'flex';
         };
         const requestPassword = () => new Promise(resolve => {
+            const modalMessage = document.getElementById('modal-message');
+            const modalButtons = document.getElementById('modal-buttons');
+            const myModal = document.getElementById('myModal');
             modalMessage.innerHTML = `<label for="modal-password-input" class="block text-sm font-medium mb-2">Se requiere contraseña de Administrador:</label><input type="password" id="modal-password-input" class="input-field" autocomplete="current-password">`;
             modalButtons.innerHTML = '';
             const confirmBtn = document.createElement('button');
@@ -348,7 +341,7 @@
         };
         const normalizeSku = (sku) => (typeof sku === 'string' ? sku.trim().toUpperCase() : '');
 
-        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA) ---
+        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA FINAL) ---
         let memoizedDashboardData = [];
 
         class SkuData {
@@ -356,8 +349,7 @@
 
             getLatestConteo() {
                 if (this.conteos.length === 0) return null;
-                return this.conteos.reduce((latest, current) => 
-                    (current.timestamp?.toDate() > latest.timestamp?.toDate() ? current : latest));
+                return this.conteos.reduce((latest, current) => (current.timestamp?.toDate() > latest.timestamp?.toDate() ? current : latest));
             }
         
             calcularEstado(stockTeoricoInicial = 0) {
@@ -380,12 +372,12 @@
                 const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaPrimerConteo);
                 const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaPrimerConteo);
 
-                const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
-                const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
+                const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
+                const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
                 
                 const stockTeoricoAlContar = stockTeoricoInicial - totalVendidoAntes;
                 const diferenciaHistorica = conteoFisicoTotal - stockTeoricoAlContar;
-                const stockFisicoProyectado = conteoFisicoTotal + totalVendidoDespues;
+                const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
                 const stockTeoricoActual = stockTeoricoInicial - (totalVendidoAntes + totalVendidoDespues);
                 
                 let estado = 'Cuadrado';
@@ -482,11 +474,11 @@
                 const newName = counterNameInput.value.trim();
                 if (newName) {
                     counterName = newName; counterDisplay.textContent = newName; counterNameInput.disabled = true;
-                    btnSaveCounterName.innerHTML = '<i class="fa-solid fa-pencil"></i> Cambiar Nombre'; setCountingModuleState(true);
+                    btnSaveCounterName.innerHTML = '<i class="fa-solid fa-pencil"></i> Cambiar'; setCountingModuleState(true);
                     showToast(`Sesión iniciada para: ${counterName}`);
                 } else showToast('Ingrese un nombre válido.', true);
             } else {
-                counterNameInput.disabled = false; btnSaveCounterName.innerHTML = '<i class="fa-solid fa-user-check"></i> Fijar Nombre';
+                counterNameInput.disabled = false; btnSaveCounterName.innerHTML = '<i class="fa-solid fa-user-check"></i> Fijar';
                 counterName = 'N/A'; counterDisplay.textContent = 'N/A'; setCountingModuleState(false);
             }
         });
@@ -506,6 +498,7 @@
                     seenSkus.add(normalizedSku);
                     return { sku: normalizedSku, stock: parseFloat(stockStr?.trim().replace(',', '.')) || 0, timestamp: serverTimestamp() };
                 }).filter(Boolean);
+                
                 showModal(`Se cargarán ${dataToUpload.length} SKUs únicos. Esto reemplazará el catálogo teórico actual.`, true, async () => {
                     const batch = writeBatch(db);
                     const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
@@ -522,29 +515,35 @@
 
         formSales.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitButton = e.submitter;
             const sku = normalizeSku(salesSkuInput.value);
             const quantity = Number(salesQuantityInput.value);
             if (!validateSku(sku) || !quantity || quantity <= 0) return showToast("SKU o cantidad inválidos.", true);
-            toggleButton(e.submitter, false);
+            
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
             try {
                 await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), { sku, quantity, timestamp: serverTimestamp() });
-                await logAction('Venta', sku, quantity, 'Vendedor');
                 showToast("Venta registrada.");
                 formSales.reset(); salesSkuInput.focus();
             } catch (error) {
                 showToast("Error al registrar venta.", true);
-                console.error(error);
+                console.error("Error en venta:", error);
             } finally {
-                toggleButton(e.submitter, true);
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
             }
         });
 
         formCount.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitButton = e.submitter;
             const sku = normalizeSku(countSkuInput.value);
             const quantity = Number(countQuantityInput.value);
             if (!validateSku(sku) || !quantity || quantity <= 0) return showToast("SKU o cantidad inválidos.", true);
-            toggleButton(e.submitter, false);
+            
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
             try {
                 const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
                 await runTransaction(db, async (transaction) => {
@@ -552,24 +551,115 @@
                     const newTotal = (countDoc.exists() ? countDoc.data().quantity : 0) + quantity;
                     transaction.set(countDocRef, { sku, quantity: newTotal, type: 'conteo', counter: counterName, timestamp: serverTimestamp() });
                 });
-                await logAction('Conteo Físico', sku, quantity, counterName, `Añadidas ${quantity} uds.`);
                 showToast("Conteo actualizado.");
                 formCount.reset(); countSkuInput.focus();
             } catch (err) { showToast("Error al actualizar conteo.", true); console.error(err); }
-            finally { toggleButton(e.submitter, true); }
+            finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
+        });
+
+        const formCorrectionAdmin = document.getElementById('form-correccion-admin');
+        const correctionSkuInput = document.getElementById('correc-sku');
+        const correctionQuantityInput = document.getElementById('correc-cantidad');
+        const correctionAdminNameInput = document.getElementById('correc-nombre-admin');
+        const formAnulacion = document.getElementById('form-anulacion');
+        const cancellationSkuInput = document.getElementById('anular-sku');
+        const cancellationQuantityInput = document.getElementById('anular-cantidad');
+        const cancellationAdminNameInput = document.getElementById('anular-nombre-admin');
+        const formReposicionCsv = document.getElementById('form-reposicion-csv');
+        const repoCsvInput = document.getElementById('repo-csv-input');
+        const repoAdminNameInput = document.getElementById('repo-nombre-admin');
+        const lastMovementsBody = document.getElementById('last-movements-body');
+        const btnDownloadCsv = document.getElementById('btn-descargar-csv');
+        const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
+        const adminLogModal = document.getElementById('adminLogModal');
+        const closeAdminLogBtn = document.getElementById('close-admin-log');
+        const adminLogBody = document.getElementById('admin-log-body');
+        const btnClearLog = document.getElementById('btn-limpiar-log');
+        const logDatePicker = document.getElementById('log-date-picker');
+        const myModal = document.getElementById('myModal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalButtons = document.getElementById('modal-buttons');
+        const btnClearData = document.getElementById('btn-limpiar-datos');
+
+        formCorrectionAdmin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const sku = normalizeSku(correctionSkuInput.value);
+            const quantity = Number(correctionQuantityInput.value);
+            const name = correctionAdminNameInput.value.trim();
+            if (!validateSku(sku) || quantity < 0 || !name) return showToast("Datos inválidos.", true);
+            
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) {
+                if (password !== null) showToast("Contraseña incorrecta.", true);
+                return;
+            }
+
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            try {
+                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
+                await setDoc(countDocRef, { sku, quantity, type: 'conteo', counter: name, timestamp: serverTimestamp() });
+                await logAction('Corrección Admin', sku, quantity, name, `Stock físico TOTAL fijado a ${quantity}.`);
+                showToast("Stock físico corregido.");
+                formCorrectionAdmin.reset();
+            } catch (err) { showToast("Error al corregir.", true); console.error(err); }
+            finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
+        });
+
+        formAnulacion.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const sku = normalizeSku(cancellationSkuInput.value);
+            const quantity = Number(cancellationQuantityInput.value);
+            const name = cancellationAdminNameInput.value.trim();
+            if (!validateSku(sku) || quantity <= 0 || !name) return showToast("Datos inválidos.", true);
+            
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) {
+                if (password !== null) showToast("Contraseña incorrecta.", true);
+                return;
+            }
+
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            try {
+                await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), { sku, quantity: -quantity, type: 'anulacion', responsible: name, timestamp: serverTimestamp() });
+                await logAction('Anulación', sku, -quantity, name);
+                showToast("Venta anulada con éxito.");
+                formAnulacion.reset();
+            } catch (err) { showToast("Error al anular.", true); console.error(err); }
+            finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
         });
 
         formReposicionCsv.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitButton = e.submitter;
             const file = repoCsvInput.files[0];
             const name = repoAdminNameInput.value.trim();
             if (!file || !name) return showToast("Complete todos los campos.", true);
+            
             const password = await requestPassword();
-            if (password !== ADMIN_PASSWORD) return showToast("Contraseña incorrecta.", true);
-            toggleButton(e.submitter, false);
-            try {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
+            if (password !== ADMIN_PASSWORD) {
+                if (password !== null) showToast("Contraseña incorrecta.", true);
+                return;
+            }
+
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
                     const lines = event.target.result.split(/\r?\n/).filter(line => line.trim());
                     const dataToUpload = lines.map(line => {
                         const [sku, qtyStr] = line.split(';');
@@ -598,18 +688,16 @@
                         } catch (err) { console.error(`Error reponiendo ${item.sku}:`, err); }
                     }
                     showToast(`Reposición completada. ${successCount}/${dataToUpload.length} SKUs actualizados.`);
-                    repoCsvInput.value = '';
-                };
-                reader.readAsText(file);
-            } catch (error) {
-                showToast("Operación cancelada o error.", true);
-                console.error(error);
-            } finally {
-                toggleButton(e.submitter, true);
-            }
+                    formReposicionCsv.reset();
+                } catch (err) { showToast("Error procesando el archivo de reposición.", true); console.error(err); }
+                finally {
+                    toggleButton(submitButton, true);
+                    submitButton.classList.remove('btn-processing');
+                }
+            };
+            reader.readAsText(file);
         });
 
-        // Resto de listeners de administrador y UI
         searchInput.addEventListener('input', debouncedRender);
         btnDownloadCsv.addEventListener('click', () => {
             if (memoizedDashboardData.length === 0) return showToast("No hay datos para descargar.", true);
@@ -636,9 +724,7 @@
                 showToast("Operación cancelada.", true);
             }
         });
-
         closeAdminLogBtn.addEventListener('click', () => adminLogModal.style.display = 'none');
-        
         btnClearLog.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== ADMIN_PASSWORD) {
@@ -653,7 +739,6 @@
                 showToast("Log de auditoría limpiado.", false);
             });
         });
-
         logDatePicker.addEventListener('change', async (e) => {
             const date = e.target.value;
             const q = date 
@@ -662,7 +747,6 @@
             const logsSnapshot = await getDocs(q);
             renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
         });
-        
         btnClearData.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== ADMIN_PASSWORD) {
@@ -681,7 +765,7 @@
                 showToast("Todos los datos del negocio han sido eliminados.", false);
             });
         });
-        
+
         // --- INICIALIZACIÓN DE LA APLICACIÓN ---
         onAuthStateChanged(auth, user => {
             stopFirestoreListeners();
