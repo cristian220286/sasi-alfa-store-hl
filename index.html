@@ -55,11 +55,10 @@
         .btn-processing { background-color: var(--success) !important; color: #065F46 !important; cursor: wait !important; }
         .btn-processing i { animation: fa-spin 1s infinite linear; }
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); width: 90%; max-width: 1024px; text-align: left; }
+        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border-radius: 0.5rem; box-shadow: 0 4px 6px -1-px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); width: 90%; max-width: 1024px; text-align: left; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8 flex flex-col min-h-screen">
-
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
@@ -70,7 +69,6 @@
                     <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
                 </div>
             </header>
-
             <div id="auth-section" class="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
                 <h2 class="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
                 <div class="space-y-4">
@@ -80,7 +78,6 @@
                     <button id="btn-register" class="btn btn-secondary w-full">Crear Nuevo Espacio</button>
                 </div>
             </div>
-
             <div id="app-content" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                     <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
@@ -88,7 +85,6 @@
                     <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
                     <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
                 </div>
-
                 <div class="card border-2" style="border-color: var(--primary);">
                     <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-user-shield"></i> Operaciones de Administrador</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6">
@@ -130,7 +126,24 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
+                    <div class="card xl:col-span-2">
+                        <h2 class="text-2xl font-bold mb-4">Últimos 10 Movimientos</h2>
+                        <div class="overflow-x-auto max-h-[250px]">
+                            <table class="w-full">
+                                <thead class="table-header">
+                                    <tr><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Fecha y Hora</th></tr>
+                                </thead>
+                                <tbody id="last-movements-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-book"></i> Log de Auditoría</h2>
+                        <p class="text-gray-400 mb-4">Ver todos los movimientos registrados.</p>
+                        <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Abrir Log</button>
+                    </div>
+                </div>
                 <div class="card mt-6">
                     <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
                         <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
@@ -184,7 +197,6 @@
             </div>
         </div>
     </div>
-
     <script type="module">
         // --- CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE ---
         const firebaseConfig = {
@@ -244,6 +256,7 @@
         const repoCsvInput = document.getElementById('repo-csv-input');
         const repoAdminNameInput = document.getElementById('repo-nombre-admin');
         const dashboardBody = document.getElementById('dashboard-body');
+        const lastMovementsBody = document.getElementById('last-movements-body');
         const searchInput = document.getElementById('search-input');
         const btnDownloadCsv = document.getElementById('btn-descargar-csv');
         const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
@@ -332,7 +345,7 @@
         };
         const normalizeSku = (sku) => (typeof sku === 'string' ? sku.trim().toUpperCase() : '');
 
-        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA FINAL) ---
+        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA DEFINITIVA) ---
         let memoizedDashboardData = [];
 
         class SkuData {
@@ -346,6 +359,7 @@
             calcularEstado(stockTeoricoInicial = 0) {
                 const ultimoConteo = this.getLatestConteo();
 
+                // Lógica para productos NUNCA contados (esta parte no cambia)
                 if (!ultimoConteo) {
                     const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
                     const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
@@ -357,20 +371,23 @@
                     };
                 }
 
-                const fechaPrimerConteo = ultimoConteo.timestamp.toDate();
+                // --- LÓGICA HÍBRIDA DEFINITIVA ---
+                const fechaConteo = ultimoConteo.timestamp.toDate();
                 const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
                 
-                const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaPrimerConteo);
-                const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaPrimerConteo);
-
-                const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
+                // 1. Las ventas se siguen separando para el proyectado.
+                const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaConteo);
                 const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
                 
-                const stockTeoricoAlContar = stockTeoricoInicial - totalVendidoAntes;
-                const diferenciaHistorica = conteoFisicoTotal - stockTeoricoAlContar;
-                // CORRECCIÓN: Se resta el total de ventas después del conteo del stock físico total contado.
+                // 2. ¡LÓGICA CLAVE CORREGIDA PARA LA DIFERENCIA!
+                // Se compara el físico total contado contra el teórico INICIAL.
+                const diferenciaHistorica = conteoFisicoTotal - stockTeoricoInicial;
+                
+                // 3. El PROYECTADO sigue la lógica correcta: lo contado menos las ventas que ocurrieron DESPUÉS.
                 const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
-                const stockTeoricoActual = stockTeoricoInicial - (totalVendidoAntes + totalVendidoDespues);
+                
+                const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
+                const stockTeoricoActual = stockTeoricoInicial - totalVendido;
                 
                 let estado = 'Cuadrado';
                 if (diferenciaHistorica > 0) estado = 'Sobrante';
@@ -379,9 +396,12 @@
                 const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
 
                 return {
-                    sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, stock_teorico_al_contar: stockTeoricoAlContar,
-                    diferencia_historica: diferenciaHistorica, stock_teorico_actual: stockTeoricoActual,
-                    stock_fisico_proyectado: stockFisicoProyectado, total_vendido: totalVendidoAntes + totalVendidoDespues,
+                    sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, 
+                    stock_teorico_al_contar: stockTeoricoInicial, // La referencia es siempre el teórico inicial
+                    diferencia_historica: diferenciaHistorica, 
+                    stock_teorico_actual: stockTeoricoActual,
+                    stock_fisico_proyectado: stockFisicoProyectado, 
+                    total_vendido: totalVendido,
                     fecha_conteo: ultimoConteo.timestamp,
                     counter: ultimoConteo.counter || 'N/A', saleDate
                 };
@@ -408,7 +428,7 @@
             return dashboardData;
         };
 
-        const debouncedRender = debounce(() => renderDashboard(getDashboardData()), 250);
+        const debouncedRender = debounce(() => { renderDashboard(getDashboardData()); renderLastMovements(); }, 250);
 
         const renderDashboard = (data) => {
             const searchTerm = searchInput.value.trim().toUpperCase();
@@ -427,12 +447,18 @@
             }).join('');
         };
         
-        const renderAdminLog = (logs) => {
-            adminLogBody.innerHTML = logs.map(log => `
-                <tr><td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td><td class="table-cell">${log.type}</td>
-                    <td class="table-cell">${log.sku}</td><td class="table-cell text-right">${log.quantity}</td>
-                    <td class="table-cell">${log.responsible}</td><td class="table-cell">${log.detail || ''}</td></tr>
-            `).join('') || `<tr><td colspan="6" class="table-cell text-center">No hay registros.</td></tr>`;
+        const renderLastMovements = () => {
+            const lastMovementsBody = document.getElementById('last-movements-body');
+            if (!lastMovementsBody) return;
+            lastMovementsBody.innerHTML = auditLog.map(log => `
+                <tr>
+                    <td class="table-cell">${log.type}</td>
+                    <td class="table-cell">${log.sku}</td>
+                    <td class="table-cell text-right">${log.quantity}</td>
+                    <td class="table-cell">${log.responsible}</td>
+                    <td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="5" class="table-cell text-center">No hay movimientos.</td></tr>`;
         };
         
         // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
@@ -442,7 +468,7 @@
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), snap => { theoreticalStock = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), snap => { salesData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), snap => { countData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
-            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10)), snap => { auditLog = snap.docs.map(d => d.data()); }, errHandler));
+            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10)), snap => { auditLog = snap.docs.map(d => d.data()); renderLastMovements(); }, errHandler));
         };
         const stopFirestoreListeners = () => { unsubscribes.forEach(unsub => unsub()); unsubscribes = []; };
         const logAction = async (type, sku, quantity, responsible, detail = '') => {
@@ -704,6 +730,7 @@
                 userIdDisplay.textContent = 'No autenticado';
                 authSection.style.display = 'flex'; appContent.style.display = 'none';
                 renderDashboard([]);
+                renderLastMovements();
             }
         });
         
