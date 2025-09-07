@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sasi Smart Group PPS</title>
+    <title>Alfa Store HL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -75,7 +75,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
+                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">Cargando...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -672,10 +672,27 @@
         function getDashboardData() {
             const searchTerm = (searchInput.value || '').trim().toUpperCase();
 
+            // Si el catálogo está vacío, no recalculamos para evitar borrar el dashboard
+            if (!theoreticalStock || theoreticalStock.length === 0) {
+                if (memoCache.cachedDashboardData) {
+                    // Retornamos el último dashboard cacheado para evitar vaciar la UI
+                    return memoCache.cachedDashboardData;
+                } else {
+                    // No hay datos para mostrar
+                    return [];
+                }
+            }
+            
             // Verificar si los datos base cambiaron
-            const salesChanged = !deepEqual(salesData, memoCache.lastSalesData);
-            const countChanged = !deepEqual(countData, memoCache.lastCountData);
-            const stockChanged = !deepEqual(theoreticalStock, memoCache.lastTheoreticalStock);
+            let salesChanged = !deepEqual(salesData, memoCache.lastSalesData);
+            let countChanged = !deepEqual(countData, memoCache.lastCountData);
+            let stockChanged = !deepEqual(theoreticalStock, memoCache.lastTheoreticalStock);
+
+            // Forzar recálculo si el catálogo cambió de vacío a no vacío o viceversa
+            if ((theoreticalStock.length === 0 && memoCache.lastTheoreticalStock?.length > 0) ||
+                (theoreticalStock.length > 0 && memoCache.lastTheoreticalStock?.length === 0)) {
+                stockChanged = true;
+            }
 
             if (salesChanged || countChanged || stockChanged || !memoCache.cachedDashboardData) {
                 // Actualizar cache base
@@ -754,7 +771,7 @@
 
             return filtered;
         }
-
+        
         function mostrarAlertasYLogErrores(dashboardData) {
             dashboardData.forEach(item => {
                 const rowElement = document.querySelector(`[data-sku="${item.sku}"]`);
@@ -854,16 +871,15 @@
             // Suscribirse a los datos de ventas
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), (snapshot) => {
                 salesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                debouncedRender();
+                setTimeout(() => debouncedRender(), 100);
             }));
 
             // Suscribirse a los datos de conteo
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), (snapshot) => {
                 countData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                debouncedRender();
+                setTimeout(() => debouncedRender(), 100);
             }));
 
-            // El listener de auditLog no afecta al dashboard principal, así que puede quedar como está
             const auditQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10));
             unsubscribes.push(onSnapshot(auditQuery, (snapshot) => {
                 auditLog = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
