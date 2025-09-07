@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Alfa Store HL</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* Paleta de Colores Pastel Femenina y Profesional */
+        /* Tus estilos personalizados aquí (igual que antes) */
         :root {
-            --bg-main: #FDF8FA;      /* Rosa muy claro */
+            --bg-main: #FDF8FA;
             --bg-card: #FFFFFF;
-            --primary: #EAB3A8;      /* Rosa pastel principal */
-            --primary-hover: #D69A8F; /* Rosa pastel más oscuro */
+            --primary: #EAB3A8;
+            --primary-hover: #D69A8F;
             --secondary: #E5E7EB;
             --secondary-hover: #D1D5DB;
-            --text-dark: #4B4B4B;    /* Gris oscuro suave */
+            --text-dark: #4B4B4B;
             --text-light: #6B7280;
             --border-color: #F3E8EB;
-            --danger: #FCA5A5;        /* Rojo coral suave */
+            --danger: #FCA5A5;
             --danger-hover: #EF4444;
-            --success: #A7F3D0;        /* Menta */
-            --warning: #FDE68A;        /* Amarillo pastel */
-            --info: #A5B4FC;          /* Lavanda */
+            --success: #A7F3D0;
+            --warning: #FDE68A;
+            --info: #A5B4FC;
         }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-dark); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+        }
         .card { background-color: var(--bg-card); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
         .table-header th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-main); position: sticky; top: 0; z-index: 10; }
         .table-cell { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
@@ -62,57 +66,61 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">ALfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
+                    <button id="btn-toggle-log" class="btn btn-secondary"><i class="fa-solid fa-clipboard-list"></i><span>Ver Log</span></button>
                     <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
                 </div>
             </header>
+
             <div id="auth-section" class="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
                 <h2 class="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
                 <div class="space-y-4">
-                    <input type="email" id="auth-email" class="input-field" placeholder="Email del espacio de trabajo" required>
-                    <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required>
+                    <input type="email" id="auth-email" class="input-field" placeholder="Email del espacio de trabajo" required />
+                    <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required />
                     <button id="btn-login" class="btn btn-primary w-full">Iniciar Sesión</button>
                     <button id="btn-register" class="btn btn-secondary w-full">Crear Nuevo Espacio</button>
                 </div>
             </div>
+
             <div id="app-content" class="hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"><p class="text-sm text-gray-500 mt-2">Formato: SKU;Stock</p></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta" /><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" /><p class="text-sm text-gray-500 mt-2">Formato: SKU;Stock</p></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required /><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1" /><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required /><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1" /><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
                 </div>
+
                 <div class="card border-2" style="border-color: var(--primary);">
                     <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-user-shield"></i> Operaciones de Administrador</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6">
                         <form id="form-correccion-admin">
                             <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-pen-to-square"></i> Corregir Físico</h3>
                             <div class="space-y-3">
-                                <input type="text" id="correc-sku" class="input-field sku-input" placeholder="SKU a corregir" required>
+                                <input type="text" id="correc-sku" class="input-field sku-input" placeholder="SKU a corregir" required />
                                 <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
-                                <input type="number" id="correc-cantidad" class="input-field" placeholder="Nuevo Stock Físico TOTAL" required min="0">
-                                <input type="text" id="correc-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
+                                <input type="number" id="correc-cantidad" class="input-field" placeholder="Nuevo Stock Físico TOTAL" required min="0" />
+                                <input type="text" id="correc-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required />
                                 <button type="submit" class="btn btn-primary w-full">Corregir</button>
                             </div>
                         </form>
                         <form id="form-anulacion">
                             <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-undo"></i> Anular Venta</h3>
                             <div class="space-y-3">
-                                <input type="text" id="anular-sku" class="input-field sku-input" placeholder="SKU de la venta" required>
+                                <input type="text" id="anular-sku" class="input-field sku-input" placeholder="SKU de la venta" required />
                                 <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
-                                <input type="number" id="anular-cantidad" class="input-field" placeholder="Cantidad a anular" required min="1">
-                                <input type="text" id="anular-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
+                                <input type="number" id="anular-cantidad" class="input-field" placeholder="Cantidad a anular" required min="1" />
+                                <input type="text" id="anular-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required />
                                 <button type="submit" class="btn btn-primary w-full">Anular</button>
                             </div>
                         </form>
                         <form id="form-reposicion-csv">
                             <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-truck-ramp-box"></i> Reponer Stock (CSV)</h3>
                             <div class="space-y-3">
-                                <input type="file" id="repo-csv-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" required>
-                                <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
+                                <input type="file" id="repo-csv-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" required />
+                                <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required />
                                 <p class="text-xs text-gray-500 mt-1">Formato: SKU;Cantidad</p>
                                 <button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-dolly"></i>Cargar Reposición</button>
                             </div>
@@ -125,32 +133,78 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
-                    <div class="card">
-                        <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-book"></i> Log de Auditoría</h2>
-                        <p class="text-gray-400 mb-4">Ver todos los movimientos registrados.</p>
-                        <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Abrir Log</button>
-                    </div>
-                </div>
-                <div class="card mt-6">
-                    <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
-                        <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
-                        <div class="flex gap-4 items-center">
-                            <input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs">
-                            <button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button>
+
+                <div class="flex flex-col lg:flex-row gap-6 mt-8">
+                    <div class="w-full lg:flex-grow">
+                        <div class="card">
+                            <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
+                                <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
+                                <div class="flex gap-4 items-center">
+                                    <input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs" />
+                                    <button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto max-h-[65vh]">
+                                <table class="w-full">
+                                    <thead class="table-header">
+                                        <tr>
+                                            <th>SKU</th>
+                                            <th>Estado</th>
+                                            <th>Físico Proyectado</th>
+                                            <th>Dif. (Histórica)</th>
+                                            <th>Físico Contado</th>
+                                            <th>Teórico (al Contar)</th>
+                                            <th>Teórico (Actual)</th>
+                                            <th>Total Vendido</th>
+                                            <th>Contado por</th>
+                                            <th>Fecha Conteo</th>
+                                            <th>Fecha Venta</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-body"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                    <div class="overflow-x-auto max-h-[65vh]">
-                        <table class="w-full">
-                            <thead class="table-header">
-                                <tr>
-                                    <th>SKU</th> <th>Estado</th> <th>Físico Proyectado</th> <th>Dif. (Histórica)</th>
-                                    <th>Físico Contado</th> <th>Teórico (al Contar)</th> <th>Teórico (Actual)</th>
-                                    <th>Total Vendido</th> <th>Contado por</th> <th>Fecha Conteo</th> <th>Fecha Venta</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dashboard-body"></tbody>
-                        </table>
+                    
+                    <div id="log-panel" class="w-full lg:w-1/3 xl:w-1/4 hidden">
+                        <div class="card p-0">
+                             <div class="p-4 border-b">
+                                <h2 class="text-xl font-bold">Log de Auditoría en Vivo</h2>
+                            </div>
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 gap-4 mb-4">
+                                     <div class="card text-center p-2">
+                                        <h3 class="text-xs font-semibold text-gray-500">Movimientos Filtrados</h3>
+                                        <p id="log-stat-total" class="text-2xl font-bold">0</p>
+                                    </div>
+                                </div>
+                                 <div class="grid grid-cols-1 gap-4 p-2 rounded-lg" style="background-color: var(--bg-main);">
+                                    <div>
+                                        <label for="log-filter-date" class="block text-sm font-medium mb-1">Fecha:</label>
+                                        <input type="date" id="log-filter-date" class="input-field w-full text-sm p-1">
+                                    </div>
+                                    <div>
+                                        <label for="log-filter-sku" class="block text-sm font-medium mb-1">SKU:</label>
+                                        <input type="text" id="log-filter-sku" placeholder="Ej: G1051" class="input-field w-full text-sm p-1">
+                                    </div>
+                                    <div>
+                                        <label for="log-filter-resp" class="block text-sm font-medium mb-1">Responsable:</label>
+                                        <input type="text" id="log-filter-resp" placeholder="Ej: seba" class="input-field w-full text-sm p-1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-y-auto max-h-[60vh]">
+                                <table class="w-full text-xs">
+                                    <thead class="table-header">
+                                        <tr>
+                                            <th>Fecha</th> <th>Tipo</th> <th>SKU</th> <th>Cant</th> <th>Por</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-log-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -159,65 +213,13 @@
             <p>By Mor</p>
         </footer>
     </main>
+
     <div id="toast"></div>
+
     <div id="myModal" class="modal">
         <div class="modal-content">
             <div id="modal-message" class="text-lg font-semibold mb-4"></div>
             <div id="modal-buttons" class="flex justify-end gap-4"></div>
-        </div>
-    </div>
-    <div id="adminLogModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="close-admin-log" style="float:right; cursor:pointer; font-size: 1.5rem;">&times;</span>
-            <div class="flex justify-between items-center mb-4 border-b pb-4">
-                <h2 class="text-2xl font-bold">Panel de Auditoría</h2>
-                <button id="btn-limpiar-log" class="btn btn-danger">
-                    <i class="fa-solid fa-trash-can"></i> Limpiar Log
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="card text-center">
-                    <h3 class="text-sm font-semibold text-gray-500">Movimientos Totales</h3>
-                    <p id="log-stat-total" class="text-3xl font-bold">0</p>
-                </div>
-                <div class="card text-center">
-                    <h3 class="text-sm font-semibold text-gray-500">SKU con Más Correcciones</h3>
-                    <p id="log-stat-sku" class="text-2xl font-bold">-</p>
-                </div>
-                <div class="card text-center">
-                    <h3 class="text-sm font-semibold text-gray-500">Responsable Más Activo</h3>
-                    <p id="log-stat-resp" class="text-2xl font-bold">-</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 rounded-lg" style="background-color: var(--bg-main);">
-                <div>
-                    <label for="log-filter-date" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
-                    <input type="date" id="log-filter-date" class="input-field w-full">
-                </div>
-                <div>
-                    <label for="log-filter-sku" class="block text-sm font-medium mb-1">Filtrar por SKU:</label>
-                    <input type="text" id="log-filter-sku" placeholder="Ej: G1051" class="input-field w-full">
-                </div>
-                <div>
-                    <label for="log-filter-resp" class="block text-sm font-medium mb-1">Filtrar por Responsable:</label>
-                    <input type="text" id="log-filter-resp" placeholder="Ej: seba" class="input-field w-full">
-                </div>
-            </div>
-            <div class="overflow-x-auto max-h-[55vh]">
-                <table class="w-full">
-                    <thead class="table-header">
-                        <tr>
-                            <th>Fecha y Hora</th>
-                            <th>Tipo</th>
-                            <th>SKU</th>
-                            <th>Cantidad</th>
-                            <th>Responsable</th>
-                            <th>Detalle</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-log-body"></tbody>
-                </table>
-            </div>
         </div>
     </div>
     
@@ -283,9 +285,8 @@
         const dashboardBody = document.getElementById('dashboard-body');
         const searchInput = document.getElementById('search-input');
         const btnDownloadCsv = document.getElementById('btn-descargar-csv');
-        const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
-        const adminLogModal = document.getElementById('adminLogModal');
-        const closeAdminLogBtn = document.getElementById('close-admin-log');
+        const btnToggleLog = document.getElementById('btn-toggle-log');
+        const logPanel = document.getElementById('log-panel');
         const adminLogBody = document.getElementById('admin-log-body');
         const btnClearLog = document.getElementById('btn-limpiar-log');
         const logFilterDate = document.getElementById('log-filter-date');
@@ -473,13 +474,11 @@
             }).join('');
         };
         
-        // --- Función central para filtrar, analizar y renderizar el log ---
         const renderAndAnalyzeAdminLog = () => {
-            const filterDate = document.getElementById('log-filter-date').value;
-            const filterSku = document.getElementById('log-filter-sku').value.trim().toUpperCase();
-            const filterResp = document.getElementById('log-filter-resp').value.trim().toLowerCase();
+            const filterDate = logFilterDate.value;
+            const filterSku = logFilterSku.value.trim().toUpperCase();
+            const filterResp = logFilterResp.value.trim().toLowerCase();
 
-            // 1. Aplicar filtros
             const filteredData = fullAdminLogData.filter(log => {
                 const logDate = log.timestamp ? log.timestamp.toDate() : new Date();
                 const logResp = log.responsible ? log.responsible.toLowerCase() : '';
@@ -491,7 +490,6 @@
                 return dateMatch && skuMatch && respMatch;
             });
 
-            // 2. Actualizar tarjetas de resumen
             logStatTotal.textContent = filteredData.length;
 
             const corrections = filteredData.filter(log => log.type === 'Corrección Admin' || log.type === 'Anulación');
@@ -509,7 +507,6 @@
             const topResp = Object.keys(respCounts).sort((a, b) => respCounts[b] - respCounts[a])[0] || '-';
             logStatResp.textContent = topResp;
 
-            // 3. Renderizar tabla
             const logBody = document.getElementById('admin-log-body');
             if (filteredData.length === 0) {
                 logBody.innerHTML = `<tr><td colspan="6" class="table-cell text-center">No hay movimientos que coincidan con los filtros.</td></tr>`;
@@ -535,6 +532,13 @@
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), snap => { theoreticalStock = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), snap => { salesData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), snap => { countData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
+
+            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc')), snap => {
+                fullAdminLogData = snap.docs.map(doc => doc.data());
+                if (!logPanel.classList.contains('hidden')) {
+                    renderAndAnalyzeAdminLog();
+                }
+            }, errHandler));
         };
         const stopFirestoreListeners = () => { unsubscribes.forEach(unsub => unsub()); unsubscribes = []; };
         const logAction = async (type, sku, quantity, responsible, detail = '') => {
@@ -843,29 +847,22 @@
             ].join(';'))].join('\n');
             downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
         });
+        
+        btnToggleLog.addEventListener('click', () => {
+            logPanel.classList.toggle('hidden');
+            const icon = btnToggleLog.querySelector('i');
+            const text = btnToggleLog.querySelector('span');
 
-        btnOpenAdminLog.addEventListener('click', async () => {
-            const password = await requestPassword();
-            if (password !== LOG_PASSWORD) {
-                if (password !== null) showToast("Contraseña incorrecta.", true);
-                return;
+            if (logPanel.classList.contains('hidden')) {
+                icon.classList.remove('fa-clipboard-check');
+                icon.classList.add('fa-clipboard-list');
+                text.textContent = 'Ver Log';
+            } else {
+                icon.classList.remove('fa-clipboard-list');
+                icon.classList.add('fa-clipboard-check');
+                text.textContent = 'Ocultar Log';
+                renderAndAnalyzeAdminLog();
             }
-
-            logFilterDate.value = '';
-            logFilterSku.value = '';
-            logFilterResp.value = '';
-
-            adminLogModal.style.display = 'flex';
-
-            const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
-            const logsSnapshot = await getDocs(logsQuery);
-            fullAdminLogData = logsSnapshot.docs.map(doc => doc.data());
-
-            renderAndAnalyzeAdminLog();
-        });
-
-        closeAdminLogBtn.addEventListener('click', () => {
-            adminLogModal.style.display = 'none';
         });
 
         btnClearLog.addEventListener('click', async () => {
