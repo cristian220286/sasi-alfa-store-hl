@@ -176,13 +176,21 @@
                                 <h2 class="text-xl font-bold">Log de Auditoría en Vivo</h2>
                             </div>
                             <div class="p-4">
-                                <div class="grid grid-cols-1 gap-4 mb-4">
-                                     <div class="card text-center p-2">
-                                        <h3 class="text-xs font-semibold text-gray-500">Movimientos Filtrados</h3>
-                                        <p id="log-stat-total" class="text-2xl font-bold">0</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <div class="card text-center">
+                                        <h3 class="text-sm font-semibold text-gray-500">Movimientos Totales</h3>
+                                        <p id="log-stat-total" class="text-3xl font-bold">0</p>
+                                    </div>
+                                    <div class="card text-center">
+                                        <h3 class="text-sm font-semibold text-gray-500">SKU con Más Correcciones</h3>
+                                        <p id="log-stat-sku" class="text-2xl font-bold">-</p>
+                                    </div>
+                                    <div class="card text-center">
+                                        <h3 class="text-sm font-semibold text-gray-500">Responsable Más Activo</h3>
+                                        <p id="log-stat-resp" class="text-2xl font-bold">-</p>
                                     </div>
                                 </div>
-                                 <div class="grid grid-cols-1 gap-4 p-2 rounded-lg" style="background-color: var(--bg-main);">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-2 rounded-lg" style="background-color: var(--bg-main);">
                                     <div>
                                         <label for="log-filter-date" class="block text-sm font-medium mb-1">Fecha:</label>
                                         <input type="date" id="log-filter-date" class="input-field w-full text-sm p-1">
@@ -883,7 +891,6 @@
                 icon.classList.add('fa-clipboard-check');
                 text.textContent = 'Ocultar Log';
 
-                // Obtener todos los logs una sola vez al abrir el panel
                 const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
                 const logsSnapshot = await getDocs(logsQuery);
                 fullAdminLogData = logsSnapshot.docs.map(doc => doc.data());
