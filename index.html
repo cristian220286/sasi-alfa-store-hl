@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alfa Store HL</title>
+    <title>Sasi Smart Group PPS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,7 +62,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -345,7 +345,7 @@
         };
         const normalizeSku = (sku) => (typeof sku === 'string' ? sku.trim().toUpperCase() : '');
 
-        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LA CORRECCIÓN FINAL) ---
+        // --- LÓGICA DE CÁLCULO DEL DASHBOARD ---
         let memoizedDashboardData = [];
 
         class SkuData {
@@ -353,15 +353,13 @@
 
             getLatestConteo() {
                 if (this.conteos.length === 0) return null;
-                return this.conteos.reduce((latest, current) => (current.timestamp?.toDate() > latest.timestamp?.toDate() ? current : latest));
+                return this.conteos.reduce((latest, current) => (current.lastTimestamp?.toDate() > latest.lastTimestamp?.toDate() ? current : latest));
             }
             
-            // REEMPLAZA TU FUNCIÓN calcularEstado() ENTERA CON ESTA VERSIÓN DEFINITIVA
             calcularEstado(stockTeoricoInicial = 0) {
                 const ultimoConteo = this.getLatestConteo();
 
-                // ---- LÓGICA PARA PRODUCTOS QUE NUNCA HAN SIDO CONTADOS ----
-                // Si no hay conteo, todo se descuenta del teórico. Esta parte no cambia.
+                // Lógica para productos NUNCA contados
                 if (!ultimoConteo) {
                     const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
                     const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
@@ -374,28 +372,19 @@
                 }
 
                 // --- LÓGICA HÍBRIDA PARA PRODUCTOS QUE YA FUERON CONTADOS ---
-                // A partir de aquí, el sistema sigue TUS reglas específicas.
-
-                const fechaConteo = ultimoConteo.timestamp.toDate();
+                const fechaConteo = ultimoConteo.firstTimestamp.toDate();
                 const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
                 
-                // 1. Separa las ventas: las que ocurrieron ANTES del conteo y las que ocurrieron DESPUÉS.
                 const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaConteo);
                 const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaConteo);
 
                 const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
                 const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
 
-                // 2. REGLA CLAVE PARA LA DIFERENCIA:
-                // Compara el FÍSICO total que contaste contra el TEÓRICO con el que empezaste.
-                // Esto ignora las ventas intermedias y permite que el estado sea "Cuadrado" si los números coinciden.
                 const diferenciaHistorica = conteoFisicoTotal - stockTeoricoInicial;
                 
-                // 3. REGLA CLAVE PARA EL STOCK REAL (PROYECTADO):
-                // El stock que tienes en el salón es lo que contaste MENOS lo que vendiste DESPUÉS de contar.
                 const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
                 
-                // El resto de los campos se calculan como referencia.
                 const totalVendidoGeneral = totalVendidoAntes + totalVendidoDespues;
                 const stockTeoricoActual = stockTeoricoInicial - totalVendidoGeneral;
                 
@@ -407,12 +396,12 @@
 
                 return {
                     sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, 
-                    stock_teorico_al_contar: stockTeoricoInicial, // La referencia para la auditoría es siempre el teórico inicial.
+                    stock_teorico_al_contar: stockTeoricoInicial, 
                     diferencia_historica: diferenciaHistorica, 
                     stock_teorico_actual: stockTeoricoActual,
                     stock_fisico_proyectado: stockFisicoProyectado, 
                     total_vendido: totalVendidoGeneral,
-                    fecha_conteo: ultimoConteo.timestamp,
+                    fecha_conteo: ultimoConteo.lastTimestamp,
                     counter: ultimoConteo.counter || 'N/A', saleDate
                 };
             }
@@ -571,8 +560,24 @@
                 const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
                 await runTransaction(db, async (transaction) => {
                     const countDoc = await transaction.get(countDocRef);
-                    const newTotal = (countDoc.exists() ? countDoc.data().quantity : 0) + quantity;
-                    transaction.set(countDocRef, { sku, quantity: newTotal, type: 'conteo', counter: counterName, timestamp: serverTimestamp() });
+                    const data = countDoc.data();
+                    const newTotal = (countDoc.exists() ? data.quantity : 0) + quantity;
+                    
+                    const dataToSet = {
+                        sku, 
+                        quantity: newTotal, 
+                        type: 'conteo', 
+                        counter: counterName, 
+                        lastTimestamp: serverTimestamp()
+                    };
+
+                    if (!countDoc.exists()) {
+                        dataToSet.firstTimestamp = serverTimestamp();
+                    } else {
+                        dataToSet.firstTimestamp = data.firstTimestamp;
+                    }
+
+                    transaction.set(countDocRef, dataToSet);
                 });
                 await logAction('Conteo Físico', sku, quantity, counterName, `Añadidas ${quantity} uds.`);
                 showToast("Conteo actualizado.");
@@ -602,7 +607,10 @@
                 showToast("Stock físico corregido.");
                 formCorrectionAdmin.reset();
             } catch (err) { showToast("Error al corregir.", true); console.error(err); }
-            finally { toggleButton(submitButton, true); submitter.classList.remove('btn-processing'); }
+            finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
         });
 
         formAnulacion.addEventListener('submit', async (e) => {
@@ -622,7 +630,10 @@
                 showToast("Venta anulada.");
                 formAnulacion.reset();
             } catch (err) { showToast("Error al anular.", true); console.error(err); }
-            finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
+            finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
         });
 
         formReposicionCsv.addEventListener('submit', async (e) => {
@@ -667,7 +678,10 @@
                     showToast(`Reposición completada. ${successCount}/${dataToUpload.length} SKUs actualizados.`);
                     formReposicionCsv.reset();
                 } catch (err) { showToast("Error procesando el archivo.", true); console.error(err); }
-                finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
+                finally {
+                    toggleButton(submitButton, true);
+                    submitButton.classList.remove('btn-processing');
+                }
             };
             reader.readAsText(file);
         });
