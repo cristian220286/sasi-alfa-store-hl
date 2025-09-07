@@ -776,10 +776,11 @@
             dashboardBody.innerHTML = '';
 
             if (data.length === 0) {
-                dashboardBody.innerHTML = `<tr><td colspan="11" class="table-cell text-center">No hay datos para mostrar.</td></tr>`;
+                dashboardBody.innerHTML = `<tr><td colspan="11" class="table-cell text-center">No hay datos para mostrar. Carga un catálogo para empezar.</td></tr>`;
                 return;
             }
 
+            const fragment = document.createDocumentFragment();
             data.forEach(item => {
                 const badgeClass = `badge badge-${item.estado.toLowerCase().replace(/ /g, '-')}`;
                 const row = document.createElement('tr');
@@ -800,11 +801,12 @@
                     <td class="table-cell text-right">${item.stock_teorico_actual}</td>
                     <td class="table-cell text-right">${item.total_vendido}</td>
                     <td class="table-cell">${item.counter}</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.fecha_conteo)}</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.saleDate)}</td>
+                    <td class="table-cell">${item.fecha_conteo ? item.fecha_conteo.toLocaleString('es-AR') : 'N/A'}</td>
+                    <td class="table-cell">${item.saleDate ? item.saleDate.toLocaleString('es-AR') : 'N/A'}</td>
                 `;
-                dashboardBody.appendChild(row);
+                fragment.appendChild(row);
             });
+            dashboardBody.appendChild(fragment);
         }
         
         function renderLastMovements() {
@@ -822,11 +824,10 @@
                     <td class="table-cell">${log.responsible}</td>
                     <td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td>
                 `;
-                lastMovementsBody.appendChild(row);
+                adminLogBody.appendChild(row);
             });
         }
         
-        // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
         function startFirestoreListeners() {
             if (!BUSINESS_ID) return;
             
@@ -941,103 +942,93 @@
                 const text = event.target.result;
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
 
+                if (lines.length > 0 && lines[0].toUpperCase().includes('SKU;STOCK')) {
+                    lines.shift();
+                }
+
+                if (lines.length === 0) {
+                    showToast("El archivo CSV está vacío o solo contiene la cabecera.", true);
+                    e.target.value = '';
+                    return;
+                }
+
                 const allLinesData = lines.map((line, index) => {
                     const cols = line.split(';');
-                    const sku = cols[0]?.trim()?.toUpperCase();
+                    const sku = cols[0]?.trim().toUpperCase();
                     const stockString = cols[1]?.trim().replace(',', '.');
                     let stock = parseFloat(stockString);
                     const errors = [];
 
-                    if (!sku) errors.push('El SKU está vacío.');
-                    else {
-                        if (sku.includes(' ')) errors.push('El SKU no debe contener espacios.');
-                        if (!/^[A-Z0-9_-]+$/.test(sku)) errors.push('El SKU contiene caracteres no válidos.');
+                    if (!sku) errors.push('SKU vacío.');
+                    else if (!/^[A-Z0-9_-]+$/.test(sku)) errors.push('SKU con caracteres inválidos.');
+                    
+                    if (isNaN(stock) || stock < 0) {
+                        errors.push('Stock inválido (no es número o es negativo). Se usará 0.');
+                        stock = 0;
                     }
 
-                    if (cols[1] === undefined || cols[1].trim() === '') errors.push('El Stock está vacío. Se asignará 0.');
-                    else if (isNaN(stock)) errors.push('El Stock no es un número. Se asignará 0.');
-                    else if (stock < 0) errors.push('El Stock es negativo. Se asignará 0.');
-                    
-                    if (isNaN(stock) || stock < 0) stock = 0;
-
-                    return { sku, stock, originalLine: line, lineNumber: index + 1, errors };
+                    return { sku, stock, originalLine: line, lineNumber: index + 2, errors };
                 });
 
                 const seenSkus = new Map();
                 allLinesData.forEach(lineData => {
-                    if (lineData.sku && !lineData.errors.some(e => e.includes('vacío') || e.includes('caracteres'))) {
+                    if (lineData.sku) {
                         if (seenSkus.has(lineData.sku)) {
-                            lineData.errors.push(`SKU duplicado (1ra vez en línea ${seenSkus.get(lineData.sku).lineNumber}). No se cargará el stock de esta línea.`);
-                            const first = seenSkus.get(lineData.sku);
-                            if (!first.errors.some(e => e.startsWith('SKU duplicado'))) {
-                                first.errors.push(`SKU duplicado (repetido en línea ${lineData.lineNumber}).`);
-                            }
+                            lineData.errors.push(`SKU duplicado (1ra vez en línea ${seenSkus.get(lineData.sku).lineNumber}). Se ignorará.`);
                         } else {
                             seenSkus.set(lineData.sku, lineData);
                         }
                     }
                 });
 
-                const productosConAdvertencias = allLinesData.filter(item => item.errors.length > 0);
-                let message = `Se procesarán ${allLinesData.length} productos.`;
-                if (productosConAdvertencias.length > 0) {
-                    message += ` Se detectaron ${productosConAdvertencias.length} productos con advertencias que serán marcados en el dashboard.`;
+                const dataToUpload = allLinesData.filter(item => item.sku && !item.errors.some(e => e.includes('duplicado')));
+                const linesWithErrors = allLinesData.filter(item => item.errors.length > 0);
+
+                let message = `Se encontraron ${dataToUpload.length} productos válidos para cargar.`;
+                if (linesWithErrors.length > 0) {
+                    message += ` Se detectaron ${linesWithErrors.length} líneas con advertencias o errores que serán ignoradas o corregidas.`;
                 }
 
                 showModal(message, true, async () => {
                     const batch = writeBatch(db);
-                    const stockTeoricoColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
+                    const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
                     
-                    const oldDocs = await getDocs(stockTeoricoColRef);
+                    const oldDocs = await getDocs(stockColRef);
                     oldDocs.forEach(doc => batch.delete(doc.ref));
 
-                    const skusAddedToBatch = new Set();
-
-                    allLinesData.forEach(item => {
-                        if (item.sku && !skusAddedToBatch.has(item.sku)) {
-                            const newDocRef = doc(stockTeoricoColRef);
-                            batch.set(newDocRef, {
-                                sku: item.sku,
-                                stock: item.errors.some(e => e.includes('duplicado')) ? 0 : item.stock,
-                                timestamp: serverTimestamp(),
-                                errors: item.errors
-                            });
-                            skusAddedToBatch.add(item.sku);
-                        }
+                    dataToUpload.forEach(item => {
+                        const newDocRef = doc(stockColRef);
+                        batch.set(newDocRef, {
+                            sku: item.sku,
+                            stock: item.stock,
+                            timestamp: serverTimestamp(),
+                            errors: item.errors
+                        });
                     });
                     
                     try {
                         await batch.commit();
-                        let successMessage = `Catálogo cargado con ${allLinesData.length} productos procesados.`;
-                        if (productosConAdvertencias.length > 0) {
-                            successMessage += ` Se marcaron ${productosConAdvertencias.length} con advertencias. Revisa el dashboard.`;
-                            const errorCsvHeader = ['SKU_Original', 'Stock_Original', 'Motivo_del_Error'];
-                            const errorCsvRows = productosConAdvertencias.map(errorItem => {
-                                const originalCols = errorItem.originalLine.split(';');
-                                const errorReason = errorItem.errors.join('; ');
-                                return [
-                                    `"${originalCols[0]?.trim() || ''}"`,
-                                    `"${originalCols[1]?.trim() || ''}"`,
-                                    `"${errorReason}"`
-                                ];
-                            });
-                            const errorCsvContent = [
-                                errorCsvHeader.join(';'),
-                                ...errorCsvRows.map(row => row.join(';'))
-                            ].join('\n');
+                        let successMessage = `Catálogo cargado con ${dataToUpload.length} productos.`;
+                        if (linesWithErrors.length > 0) {
+                            successMessage += ` Se descargará un reporte con las ${linesWithErrors.length} líneas con advertencias.`;
+                            const errorCsvHeader = ['Linea_Nro', 'Linea_Original', 'Motivo_del_Error'];
+                            const errorCsvRows = linesWithErrors.map(err => [
+                                err.lineNumber, `"${err.originalLine}"`, `"${err.errors.join(', ')}"`
+                            ]);
+                            const errorCsvContent = [errorCsvHeader.join(';'), ...errorCsvRows.map(row => row.join(';'))].join('\n');
                             downloadCsv(`advertencias_catalogo_${new Date().toISOString()}.csv`, errorCsvContent);
                         }
                         showToast(successMessage, false);
-                        await logAction('Catálogo', 'N/A', allLinesData.length, userEmail, `Cargado con ${productosConAdvertencias.length} advertencias.`);
+                        await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail, `Carga desde CSV con ${linesWithErrors.length} advertencias.`);
                         e.target.value = '';
                     } catch (error) {
-                        showToast("Error crítico al cargar el catálogo.", true);
+                        showToast("Error crítico al guardar el catálogo.", true);
                         console.error(error);
                     }
                 });
             };
             reader.onerror = () => showToast("Error leyendo el archivo CSV.", true);
-            reader.readAsText(file);
+            reader.readAsText(file, 'UTF-8');
         });
         
         formSales.addEventListener('submit', async (e) => {
