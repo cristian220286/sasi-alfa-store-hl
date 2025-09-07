@@ -356,10 +356,12 @@
                 return this.conteos.reduce((latest, current) => (current.timestamp?.toDate() > latest.timestamp?.toDate() ? current : latest));
             }
             
+            // REEMPLAZA TU FUNCIÓN calcularEstado() ENTERA CON ESTA VERSIÓN DEFINITIVA
             calcularEstado(stockTeoricoInicial = 0) {
                 const ultimoConteo = this.getLatestConteo();
 
-                // Lógica para productos NUNCA contados
+                // ---- LÓGICA PARA PRODUCTOS QUE NUNCA HAN SIDO CONTADOS ----
+                // Si no hay conteo, todo se descuenta del teórico. Esta parte no cambia.
                 if (!ultimoConteo) {
                     const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
                     const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
@@ -371,23 +373,29 @@
                     };
                 }
 
-                // --- LÓGICA HÍBRIDA DEFINITIVA Y CORRECTA ---
+                // --- LÓGICA HÍBRIDA PARA PRODUCTOS QUE YA FUERON CONTADOS ---
+                // A partir de aquí, el sistema sigue TUS reglas específicas.
+
                 const fechaConteo = ultimoConteo.timestamp.toDate();
                 const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
                 
-                // Separa las ventas que ocurrieron ANTES y DESPUÉS del último conteo
+                // 1. Separa las ventas: las que ocurrieron ANTES del conteo y las que ocurrieron DESPUÉS.
                 const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaConteo);
                 const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaConteo);
 
                 const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
                 const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
 
-                // REGLA 1: La Diferencia Histórica compara el FÍSICO TOTAL contra el TEÓRICO INICIAL.
+                // 2. REGLA CLAVE PARA LA DIFERENCIA:
+                // Compara el FÍSICO total que contaste contra el TEÓRICO con el que empezaste.
+                // Esto ignora las ventas intermedias y permite que el estado sea "Cuadrado" si los números coinciden.
                 const diferenciaHistorica = conteoFisicoTotal - stockTeoricoInicial;
                 
-                // REGLA 2: El Físico Proyectado es tu stock real actual: lo que contaste MENOS lo que vendiste DESPUÉS.
+                // 3. REGLA CLAVE PARA EL STOCK REAL (PROYECTADO):
+                // El stock que tienes en el salón es lo que contaste MENOS lo que vendiste DESPUÉS de contar.
                 const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
                 
+                // El resto de los campos se calculan como referencia.
                 const totalVendidoGeneral = totalVendidoAntes + totalVendidoDespues;
                 const stockTeoricoActual = stockTeoricoInicial - totalVendidoGeneral;
                 
@@ -399,7 +407,7 @@
 
                 return {
                     sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, 
-                    stock_teorico_al_contar: stockTeoricoInicial, // La referencia es siempre el teórico con el que empezó
+                    stock_teorico_al_contar: stockTeoricoInicial, // La referencia para la auditoría es siempre el teórico inicial.
                     diferencia_historica: diferenciaHistorica, 
                     stock_teorico_actual: stockTeoricoActual,
                     stock_fisico_proyectado: stockFisicoProyectado, 
@@ -594,7 +602,7 @@
                 showToast("Stock físico corregido.");
                 formCorrectionAdmin.reset();
             } catch (err) { showToast("Error al corregir.", true); console.error(err); }
-            finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
+            finally { toggleButton(submitButton, true); submitter.classList.remove('btn-processing'); }
         });
 
         formAnulacion.addEventListener('submit', async (e) => {
