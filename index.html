@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sasi Smart Group PPS</title>
+    <title>Alfa Store HL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,7 +62,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
+                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -345,7 +345,7 @@
         };
         const normalizeSku = (sku) => (typeof sku === 'string' ? sku.trim().toUpperCase() : '');
 
-        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA DEFINITIVA) ---
+        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LA CORRECCIÓN FINAL) ---
         let memoizedDashboardData = [];
 
         class SkuData {
@@ -359,7 +359,7 @@
             calcularEstado(stockTeoricoInicial = 0) {
                 const ultimoConteo = this.getLatestConteo();
 
-                // Lógica para productos NUNCA contados (esta parte no cambia)
+                // Lógica para productos NUNCA contados
                 if (!ultimoConteo) {
                     const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
                     const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
@@ -375,20 +375,22 @@
                 const fechaConteo = ultimoConteo.timestamp.toDate();
                 const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
                 
-                // 1. Las ventas se siguen separando para el proyectado.
+                // Separa las ventas que ocurrieron ANTES y DESPUÉS del último conteo
+                const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaConteo);
                 const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaConteo);
+
+                const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
                 const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
-                
-                // 2. ¡LÓGICA CLAVE CORREGIDA PARA LA DIFERENCIA!
-                // Se compara el físico total contado contra el teórico INICIAL.
+
+                // La Diferencia Histórica compara el FÍSICO TOTAL contra el TEÓRICO INICIAL.
                 const diferenciaHistorica = conteoFisicoTotal - stockTeoricoInicial;
-                
-                // 3. El PROYECTADO sigue la lógica correcta: lo contado menos las ventas que ocurrieron DESPUÉS.
+
+                // El Físico Proyectado es tu stock real actual: lo que contaste MENOS lo que vendiste DESPUÉS.
                 const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
-                
-                const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
-                const stockTeoricoActual = stockTeoricoInicial - totalVendido;
-                
+
+                const totalVendidoGeneral = totalVendidoAntes + totalVendidoDespues;
+                const stockTeoricoActual = stockTeoricoInicial - totalVendidoGeneral;
+
                 let estado = 'Cuadrado';
                 if (diferenciaHistorica > 0) estado = 'Sobrante';
                 else if (diferenciaHistorica < 0) estado = 'Faltante';
@@ -397,11 +399,11 @@
 
                 return {
                     sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, 
-                    stock_teorico_al_contar: stockTeoricoInicial, // La referencia es siempre el teórico inicial
+                    stock_teorico_al_contar: stockTeoricoInicial, // La referencia es siempre el teórico con el que empezó
                     diferencia_historica: diferenciaHistorica, 
                     stock_teorico_actual: stockTeoricoActual,
                     stock_fisico_proyectado: stockFisicoProyectado, 
-                    total_vendido: totalVendido,
+                    total_vendido: totalVendidoGeneral,
                     fecha_conteo: ultimoConteo.timestamp,
                     counter: ultimoConteo.counter || 'N/A', saleDate
                 };
