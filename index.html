@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alfa Store HL</title>
+    <title>Sasi Smart Group PPS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -75,7 +75,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">Cargando...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -436,13 +436,7 @@
                 button.disabled = true;
             }
         }
-        
-        // --- LÓGICA DE CÁLCULO Y RENDERIZADO DEL DASHBOARD ---
 
-        // Función para evitar múltiples renders en ráfagas de cambios
-        const debouncedRender = debounce(renderDashboard, 150);
-
-        // --- Utilidades ---
         function debounce(func, delay) {
             let timeout;
             return function(...args) {
@@ -486,8 +480,12 @@
             return diffMs / (1000 * 60 * 60 * 24);
         }
 
-        // --- Clase SkuData enriquecida ---
+        // --- LÓGICA DE CÁLCULO Y RENDERIZADO DEL DASHBOARD ---
 
+        // SOLUCIÓN AL PARPADEO: Se define aquí para que esté disponible globalmente.
+        const debouncedRender = debounce(renderDashboard, 150);
+
+        // --- Clase SkuData enriquecida ---
         class SkuData {
             constructor(sku) {
                 this.sku = sku;
@@ -756,7 +754,7 @@
 
             return filtered;
         }
-        
+
         function mostrarAlertasYLogErrores(dashboardData) {
             dashboardData.forEach(item => {
                 const rowElement = document.querySelector(`[data-sku="${item.sku}"]`);
@@ -840,6 +838,54 @@
                     <td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td>
                 `;
                 lastMovementsBody.appendChild(row);
+            });
+        }
+        
+        // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
+        function startFirestoreListeners() {
+            if (!BUSINESS_ID) return;
+            
+            // Suscribirse al stock teórico (catálogo)
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), (snapshot) => {
+                theoreticalStock = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                debouncedRender();
+            }));
+
+            // Suscribirse a los datos de ventas
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), (snapshot) => {
+                salesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                debouncedRender();
+            }));
+
+            // Suscribirse a los datos de conteo
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), (snapshot) => {
+                countData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                debouncedRender();
+            }));
+
+            // El listener de auditLog no afecta al dashboard principal, así que puede quedar como está
+            const auditQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10));
+            unsubscribes.push(onSnapshot(auditQuery, (snapshot) => {
+                auditLog = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderLastMovements();
+            }));
+        }
+
+        function stopFirestoreListeners() {
+            unsubscribes.forEach(unsubscribe => unsubscribe());
+            unsubscribes = [];
+        }
+        
+        async function logAction(type, sku, quantity, responsible, detail) {
+            if (!BUSINESS_ID) return;
+            const logCol = collection(db, `businesses/${BUSINESS_ID}/auditLog`);
+            await addDoc(logCol, {
+                type,
+                sku: sku.toUpperCase(),
+                quantity,
+                responsible,
+                detail,
+                timestamp: serverTimestamp()
             });
         }
         
