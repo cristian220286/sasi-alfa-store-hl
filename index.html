@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sasi Smart Group PPS</title>
+    <title>Alfa Store HL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -62,7 +62,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
+                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -126,24 +126,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
-                    <div class="card xl:col-span-2">
-                        <h2 class="text-2xl font-bold mb-4">Últimos 10 Movimientos</h2>
-                        <div class="overflow-x-auto max-h-[250px]">
-                            <table class="w-full">
-                                <thead class="table-header">
-                                    <tr><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Fecha y Hora</th></tr>
-                                </thead>
-                                <tbody id="last-movements-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-book"></i> Log de Auditoría</h2>
-                        <p class="text-gray-400 mb-4">Ver todos los movimientos registrados.</p>
-                        <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Abrir Log</button>
-                    </div>
-                </div>
                 <div class="card mt-6">
                     <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
                         <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
@@ -178,25 +160,65 @@
             <div id="modal-buttons" class="flex justify-end gap-4"></div>
         </div>
     </div>
+
     <div id="adminLogModal" class="modal">
         <div class="modal-content">
             <span class="close-button" id="close-admin-log" style="float:right; cursor:pointer; font-size: 1.5rem;">&times;</span>
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Log de Movimientos de Auditoría</h2>
-                <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
+            <div class="flex justify-between items-center mb-4 border-b pb-4">
+                <h2 class="text-2xl font-bold">Panel de Auditoría</h2>
+                <button id="btn-limpiar-log" class="btn btn-danger">
+                    <i class="fa-solid fa-trash-can"></i> Limpiar Log
+                </button>
             </div>
-            <div class="mb-4">
-                <label for="log-date-picker" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
-                <input type="date" id="log-date-picker" class="input-field w-full max-w-xs">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="card text-center">
+                    <h3 class="text-sm font-semibold text-gray-500">Movimientos Totales</h3>
+                    <p id="log-stat-total" class="text-3xl font-bold">0</p>
+                </div>
+                <div class="card text-center">
+                    <h3 class="text-sm font-semibold text-gray-500">SKU con Más Correcciones</h3>
+                    <p id="log-stat-sku" class="text-2xl font-bold">-</p>
+                </div>
+                <div class="card text-center">
+                    <h3 class="text-sm font-semibold text-gray-500">Responsable Más Activo</h3>
+                    <p id="log-stat-resp" class="text-2xl font-bold">-</p>
+                </div>
             </div>
-            <div class="overflow-x-auto max-h-[70vh]">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 rounded-lg" style="background-color: var(--bg-main);">
+                <div>
+                    <label for="log-filter-date" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
+                    <input type="date" id="log-filter-date" class="input-field w-full">
+                </div>
+                <div>
+                    <label for="log-filter-sku" class="block text-sm font-medium mb-1">Filtrar por SKU:</label>
+                    <input type="text" id="log-filter-sku" placeholder="Ej: G1051" class="input-field w-full">
+                </div>
+                <div>
+                    <label for="log-filter-resp" class="block text-sm font-medium mb-1">Filtrar por Responsable:</label>
+                    <input type="text" id="log-filter-resp" placeholder="Ej: seba" class="input-field w-full">
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto max-h-[55vh]">
                 <table class="w-full">
-                    <thead class="table-header"><tr><th>Fecha y Hora</th><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Detalle</th></tr></thead>
+                    <thead class="table-header">
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Tipo</th>
+                            <th>SKU</th>
+                            <th>Cantidad</th>
+                            <th>Responsable</th>
+                            <th>Detalle</th>
+                        </tr>
+                    </thead>
                     <tbody id="admin-log-body"></tbody>
                 </table>
             </div>
         </div>
     </div>
+    
     <script type="module">
         // --- CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE ---
         const firebaseConfig = {
@@ -224,6 +246,7 @@
         let userEmail = null;
         let counterName = 'N/A';
         let unsubscribes = [];
+        let fullAdminLogData = [];
 
         // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
         const authSection = document.getElementById('auth-section');
@@ -256,7 +279,6 @@
         const repoCsvInput = document.getElementById('repo-csv-input');
         const repoAdminNameInput = document.getElementById('repo-nombre-admin');
         const dashboardBody = document.getElementById('dashboard-body');
-        const lastMovementsBody = document.getElementById('last-movements-body');
         const searchInput = document.getElementById('search-input');
         const btnDownloadCsv = document.getElementById('btn-descargar-csv');
         const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
@@ -264,7 +286,12 @@
         const closeAdminLogBtn = document.getElementById('close-admin-log');
         const adminLogBody = document.getElementById('admin-log-body');
         const btnClearLog = document.getElementById('btn-limpiar-log');
-        const logDatePicker = document.getElementById('log-date-picker');
+        const logDatePicker = document.getElementById('log-filter-date');
+        const logSkuFilter = document.getElementById('log-filter-sku');
+        const logRespFilter = document.getElementById('log-filter-resp');
+        const logStatTotal = document.getElementById('log-stat-total');
+        const logStatSku = document.getElementById('log-stat-sku');
+        const logStatResp = document.getElementById('log-stat-resp');
         const myModal = document.getElementById('myModal');
         const modalMessage = document.getElementById('modal-message');
         const modalButtons = document.getElementById('modal-buttons');
@@ -359,7 +386,6 @@
             calcularEstado(stockTeoricoInicial = 0) {
                 const ultimoConteo = this.getLatestConteo();
 
-                // Lógica para productos NUNCA contados
                 if (!ultimoConteo) {
                     const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
                     const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
@@ -371,7 +397,6 @@
                     };
                 }
 
-                // --- LÓGICA HÍBRIDA PARA PRODUCTOS QUE YA FUERON CONTADOS ---
                 const fechaConteo = ultimoConteo.firstTimestamp.toDate();
                 const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
                 
@@ -427,7 +452,7 @@
             return dashboardData;
         };
 
-        const debouncedRender = debounce(() => { renderDashboard(getDashboardData()); renderLastMovements(); }, 250);
+        const debouncedRender = debounce(() => { renderDashboard(getDashboardData()); }, 250);
 
         const renderDashboard = (data) => {
             const searchTerm = searchInput.value.trim().toUpperCase();
@@ -446,18 +471,59 @@
             }).join('');
         };
         
-        const renderLastMovements = () => {
-            const lastMovementsBody = document.getElementById('last-movements-body');
-            if (!lastMovementsBody) return;
-            lastMovementsBody.innerHTML = auditLog.map(log => `
+        // --- Función central para filtrar, analizar y renderizar el log ---
+        const renderAndAnalyzeAdminLog = () => {
+            const filterDate = document.getElementById('log-filter-date').value;
+            const filterSku = document.getElementById('log-filter-sku').value.trim().toUpperCase();
+            const filterResp = document.getElementById('log-filter-resp').value.trim().toLowerCase();
+
+            // 1. Aplicar filtros
+            const filteredData = fullAdminLogData.filter(log => {
+                const logDate = log.timestamp ? log.timestamp.toDate() : new Date();
+                const logResp = log.responsible ? log.responsible.toLowerCase() : '';
+
+                const dateMatch = !filterDate || logDate.toISOString().startsWith(filterDate);
+                const skuMatch = !filterSku || (log.sku && log.sku.toUpperCase().includes(filterSku));
+                const respMatch = !filterResp || logResp.includes(filterResp);
+
+                return dateMatch && skuMatch && respMatch;
+            });
+
+            // 2. Actualizar tarjetas de resumen
+            logStatTotal.textContent = filteredData.length;
+
+            const corrections = filteredData.filter(log => log.type === 'Corrección Admin' || log.type === 'Anulación');
+            const skuCounts = corrections.reduce((acc, log) => {
+                if (log.sku) acc[log.sku] = (acc[log.sku] || 0) + 1;
+                return acc;
+            }, {});
+            const topSku = Object.keys(skuCounts).sort((a, b) => skuCounts[b] - skuCounts[a])[0] || '-';
+            logStatSku.textContent = topSku;
+
+            const respCounts = filteredData.reduce((acc, log) => {
+                if (log.responsible) acc[log.responsible] = (acc[log.responsible] || 0) + 1;
+                return acc;
+            }, {});
+            const topResp = Object.keys(respCounts).sort((a, b) => respCounts[b] - respCounts[a])[0] || '-';
+            logStatResp.textContent = topResp;
+
+            // 3. Renderizar tabla
+            const logBody = document.getElementById('admin-log-body');
+            if (filteredData.length === 0) {
+                logBody.innerHTML = `<tr><td colspan="6" class="table-cell text-center">No hay movimientos que coincidan con los filtros.</td></tr>`;
+                return;
+            }
+
+            logBody.innerHTML = filteredData.map(log => `
                 <tr>
-                    <td class="table-cell">${log.type}</td>
-                    <td class="table-cell">${log.sku}</td>
-                    <td class="table-cell text-right">${log.quantity}</td>
-                    <td class="table-cell">${log.responsible}</td>
                     <td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td>
+                    <td class="table-cell">${log.type || '-'}</td>
+                    <td class="table-cell font-semibold">${log.sku || '-'}</td>
+                    <td class="table-cell text-right">${log.quantity != null ? log.quantity : '-'}</td>
+                    <td class="table-cell">${log.responsible || '-'}</td>
+                    <td class="table-cell text-sm text-gray-500">${log.detail || ''}</td>
                 </tr>
-            `).join('') || `<tr><td colspan="5" class="table-cell text-center">No hay movimientos.</td></tr>`;
+            `).join('');
         };
         
         // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
@@ -467,7 +533,6 @@
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), snap => { theoreticalStock = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), snap => { salesData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), snap => { countData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
-            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10)), snap => { auditLog = snap.docs.map(d => d.data()); renderLastMovements(); }, errHandler));
         };
         const stopFirestoreListeners = () => { unsubscribes.forEach(unsub => unsub()); unsubscribes = []; };
         const logAction = async (type, sku, quantity, responsible, detail = '') => {
@@ -494,34 +559,105 @@
             }
         });
 
-        csvFileInput.addEventListener('change', (e) => {
+        csvFileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const lines = event.target.result.split(/\r?\n/).filter(line => line.trim());
+        
+            try {
+                const text = await file.text();
+                const lines = text.split(/\r?\n/).filter(line => line.trim());
+
                 if (lines.length > 0 && lines[0].toUpperCase().includes('SKU;STOCK')) lines.shift();
+
                 const seenSkus = new Set();
-                const dataToUpload = lines.map(line => {
-                    const [sku, stockStr] = line.split(';');
-                    const normalizedSku = normalizeSku(sku);
-                    if (!validateSku(normalizedSku) || seenSkus.has(normalizedSku)) return null;
-                    seenSkus.add(normalizedSku);
-                    return { sku: normalizedSku, stock: parseFloat(stockStr?.trim().replace(',', '.')) || 0, timestamp: serverTimestamp() };
-                }).filter(Boolean);
-                
-                showModal(`Se cargarán ${dataToUpload.length} SKUs únicos. Esto reemplazará el catálogo teórico actual.`, true, async () => {
-                    const batch = writeBatch(db);
-                    const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
-                    (await getDocs(stockColRef)).forEach(doc => batch.delete(doc.ref));
-                    dataToUpload.forEach(item => batch.set(doc(stockColRef, item.sku), item));
-                    await batch.commit();
-                    showToast(`Catálogo cargado con ${dataToUpload.length} productos.`);
-                    await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail);
-                    e.target.value = '';
+                const dataToUpload = [];
+                const errors = [];
+
+                lines.forEach((line, index) => {
+                    const [skuRaw, stockRaw] = line.split(';');
+                    const sku = normalizeSku(skuRaw);
+                    const lineNumber = index + 1;
+
+                    if (!skuRaw || !skuRaw.trim()) {
+                        errors.push({
+                            linea: lineNumber,
+                            sku: 'VACÍO',
+                            motivo: 'SKU está vacío.'
+                        });
+                        return;
+                    }
+
+                    if (!validateSku(sku)) {
+                        errors.push({
+                            linea: lineNumber,
+                            sku: skuRaw,
+                            motivo: 'El SKU contiene espacios o caracteres no permitidos.'
+                        });
+                        return;
+                    }
+
+                    if (seenSkus.has(sku)) {
+                        errors.push({
+                            linea: lineNumber,
+                            sku: skuRaw,
+                            motivo: 'El SKU está duplicado en este mismo archivo.'
+                        });
+                        return;
+                    }
+
+                    seenSkus.add(sku);
+
+                    let stock = parseFloat(stockRaw?.trim().replace(',', '.'));
+                    if (isNaN(stock)) stock = 0;
+
+                    dataToUpload.push({
+                        sku,
+                        stock,
+                        timestamp: serverTimestamp()
+                    });
                 });
-            };
-            reader.readAsText(file);
+
+                if (errors.length > 0) {
+                    const errorHeaders = ["Linea_Archivo", "SKU_Problematico", "Motivo_del_Error"];
+                    const errorCsvContent = [
+                        errorHeaders.join(';'),
+                        ...errors.map(e => [e.linea, e.sku, e.motivo].join(';'))
+                    ].join('\n');
+
+                    downloadCsv(`reporte_errores_catalogo_${new Date().toISOString().slice(0, 10)}.csv`, errorCsvContent);
+                    showToast(`Se encontraron ${errors.length} errores. Se ha descargado un reporte.`, true);
+                }
+
+                if (dataToUpload.length === 0) {
+                    if (errors.length === 0) showToast("El archivo está vacío o no tiene datos válidos.", true);
+                    e.target.value = '';
+                    return;
+                }
+
+                showModal(
+                    `Se cargarán ${dataToUpload.length} SKUs válidos. Esto reemplazará el catálogo teórico actual.`,
+                    true,
+                    async () => {
+                        const batch = writeBatch(db);
+                        const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
+
+                        const existingDocs = await getDocs(stockColRef);
+                        existingDocs.forEach(doc => batch.delete(doc.ref));
+
+                        dataToUpload.forEach(item => batch.set(doc(stockColRef, item.sku), item));
+
+                        await batch.commit();
+
+                        showToast(`Catálogo cargado con ${dataToUpload.length} productos.`);
+                        await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail);
+                        e.target.value = '';
+                    }
+                );
+            } catch (error) {
+                console.error('Error al procesar el archivo CSV:', error);
+                showToast('Ocurrió un error al procesar el archivo. Intenta nuevamente.', true);
+                e.target.value = '';
+            }
         });
 
         formSales.addEventListener('submit', async (e) => {
@@ -602,7 +738,15 @@
             submitButton.classList.add('btn-processing');
             try {
                 const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
-                await setDoc(countDocRef, { sku, quantity, type: 'conteo', counter: name, timestamp: serverTimestamp() });
+                const now = serverTimestamp();
+                await setDoc(countDocRef, { 
+                    sku, 
+                    quantity, 
+                    type: 'conteo', 
+                    counter: name, 
+                    firstTimestamp: now, 
+                    lastTimestamp: now 
+                });
                 await logAction('Corrección Admin', sku, quantity, name, `Stock Físico TOTAL fijado a ${quantity}.`);
                 showToast("Stock físico corregido.");
                 formCorrectionAdmin.reset();
@@ -697,16 +841,31 @@
             ].join(';'))].join('\n');
             downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
         });
-
+        
         btnOpenAdminLog.addEventListener('click', async () => {
             const password = await requestPassword();
-            if (password !== LOG_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            if (password !== LOG_PASSWORD) {
+                if (password !== null) showToast("Contraseña incorrecta.", true);
+                return;
+            }
+
+            logFilterDate.value = '';
+            logSkuFilter.value = '';
+            logRespFilter.value = '';
+
             adminLogModal.style.display = 'flex';
+
             const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
             const logsSnapshot = await getDocs(logsQuery);
-            renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
+            fullAdminLogData = logsSnapshot.docs.map(doc => doc.data());
+
+            renderAndAnalyzeAdminLog();
         });
-        closeAdminLogBtn.addEventListener('click', () => adminLogModal.style.display = 'none');
+
+        closeAdminLogBtn.addEventListener('click', () => {
+            adminLogModal.style.display = 'none';
+        });
+
         btnClearLog.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
@@ -718,12 +877,11 @@
                 showToast("Log de auditoría limpiado.");
             });
         });
-        logDatePicker.addEventListener('change', async (e) => {
-            const date = e.target.value;
-            const q = date ? query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), where('timestamp', '>=', new Date(date)), where('timestamp', '<=', new Date(`${date}T23:59:59`))) : query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
-            const logsSnapshot = await getDocs(q);
-            renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
-        });
+
+        logDatePicker.addEventListener('change', renderAndAnalyzeAdminLog);
+        logSkuFilter.addEventListener('input', debounce(renderAndAnalyzeAdminLog, 300));
+        logRespFilter.addEventListener('input', debounce(renderAndAnalyzeAdminLog, 300));
+        
         btnClearData.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
@@ -754,7 +912,6 @@
                 userIdDisplay.textContent = 'No autenticado';
                 authSection.style.display = 'flex'; appContent.style.display = 'none';
                 renderDashboard([]);
-                renderLastMovements();
             }
         });
         
