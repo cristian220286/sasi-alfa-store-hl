@@ -62,7 +62,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">ALfa Store HL</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -121,9 +121,15 @@
                             <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-bomb"></i> Zona Peligrosa</h3>
                             <div class="space-y-3">
                                 <button id="btn-limpiar-datos" class="btn btn-danger w-full">Limpiar Datos Operativos</button>
-                                <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Ver Log de Auditoría</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
+                    <div class="card">
+                        <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-book"></i> Log de Auditoría</h2>
+                        <p class="text-gray-400 mb-4">Ver todos los movimientos registrados.</p>
+                        <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Abrir Log</button>
                     </div>
                 </div>
                 <div class="card mt-6">
@@ -160,7 +166,6 @@
             <div id="modal-buttons" class="flex justify-end gap-4"></div>
         </div>
     </div>
-
     <div id="adminLogModal" class="modal">
         <div class="modal-content">
             <span class="close-button" id="close-admin-log" style="float:right; cursor:pointer; font-size: 1.5rem;">&times;</span>
@@ -170,7 +175,6 @@
                     <i class="fa-solid fa-trash-can"></i> Limpiar Log
                 </button>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="card text-center">
                     <h3 class="text-sm font-semibold text-gray-500">Movimientos Totales</h3>
@@ -185,7 +189,6 @@
                     <p id="log-stat-resp" class="text-2xl font-bold">-</p>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 rounded-lg" style="background-color: var(--bg-main);">
                 <div>
                     <label for="log-filter-date" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
@@ -200,7 +203,6 @@
                     <input type="text" id="log-filter-resp" placeholder="Ej: seba" class="input-field w-full">
                 </div>
             </div>
-            
             <div class="overflow-x-auto max-h-[55vh]">
                 <table class="w-full">
                     <thead class="table-header">
@@ -286,9 +288,9 @@
         const closeAdminLogBtn = document.getElementById('close-admin-log');
         const adminLogBody = document.getElementById('admin-log-body');
         const btnClearLog = document.getElementById('btn-limpiar-log');
-        const logDatePicker = document.getElementById('log-filter-date');
-        const logSkuFilter = document.getElementById('log-filter-sku');
-        const logRespFilter = document.getElementById('log-filter-resp');
+        const logFilterDate = document.getElementById('log-filter-date');
+        const logFilterSku = document.getElementById('log-filter-sku');
+        const logFilterResp = document.getElementById('log-filter-resp');
         const logStatTotal = document.getElementById('log-stat-total');
         const logStatSku = document.getElementById('log-stat-sku');
         const logStatResp = document.getElementById('log-stat-resp');
@@ -841,7 +843,7 @@
             ].join(';'))].join('\n');
             downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
         });
-        
+
         btnOpenAdminLog.addEventListener('click', async () => {
             const password = await requestPassword();
             if (password !== LOG_PASSWORD) {
@@ -850,8 +852,8 @@
             }
 
             logFilterDate.value = '';
-            logSkuFilter.value = '';
-            logRespFilter.value = '';
+            logFilterSku.value = '';
+            logFilterResp.value = '';
 
             adminLogModal.style.display = 'flex';
 
@@ -878,9 +880,9 @@
             });
         });
 
-        logDatePicker.addEventListener('change', renderAndAnalyzeAdminLog);
-        logSkuFilter.addEventListener('input', debounce(renderAndAnalyzeAdminLog, 300));
-        logRespFilter.addEventListener('input', debounce(renderAndAnalyzeAdminLog, 300));
+        logFilterDate.addEventListener('change', renderAndAnalyzeAdminLog);
+        logFilterSku.addEventListener('input', debounce(renderAndAnalyzeAdminLog, 300));
+        logFilterResp.addEventListener('input', debounce(renderAndAnalyzeAdminLog, 300));
         
         btnClearData.addEventListener('click', async () => {
             const password = await requestPassword();
