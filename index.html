@@ -87,7 +87,7 @@
             <div id="app-content">
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                     <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"><p class="text-sm text-gray-500 mt-2">Formato: SKU,Stock</p></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"><p class="text-sm text-gray-500 mt-2">Formato: SKU;Stock</p></div>
                     <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden sku-warning">¡Ojo! Los códigos no llevan espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
                     <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden sku-warning">¡Ojo! Los códigos no llevan espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
                 </div>
@@ -120,7 +120,7 @@
                             <div class="space-y-3">
                                 <input type="file" id="repo-csv-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" required>
                                 <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Su Nombre para auditoría" required>
-                                <p class="text-xs text-gray-500 mt-1">Formato: SKU, Cantidad</p>
+                                <p class="text-xs text-gray-500 mt-1">Formato: SKU;Cantidad</p>
                                 <button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-dolly"></i>Cargar Reposición</button>
                             </div>
                         </form>
@@ -137,7 +137,26 @@
 
                 <div class="card mt-6">
                     <div class="flex justify-between items-center mb-4 gap-4 flex-wrap"><h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2><div class="flex gap-4 items-center"><input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs"><button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button></div></div>
-                    <div class="overflow-x-auto max-h-[65vh]"><table class="w-full"><thead class="table-header"><tr><th>Prioridad</th><th>SKU</th><th>Estado</th><th>Stock Final</th><th>Dif. Conteo</th><th>Físico Contado</th><th>Stock Teórico</th><th>Total Vendido</th><th>Contado por</th><th>Fecha Ing. Teórico</th><th>Fecha Últ. Repo.</th><th>Fecha Conteo</th><th>Fecha Venta</th></tr></thead><tbody id="dashboard-body"></tbody></table></div>
+                    <div class="overflow-x-auto max-h-[65vh]">
+                        <table class="w-full">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Estado</th>
+                                    <th>Físico Proyectado</th>
+                                    <th>Dif. (Histórica)</th>
+                                    <th>Físico Contado</th>
+                                    <th>Teórico (al Contar)</th>
+                                    <th>Teórico (Actual)</th>
+                                    <th>Total Vendido</th>
+                                    <th>Contado por</th>
+                                    <th>Fecha Conteo</th>
+                                    <th>Fecha Venta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -719,6 +738,8 @@
                     if (!sku) continue;
 
                     const skuData = skuMap.get(sku) || new SkuData(sku);
+                    if (product.errors) skuData.errors.push(...product.errors);
+
                     const resultado = skuData.calcularEstado(product.stock);
                     resultado.theoreticalDate = toDateCached(product.timestamp);
 
@@ -767,71 +788,56 @@
         // --- Función para mostrar alertas visuales y log global de errores ---
 
         function mostrarAlertasYLogErrores(dashboardData) {
-            // Ejemplo: agregar ícono ⚠️ junto a SKU con errores y tooltip con detalles
             dashboardData.forEach(item => {
                 const rowElement = document.querySelector(`[data-sku="${item.sku}"]`);
                 if (!rowElement) return;
+                
+                const skuCell = rowElement.querySelector('.sku-cell');
+                if (!skuCell) return;
 
-                // Remover alertas previas
-                const existingAlert = rowElement.querySelector('.error-alert');
+                const existingAlert = skuCell.querySelector('.error-alert');
                 if (existingAlert) existingAlert.remove();
 
                 if (item.errors && item.errors.length > 0) {
                     const alertIcon = document.createElement('span');
                     alertIcon.className = 'error-alert';
-                    alertIcon.textContent = '⚠️';
+                    alertIcon.textContent = ' ⚠️'; // Espacio inicial para separar del SKU
                     alertIcon.title = item.errors.join('\n');
                     alertIcon.style.cursor = 'help';
-                    alertIcon.style.marginLeft = '0.5rem';
-                    rowElement.querySelector('.sku-cell').appendChild(alertIcon);
+                    skuCell.appendChild(alertIcon);
                 }
             });
-
-            // Log global de errores para administrador
-            const erroresGlobales = dashboardData.flatMap(d => d.errors);
-            if (erroresGlobales.length > 0) {
-                // Aquí puedes abrir un modal o actualizar una sección con la lista de erroresGlobales
-                // Ejemplo simple:
-                const logContainer = document.getElementById('error-log-container');
-                if (logContainer) {
-                    logContainer.innerHTML = erroresGlobales.map(e => `<div>${e}</div>`).join('');
-                    logContainer.style.display = 'block';
-                }
-            } else {
-                const logContainer = document.getElementById('error-log-container');
-                if (logContainer) {
-                    logContainer.style.display = 'none';
-                }
-            }
+            // Opcional: Implementar un log global en la UI si se considera necesario
         }
         
         function renderDashboard() {
             const data = getDashboardData();
             dashboardBody.innerHTML = '';
             if (data.length === 0) {
-                dashboardBody.innerHTML = `<tr><td colspan="13" class="table-cell text-center">No hay datos para mostrar.</td></tr>`;
+                dashboardBody.innerHTML = `<tr><td colspan="11" class="table-cell text-center">No hay datos para mostrar.</td></tr>`;
                 return;
             }
             data.forEach(item => {
                 const badgeClass = `badge badge-${item.estado.toLowerCase().replace(/ /g, '-')}`;
                 const row = document.createElement('tr');
+                row.dataset.sku = item.sku;
                 row.innerHTML = `
-                    <td class="table-cell">${item.estado === 'No en Catálogo' ? '5' : (item.diferencia_historica !== null ? item.diferencia_historica : item.estado === 'Pendiente' ? '3' : 'N/A')}</td>
-                    <td class="table-cell font-semibold">${item.sku}</td>
+                    <td class="table-cell font-semibold sku-cell">${item.sku}</td>
                     <td class="table-cell"><span class="${badgeClass}">${item.estado}</span></td>
-                    <td class="table-cell text-right">${item.stock_teorico_actual !== null ? item.stock_teorico_actual : 'N/A'}</td>
-                    <td class="table-cell text-right">${item.diferencia_historica !== null ? item.diferencia_historica : 'N/A'}</td>
-                    <td class="table-cell text-right">${item.conteo_fisico !== null ? item.conteo_fisico : 'N/A'}</td>
+                    <td class="table-cell text-right font-bold text-blue-600">${item.stock_fisico_proyectado !== null ? item.stock_fisico_proyectado : 'N/A'}</td>
+                    <td class="table-cell text-right font-bold">${item.diferencia_historica !== null ? item.diferencia_historica : 'N/A'}</td>
+                    <td class="table-cell text-right">${item.conteo_fisico}</td>
                     <td class="table-cell text-right">${item.stock_teorico_al_contar !== null ? item.stock_teorico_al_contar : 'N/A'}</td>
-                    <td class="table-cell text-right">${item.total_vendido !== null ? item.total_vendido : 'N/A'}</td>
+                    <td class="table-cell text-right">${item.stock_teorico_actual}</td>
+                    <td class="table-cell text-right">${item.total_vendido}</td>
                     <td class="table-cell">${item.counter}</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.theoreticalDate)}</td>
-                    <td class="table-cell">N/A</td>
                     <td class="table-cell">${formatFirebaseTimestamp(item.fecha_conteo)}</td>
                     <td class="table-cell">${formatFirebaseTimestamp(item.saleDate)}</td>
                 `;
                 dashboardBody.appendChild(row);
             });
+            // Llamar a la función para mostrar alertas después de renderizar
+            mostrarAlertasYLogErrores(data);
         }
         
         function renderLastMovements() {
@@ -933,50 +939,38 @@
                 const text = event.target.result;
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
 
-                // --- INICIO DE LA NUEVA LÓGICA DE VALIDACIÓN DETALLADA ---
-                // PASO 1: Pre-validación línea por línea
+                // La validación detallada se mantiene para IDENTIFICAR errores
                 const allLinesData = lines.map((line, index) => {
                     const cols = line.split(';');
                     const sku = cols[0]?.trim()?.toUpperCase();
                     const stockString = cols[1]?.trim().replace(',', '.');
-                    const stock = parseFloat(stockString);
+                    let stock = parseFloat(stockString);
                     const errors = [];
 
-                    // Validaciones de SKU
-                    if (!sku) {
-                        errors.push('El SKU está vacío.');
-                    } else {
-                        if (sku.includes(' ')) {
-                            errors.push('El SKU no debe contener espacios.');
-                        }
-                        if (!/^[A-Z0-9_-]+$/.test(sku)) {
-                            errors.push('El SKU contiene caracteres no válidos (solo letras, números, - y _).');
-                        }
+                    if (!sku) errors.push('El SKU está vacío.');
+                    else {
+                        if (sku.includes(' ')) errors.push('El SKU no debe contener espacios.');
+                        if (!/^[A-Z0-9_-]+$/.test(sku)) errors.push('El SKU contiene caracteres no válidos.');
                     }
 
-                    // Validaciones de Stock
-                    if (cols[1] === undefined || cols[1].trim() === '') {
-                        errors.push('El Stock está vacío.');
-                    } else if (isNaN(stock)) {
-                        errors.push('El Stock no es un número válido.');
-                    } else if (stock < 0) {
-                        errors.push('El Stock no puede ser negativo.');
-                    }
+                    if (cols[1] === undefined || cols[1].trim() === '') errors.push('El Stock está vacío. Se asignará 0.');
+                    else if (isNaN(stock)) errors.push('El Stock no es un número. Se asignará 0.');
+                    else if (stock < 0) errors.push('El Stock es negativo. Se asignará 0.');
+                    
+                    // Sanitización: si el stock es inválido, lo forzamos a 0 para poder cargarlo.
+                    if (isNaN(stock) || stock < 0) stock = 0;
 
                     return { sku, stock, originalLine: line, lineNumber: index + 1, errors };
                 });
 
-                // PASO 2: Verificación de SKUs duplicados en todo el archivo
                 const seenSkus = new Map();
                 allLinesData.forEach(lineData => {
-                    if (lineData.sku && lineData.errors.length === 0) { // Solo revisamos SKUs que ya son válidos
+                    if (lineData.sku && !lineData.errors.some(e => e.includes('vacío') || e.includes('caracteres'))) {
                         if (seenSkus.has(lineData.sku)) {
-                            // Marcamos este como duplicado
-                            lineData.errors.push(`SKU duplicado (la primera vez aparece en la línea ${seenSkus.get(lineData.sku).lineNumber}).`);
-                            // Y también marcamos el primero que encontramos
-                            const firstOccurrence = seenSkus.get(lineData.sku);
-                            if (!firstOccurrence.errors.some(e => e.startsWith('SKU duplicado'))) {
-                                firstOccurrence.errors.push(`SKU duplicado (se repite más adelante en la línea ${lineData.lineNumber}).`);
+                            lineData.errors.push(`SKU duplicado (1ra vez en línea ${seenSkus.get(lineData.sku).lineNumber}). No se cargará el stock de esta línea.`);
+                            const first = seenSkus.get(lineData.sku);
+                            if (!first.errors.some(e => e.startsWith('SKU duplicado'))) {
+                                first.errors.push(`SKU duplicado (repetido en línea ${lineData.lineNumber}).`);
                             }
                         } else {
                             seenSkus.set(lineData.sku, lineData);
@@ -984,15 +978,11 @@
                     }
                 });
 
-                // PASO 3: Separar las líneas válidas de las que tienen errores
-                const dataToUpload = allLinesData.filter(item => item.errors.length === 0);
-                const skusWithErrors = allLinesData.filter(item => item.errors.length > 0);
-
-                // --- FIN DE LA NUEVA LÓGICA DE VALIDACIÓN ---
-
-                let message = `¿Confirma la carga de ${dataToUpload.length} productos? Esto reemplazará el catálogo teórico actual.`;
-                if (skusWithErrors.length > 0) {
-                    message += ` Se omitirán ${skusWithErrors.length} productos con errores.`;
+                // Ahora procesamos TODAS las líneas, no solo las válidas
+                const productosConAdvertencias = allLinesData.filter(item => item.errors.length > 0);
+                let message = `Se procesarán ${allLinesData.length} productos.`;
+                if (productosConAdvertencias.length > 0) {
+                    message += ` Se detectaron ${productosConAdvertencias.length} productos con advertencias que serán marcados en el dashboard.`;
                 }
 
                 showModal(message, true, async () => {
@@ -1002,26 +992,32 @@
                     const oldDocs = await getDocs(stockTeoricoColRef);
                     oldDocs.forEach(doc => batch.delete(doc.ref));
 
-                    dataToUpload.forEach(item => {
-                        const newDocRef = doc(stockTeoricoColRef);
-                        batch.set(newDocRef, {
-                            sku: item.sku,
-                            stock: item.stock,
-                            timestamp: serverTimestamp()
-                        });
+                    const skusAddedToBatch = new Set();
+
+                    allLinesData.forEach(item => {
+                        // Solo añadimos el PRIMER SKU válido para evitar duplicar stock
+                        if (item.sku && !skusAddedToBatch.has(item.sku)) {
+                            const newDocRef = doc(stockTeoricoColRef);
+                            batch.set(newDocRef, {
+                                sku: item.sku,
+                                stock: item.errors.some(e => e.includes('duplicado')) ? 0 : item.stock, // Si es duplicado, su stock no suma.
+                                timestamp: serverTimestamp(),
+                                errors: item.errors // Guardamos los errores en la base de datos
+                            });
+                            skusAddedToBatch.add(item.sku);
+                        }
                     });
                     
                     try {
                         await batch.commit();
-                        let successMessage = `Catálogo cargado con éxito. Se cargaron ${dataToUpload.length} productos.`;
-                        if (skusWithErrors.length > 0) {
-                            successMessage += ` Se omitieron ${skusWithErrors.length} productos con errores. Se ha descargado un archivo CSV con los detalles.`;
-
-                            // Generar el CSV de errores con los nuevos mensajes detallados
+                        let successMessage = `Catálogo cargado con ${allLinesData.length} productos procesados.`;
+                        if (productosConAdvertencias.length > 0) {
+                            successMessage += ` Se marcaron ${productosConAdvertencias.length} con advertencias. Revisa el dashboard.`;
+                            // Opcional: Aún podemos descargar el CSV de errores para un reporte separado
                             const errorCsvHeader = ['SKU_Original', 'Stock_Original', 'Motivo_del_Error'];
-                            const errorCsvRows = skusWithErrors.map(errorItem => {
+                            const errorCsvRows = productosConAdvertencias.map(errorItem => {
                                 const originalCols = errorItem.originalLine.split(';');
-                                const errorReason = errorItem.errors.join('; '); // Une todos los errores encontrados para esa línea
+                                const errorReason = errorItem.errors.join('; ');
                                 return [
                                     `"${originalCols[0]?.trim() || ''}"`,
                                     `"${originalCols[1]?.trim() || ''}"`,
@@ -1029,16 +1025,16 @@
                                 ];
                             });
                             const errorCsvContent = [
-                                errorCsvHeader.join(','),
-                                ...errorCsvRows.map(row => row.join(','))
+                                errorCsvHeader.join(';'),
+                                ...errorCsvRows.map(row => row.join(';'))
                             ].join('\n');
-                            downloadCsv(`errores_catalogo_${new Date().toISOString()}.csv`, errorCsvContent);
+                            downloadCsv(`advertencias_catalogo_${new Date().toISOString()}.csv`, errorCsvContent);
                         }
                         showToast(successMessage, false);
-                        await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail, `Cargado ${dataToUpload.length} items desde CSV.`);
+                        await logAction('Catálogo', 'N/A', allLinesData.length, userEmail, `Cargado con ${productosConAdvertencias.length} advertencias.`);
                         e.target.value = '';
                     } catch (error) {
-                        showToast("Error al cargar el catálogo.", true);
+                        showToast("Error crítico al cargar el catálogo.", true);
                         console.error(error);
                     }
                 });
