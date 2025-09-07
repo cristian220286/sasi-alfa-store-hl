@@ -1,714 +1,714 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alfa Store HL</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Paleta de Colores Pastel Femenina y Profesional */
-        :root {
-            --bg-main: #FDF8FA;       /* Rosa muy claro */
-            --bg-card: #FFFFFF;
-            --primary: #EAB3A8;       /* Rosa pastel principal */
-            --primary-hover: #D69A8F; /* Rosa pastel más oscuro */
-            --secondary: #E5E7EB;
-            --secondary-hover: #D1D5DB;
-            --text-dark: #4B4B4B;     /* Gris oscuro suave */
-            --text-light: #6B7280;
-            --border-color: #F3E8EB;
-            --danger: #FCA5A5;        /* Rojo coral suave */
-            --danger-hover: #EF4444;
-            --success: #A7F3D0;       /* Menta */
-            --warning: #FDE68A;       /* Amarillo pastel */
-            --info: #A5B4FC;         /* Lavanda */
-        }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-dark); }
-        .card { background-color: var(--bg-card); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
-        .table-header th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-main); position: sticky; top: 0; z-index: 10; }
-        .table-cell { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
-        .badge { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 9999px; }
-        .badge-faltante { background-color: var(--danger); color: #B91C1C; }
-        .badge-sobrante { background-color: var(--success); color: #065F46; }
-        .badge-cuadrado { background-color: var(--info); color: #3730A3; }
-        .badge-pendiente { background-color: var(--warning); color: #92400E; }
-        .badge-no-en-catalogo { background-color: #9CA3AF; color: #1F2937; }
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; cursor: pointer; border: 1px solid transparent; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-secondary { background-color: var(--secondary); color: var(--text-dark); }
-        .btn-danger { background-color: var(--danger); color: #991B1B; }
-        .btn:disabled { background-color: #D1D5DB; color: #6B7280; cursor: not-allowed; opacity: 0.7; }
-        .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-        .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
-        .btn-danger:hover:not(:disabled) { background-color: var(--danger-hover); color: white; }
-        .input-field { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; transition: border-color 0.2s, box-shadow 0.2s; }
-        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px #FBCFE8; }
-        .input-field.invalid { border-color: var(--danger); box-shadow: 0 0 0 2px #FECACA; }
-        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 0.5rem; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        #toast.error { background-color: var(--danger); color: #B91C1C; }
-        #toast.success { background-color: var(--success); color: #065F46; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-        .btn-processing { background-color: var(--success) !important; color: #065F46 !important; cursor: wait !important; }
-        .btn-processing i { animation: fa-spin 1s infinite linear; }
-        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
-        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); width: 90%; max-width: 1024px; text-align: left; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sasi Smart Group PPS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Paleta de Colores Pastel Femenina y Profesional */
+        :root {
+            --bg-main: #FDF8FA;      /* Rosa muy claro */
+            --bg-card: #FFFFFF;
+            --primary: #EAB3A8;      /* Rosa pastel principal */
+            --primary-hover: #D69A8F; /* Rosa pastel más oscuro */
+            --secondary: #E5E7EB;
+            --secondary-hover: #D1D5DB;
+            --text-dark: #4B4B4B;    /* Gris oscuro suave */
+            --text-light: #6B7280;
+            --border-color: #F3E8EB;
+            --danger: #FCA5A5;        /* Rojo coral suave */
+            --danger-hover: #EF4444;
+            --success: #A7F3D0;        /* Menta */
+            --warning: #FDE68A;        /* Amarillo pastel */
+            --info: #A5B4FC;          /* Lavanda */
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-dark); }
+        .card { background-color: var(--bg-card); border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
+        .table-header th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; background-color: var(--bg-main); position: sticky; top: 0; z-index: 10; }
+        .table-cell { padding: 0.75rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 9999px; }
+        .badge-faltante { background-color: var(--danger); color: #B91C1C; }
+        .badge-sobrante { background-color: var(--success); color: #065F46; }
+        .badge-cuadrado { background-color: var(--info); color: #3730A3; }
+        .badge-pendiente { background-color: var(--warning); color: #92400E; }
+        .badge-no-en-catalogo { background-color: #9CA3AF; color: #1F2937; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; cursor: pointer; border: 1px solid transparent; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { background-color: var(--secondary); color: var(--text-dark); }
+        .btn-danger { background-color: var(--danger); color: #991B1B; }
+        .btn:disabled { background-color: #D1D5DB; color: #6B7280; cursor: not-allowed; opacity: 0.7; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
+        .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
+        .btn-danger:hover:not(:disabled) { background-color: var(--danger-hover); color: white; }
+        .input-field { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px #FBCFE8; }
+        .input-field.invalid { border-color: var(--danger); box-shadow: 0 0 0 2px #FECACA; }
+        #toast { visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #333; color: #fff; text-align: center; border-radius: 0.5rem; padding: 16px; position: fixed; z-index: 100; left: 50%; bottom: 30px; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        #toast.error { background-color: var(--danger); color: #B91C1C; }
+        #toast.success { background-color: var(--success); color: #065F46; }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        .btn-processing { background-color: var(--success) !important; color: #065F46 !important; cursor: wait !important; }
+        .btn-processing i { animation: fa-spin 1s infinite linear; }
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fefefe; margin: auto; padding: 20px; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); width: 90%; max-width: 1024px; text-align: left; }
+    </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8 flex flex-col min-h-screen">
 
-    <main class="flex-grow">
-        <div class="max-w-screen-2xl mx-auto">
-            <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
-                <div class="flex items-center gap-4">
-                    <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
-                    <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
-                    <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
-                </div>
-            </header>
+    <main class="flex-grow">
+        <div class="max-w-screen-2xl mx-auto">
+            <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
+                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
+                <div class="flex items-center gap-4">
+                    <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">...</span></div>
+                    <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
+                    <button id="btn-logout" class="btn btn-secondary"><i class="fa-solid fa-right-from-bracket"></i>Salir</button>
+                </div>
+            </header>
 
-            <div id="auth-section" class="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
-                <h2 class="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
-                <div class="space-y-4">
-                    <input type="email" id="auth-email" class="input-field" placeholder="Email del espacio de trabajo" required>
-                    <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required>
-                    <button id="btn-login" class="btn btn-primary w-full">Iniciar Sesión</button>
-                    <button id="btn-register" class="btn btn-secondary w-full">Crear Nuevo Espacio</button>
-                </div>
-            </div>
+            <div id="auth-section" class="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
+                <div class="space-y-4">
+                    <input type="email" id="auth-email" class="input-field" placeholder="Email del espacio de trabajo" required>
+                    <input type="password" id="auth-password" class="input-field" placeholder="Contraseña" required>
+                    <button id="btn-login" class="btn btn-primary w-full">Iniciar Sesión</button>
+                    <button id="btn-register" class="btn btn-secondary w-full">Crear Nuevo Espacio</button>
+                </div>
+            </div>
 
-            <div id="app-content" class="hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"><p class="text-sm text-gray-500 mt-2">Formato: SKU;Stock</p></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
-                    <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
-                </div>
+            <div id="app-content" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">1. Sesión de Conteo</h2><div class="space-y-4"><input type="text" id="contador-nombre" class="input-field" placeholder="Nombre de quien cuenta"><button id="btn-guardar-contador" class="btn btn-primary w-full"><i class="fa-solid fa-user-check"></i>Fijar Nombre</button></div></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">2. Cargar Catálogo (CSV)</h2><input type="file" id="csv-file-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"><p class="text-sm text-gray-500 mt-2">Formato: SKU;Stock</p></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">3. Registrar Venta</h2><form id="form-ventas"><div class="space-y-4"><input type="text" id="venta-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="venta-cantidad" class="input-field" placeholder="Cantidad Vendida" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-cart-shopping"></i>Registrar</button></div></form></div>
+                    <div class="card"><h2 class="text-xl font-semibold mb-4">4. Añadir a Conteo Físico</h2><form id="form-conteo"><div class="space-y-4"><input type="text" id="conteo-sku" class="input-field sku-input" placeholder="SKU del Producto" required><div class="text-xs text-red-400 hidden">SKU no debe tener espacios.</div><input type="number" id="conteo-cantidad" class="input-field" placeholder="Cantidad a AÑADIR" required min="1"><button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-plus"></i>Añadir</button></div></form></div>
+                </div>
 
-                <div class="card border-2" style="border-color: var(--primary);">
-                    <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-user-shield"></i> Operaciones de Administrador</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6">
-                        <form id="form-correccion-admin">
-                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-pen-to-square"></i> Corregir Físico</h3>
-                            <div class="space-y-3">
-                                <input type="text" id="correc-sku" class="input-field sku-input" placeholder="SKU a corregir" required>
-                                <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
-                                <input type="number" id="correc-cantidad" class="input-field" placeholder="Nuevo Stock Físico TOTAL" required min="0">
-                                <input type="text" id="correc-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
-                                <button type="submit" class="btn btn-primary w-full">Corregir</button>
-                            </div>
-                        </form>
-                        <form id="form-anulacion">
-                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-undo"></i> Anular Venta</h3>
-                            <div class="space-y-3">
-                                <input type="text" id="anular-sku" class="input-field sku-input" placeholder="SKU de la venta" required>
-                                <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
-                                <input type="number" id="anular-cantidad" class="input-field" placeholder="Cantidad a anular" required min="1">
-                                <input type="text" id="anular-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
-                                <button type="submit" class="btn btn-primary w-full">Anular</button>
-                            </div>
-                        </form>
-                        <form id="form-reposicion-csv">
-                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-truck-ramp-box"></i> Reponer Stock (CSV)</h3>
-                            <div class="space-y-3">
-                                <input type="file" id="repo-csv-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" required>
-                                <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
-                                <p class="text-xs text-gray-500 mt-1">Formato: SKU;Cantidad</p>
-                                <button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-dolly"></i>Cargar Reposición</button>
-                            </div>
-                        </form>
-                        <div>
-                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-bomb"></i> Zona Peligrosa</h3>
-                            <div class="space-y-3">
-                                <button id="btn-limpiar-datos" class="btn btn-danger w-full">Limpiar Datos Operativos</button>
-                                <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Ver Log de Auditoría</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="card border-2" style="border-color: var(--primary);">
+                    <h2 class="text-xl font-semibold mb-4"><i class="fa-solid fa-user-shield"></i> Operaciones de Administrador</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-8 gap-y-6">
+                        <form id="form-correccion-admin">
+                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-pen-to-square"></i> Corregir Físico</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="correc-sku" class="input-field sku-input" placeholder="SKU a corregir" required>
+                                <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
+                                <input type="number" id="correc-cantidad" class="input-field" placeholder="Nuevo Stock Físico TOTAL" required min="0">
+                                <input type="text" id="correc-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
+                                <button type="submit" class="btn btn-primary w-full">Corregir</button>
+                            </div>
+                        </form>
+                        <form id="form-anulacion">
+                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-undo"></i> Anular Venta</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="anular-sku" class="input-field sku-input" placeholder="SKU de la venta" required>
+                                <div class="text-xs text-red-400 hidden">SKU sin espacios.</div>
+                                <input type="number" id="anular-cantidad" class="input-field" placeholder="Cantidad a anular" required min="1">
+                                <input type="text" id="anular-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
+                                <button type="submit" class="btn btn-primary w-full">Anular</button>
+                            </div>
+                        </form>
+                        <form id="form-reposicion-csv">
+                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-truck-ramp-box"></i> Reponer Stock (CSV)</h3>
+                            <div class="space-y-3">
+                                <input type="file" id="repo-csv-input" accept=".csv" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" required>
+                                <input type="text" id="repo-nombre-admin" class="input-field" placeholder="Tu Nombre para auditoría" required>
+                                <p class="text-xs text-gray-500 mt-1">Formato: SKU;Cantidad</p>
+                                <button type="submit" class="btn btn-primary w-full"><i class="fa-solid fa-dolly"></i>Cargar Reposición</button>
+                            </div>
+                        </form>
+                        <div>
+                            <h3 class="font-semibold text-lg mb-2"><i class="fa-solid fa-bomb"></i> Zona Peligrosa</h3>
+                            <div class="space-y-3">
+                                <button id="btn-limpiar-datos" class="btn btn-danger w-full">Limpiar Datos Operativos</button>
+                                <button id="btn-abrir-log-admin" class="btn btn-secondary w-full">Ver Log de Auditoría</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="card mt-6">
-                    <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
-                        <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
-                        <div class="flex gap-4 items-center">
-                            <input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs">
-                            <button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto max-h-[65vh]">
-                        <table class="w-full">
-                            <thead class="table-header">
-                                <tr>
-                                    <th>SKU</th> <th>Estado</th> <th>Físico Proyectado</th> <th>Dif. (Histórica)</th>
-                                    <th>Físico Contado</th> <th>Teórico (al Contar)</th> <th>Teórico (Actual)</th>
-                                    <th>Total Vendido</th> <th>Contado por</th> <th>Fecha Conteo</th> <th>Fecha Venta</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dashboard-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <footer class="text-center p-4 text-gray-500 text-sm mt-auto">
-            <p>By Mor</p>
-        </footer>
-    </main>
-    <div id="toast"></div>
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <div id="modal-message" class="text-lg font-semibold mb-4"></div>
-            <div id="modal-buttons" class="flex justify-end gap-4"></div>
-        </div>
-     </div>
-    <div id="adminLogModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="close-admin-log" style="float:right; cursor:pointer; font-size: 1.5rem;">&times;</span>
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Log de Movimientos de Auditoría</h2>
-                <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
-            </div>
-            <div class="mb-4">
-                <label for="log-date-picker" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
-                <input type="date" id="log-date-picker" class="input-field w-full max-w-xs">
-            </div>
-            <div class="overflow-x-auto max-h-[70vh]">
-                <table class="w-full">
-                    <thead class="table-header"><tr><th>Fecha y Hora</th><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Detalle</th></tr></thead>
-                    <tbody id="admin-log-body"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+                <div class="card mt-6">
+                    <div class="flex justify-between items-center mb-4 gap-4 flex-wrap">
+                        <h2 class="text-2xl font-bold">Dashboard de Reconciliación</h2>
+                        <div class="flex gap-4 items-center">
+                            <input type="text" id="search-input" placeholder="Buscar por SKU..." class="input-field w-full max-w-xs">
+                            <button id="btn-descargar-csv" class="btn btn-secondary"><i class="fa-solid fa-file-csv"></i>Descargar CSV</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[65vh]">
+                        <table class="w-full">
+                            <thead class="table-header">
+                                <tr>
+                                    <th>SKU</th> <th>Estado</th> <th>Físico Proyectado</th> <th>Dif. (Histórica)</th>
+                                    <th>Físico Contado</th> <th>Teórico (al Contar)</th> <th>Teórico (Actual)</th>
+                                    <th>Total Vendido</th> <th>Contado por</th> <th>Fecha Conteo</th> <th>Fecha Venta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="text-center p-4 text-gray-500 text-sm mt-auto">
+            <p>By Mor</p>
+        </footer>
+    </main>
+    <div id="toast"></div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div id="modal-message" class="text-lg font-semibold mb-4"></div>
+            <div id="modal-buttons" class="flex justify-end gap-4"></div>
+        </div>
+    </div>
+    <div id="adminLogModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-admin-log" style="float:right; cursor:pointer; font-size: 1.5rem;">&times;</span>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Log de Movimientos de Auditoría</h2>
+                <button id="btn-limpiar-log" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i> Limpiar Log</button>
+            </div>
+            <div class="mb-4">
+                <label for="log-date-picker" class="block text-sm font-medium mb-1">Filtrar por Fecha:</label>
+                <input type="date" id="log-date-picker" class="input-field w-full max-w-xs">
+            </div>
+            <div class="overflow-x-auto max-h-[70vh]">
+                <table class="w-full">
+                    <thead class="table-header"><tr><th>Fecha y Hora</th><th>Tipo</th><th>SKU</th><th>Cantidad</th><th>Responsable</th><th>Detalle</th></tr></thead>
+                    <tbody id="admin-log-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    <script type="module">
-        // --- CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzGc3KVQFYIoQ7W_WZAj585AbUpiU5HUI",
-            authDomain: "sasi-alfa-store-pps.firebaseapp.com",
-            projectId: "sasi-alfa-store-pps",
-            storageBucket: "sasi-alfa-store-pps.firebasestorage.app",
-            messagingSenderId: "739926676625",
-            appId: "1:739926676625:web:b4ff509e304f980ff71b30"
-        };
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, onSnapshot, setDoc, addDoc, query, orderBy, serverTimestamp, writeBatch, getDocs, where, runTransaction, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
-        // --- CONSTANTES GLOBALES Y DE CONFIGURACIÓN ---
-        let BUSINESS_ID = null;
-        const ADMIN_PASSWORD = '10234567'; // Contraseña para operaciones peligrosas
-        const LOG_PASSWORD = 'Acces0r10s@lf@'; // Contraseña para ver el log
+    <script type="module">
+        // --- CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzGc3KVQFYIoQ7W_WZAj585AbUpiU5HUI",
+            authDomain: "sasi-alfa-store-pps.firebaseapp.com",
+            projectId: "sasi-alfa-store-pps",
+            storageBucket: "sasi-alfa-store-pps.firebasestorage.app",
+            messagingSenderId: "739926676625",
+            appId: "1:739926676625:web:b4ff509e304f980ff71b30"
+        };
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, onSnapshot, setDoc, addDoc, query, orderBy, serverTimestamp, writeBatch, getDocs, where, runTransaction, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        // --- CONSTANTES GLOBALES Y DE CONFIGURACIÓN ---
+        let BUSINESS_ID = null;
+        const ADMIN_PASSWORD = '10234567'; // Contraseña para operaciones peligrosas
+        const LOG_PASSWORD = 'Acces0r10s@lf@'; // Contraseña para ver el log
 
-        // --- ESTADO DE LA APLICACIÓN ---
-        let theoreticalStock = [], salesData = [], countData = [], auditLog = [];
-        let userEmail = null;
-        let counterName = 'N/A';
-        let unsubscribes = [];
+        // --- ESTADO DE LA APLICACIÓN ---
+        let theoreticalStock = [], salesData = [], countData = [], auditLog = [];
+        let userEmail = null;
+        let counterName = 'N/A';
+        let unsubscribes = [];
 
-        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
-        const authSection = document.getElementById('auth-section');
-        const appContent = document.getElementById('app-content');
-        const userIdDisplay = document.getElementById('user-id-display');
-        const counterDisplay = document.getElementById('contador-display');
-        const btnLogout = document.getElementById('btn-logout');
-        const btnLogin = document.getElementById('btn-login');
-        const btnRegister = document.getElementById('btn-register');
-        const authEmailInput = document.getElementById('auth-email');
-        const authPasswordInput = document.getElementById('auth-password');
-        const counterNameInput = document.getElementById('contador-nombre');
-        const btnSaveCounterName = document.getElementById('btn-guardar-contador');
-        const csvFileInput = document.getElementById('csv-file-input');
-        const formSales = document.getElementById('form-ventas');
-        const salesSkuInput = document.getElementById('venta-sku');
-        const salesQuantityInput = document.getElementById('venta-cantidad');
-        const formCount = document.getElementById('form-conteo');
-        const countSkuInput = document.getElementById('conteo-sku');
-        const countQuantityInput = document.getElementById('conteo-cantidad');
-        const formCorrectionAdmin = document.getElementById('form-correccion-admin');
-        const correctionSkuInput = document.getElementById('correc-sku');
-        const correctionQuantityInput = document.getElementById('correc-cantidad');
-        const correctionAdminNameInput = document.getElementById('correc-nombre-admin');
-        const formAnulacion = document.getElementById('form-anulacion');
-        const cancellationSkuInput = document.getElementById('anular-sku');
-        const cancellationQuantityInput = document.getElementById('anular-cantidad');
-        const cancellationAdminNameInput = document.getElementById('anular-nombre-admin');
-        const formReposicionCsv = document.getElementById('form-reposicion-csv');
-        const repoCsvInput = document.getElementById('repo-csv-input');
-        const repoAdminNameInput = document.getElementById('repo-nombre-admin');
-        const dashboardBody = document.getElementById('dashboard-body');
-        const searchInput = document.getElementById('search-input');
-        const btnDownloadCsv = document.getElementById('btn-descargar-csv');
-        const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
-        const adminLogModal = document.getElementById('adminLogModal');
-        const closeAdminLogBtn = document.getElementById('close-admin-log');
-        const adminLogBody = document.getElementById('admin-log-body');
-        const btnClearLog = document.getElementById('btn-limpiar-log');
-        const logDatePicker = document.getElementById('log-date-picker');
-        const myModal = document.getElementById('myModal');
-        const modalMessage = document.getElementById('modal-message');
-        const modalButtons = document.getElementById('modal-buttons');
-        const btnClearData = document.getElementById('btn-limpiar-datos');
+        // --- SELECCIÓN DE ELEMENTOS DEL DOM ---
+        const authSection = document.getElementById('auth-section');
+        const appContent = document.getElementById('app-content');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const counterDisplay = document.getElementById('contador-display');
+        const btnLogout = document.getElementById('btn-logout');
+        const btnLogin = document.getElementById('btn-login');
+        const btnRegister = document.getElementById('btn-register');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const counterNameInput = document.getElementById('contador-nombre');
+        const btnSaveCounterName = document.getElementById('btn-guardar-contador');
+        const csvFileInput = document.getElementById('csv-file-input');
+        const formSales = document.getElementById('form-ventas');
+        const salesSkuInput = document.getElementById('venta-sku');
+        const salesQuantityInput = document.getElementById('venta-cantidad');
+        const formCount = document.getElementById('form-conteo');
+        const countSkuInput = document.getElementById('conteo-sku');
+        const countQuantityInput = document.getElementById('conteo-cantidad');
+        const formCorrectionAdmin = document.getElementById('form-correccion-admin');
+        const correctionSkuInput = document.getElementById('correc-sku');
+        const correctionQuantityInput = document.getElementById('correc-cantidad');
+        const correctionAdminNameInput = document.getElementById('correc-nombre-admin');
+        const formAnulacion = document.getElementById('form-anulacion');
+        const cancellationSkuInput = document.getElementById('anular-sku');
+        const cancellationQuantityInput = document.getElementById('anular-cantidad');
+        const cancellationAdminNameInput = document.getElementById('anular-nombre-admin');
+        const formReposicionCsv = document.getElementById('form-reposicion-csv');
+        const repoCsvInput = document.getElementById('repo-csv-input');
+        const repoAdminNameInput = document.getElementById('repo-nombre-admin');
+        const dashboardBody = document.getElementById('dashboard-body');
+        const searchInput = document.getElementById('search-input');
+        const btnDownloadCsv = document.getElementById('btn-descargar-csv');
+        const btnOpenAdminLog = document.getElementById('btn-abrir-log-admin');
+        const adminLogModal = document.getElementById('adminLogModal');
+        const closeAdminLogBtn = document.getElementById('close-admin-log');
+        const adminLogBody = document.getElementById('admin-log-body');
+        const btnClearLog = document.getElementById('btn-limpiar-log');
+        const logDatePicker = document.getElementById('log-date-picker');
+        const myModal = document.getElementById('myModal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalButtons = document.getElementById('modal-buttons');
+        const btnClearData = document.getElementById('btn-limpiar-datos');
 
-        // --- FUNCIONES DE UTILIDAD ---
-        const showToast = (message, isError = false) => {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = isError ? 'show error' : 'show success';
-            setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
-        };
-        const showModal = (message, isConfirm = false, onConfirm = null) => {
-            modalMessage.textContent = message;
-            modalButtons.innerHTML = '';
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = 'Cerrar'; closeBtn.className = 'btn btn-secondary';
-            closeBtn.onclick = () => myModal.style.display = 'none';
-            modalButtons.appendChild(closeBtn);
-            if (isConfirm) {
-                const confirmBtn = document.createElement('button');
-                confirmBtn.textContent = 'Confirmar'; confirmBtn.className = 'btn btn-danger';
-                confirmBtn.onclick = () => { onConfirm(); myModal.style.display = 'none'; };
-                modalButtons.appendChild(confirmBtn);
-            }
-            myModal.style.display = 'flex';
-        };
-        const requestPassword = () => new Promise(resolve => {
-            modalMessage.innerHTML = `<label for="modal-password-input" class="block text-sm font-medium mb-2">Se requiere contraseña de Administrador:</label><input type="password" id="modal-password-input" class="input-field" autocomplete="current-password">`;
-            modalButtons.innerHTML = '';
-            const confirmBtn = document.createElement('button'); confirmBtn.textContent = 'Confirmar'; confirmBtn.className = 'btn btn-primary';
-            const cancelBtn = document.createElement('button'); cancelBtn.textContent = 'Cancelar'; cancelBtn.className = 'btn btn-secondary';
-            const handleConfirm = () => { resolve(document.getElementById('modal-password-input').value); myModal.style.display = 'none'; };
-            const handleCancel = () => { resolve(null); myModal.style.display = 'none'; };
-            confirmBtn.onclick = handleConfirm; cancelBtn.onclick = handleCancel;
-            const passwordInput = modalMessage.querySelector('#modal-password-input');
-            passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); handleConfirm(); } });
-            modalButtons.append(cancelBtn, confirmBtn);
-            myModal.style.display = 'flex';
-            passwordInput.focus();
-        });
-        const downloadCsv = (filename, data) => {
-            const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-        const toggleButton = (button, enable) => { button.disabled = !enable; };
-        const formatFirebaseTimestamp = (ts) => {
-            if (!ts) return 'N/A';
-            if (ts instanceof Date) return ts.toLocaleString('es-AR');
-            if (typeof ts.toDate === 'function') return ts.toDate().toLocaleString('es-AR');
-            return 'Fecha inválida';
-        };
-        const validateSku = (sku) => sku && /^[A-Z0-9_-]+$/.test(sku);
-        const setupSkuInputValidation = () => {
-            document.querySelectorAll('.sku-input').forEach(input => {
-                input.addEventListener('input', e => {
-                    const warning = e.target.nextElementSibling;
-                    const hasSpaces = e.target.value.includes(' ');
-                    input.classList.toggle('invalid', hasSpaces);
-                    if (warning) warning.classList.toggle('hidden', !hasSpaces);
-                });
-            });
-        };
-        const setCountingModuleState = (enabled) => {
-            const card = document.getElementById('form-conteo').closest('.card');
-            card.style.opacity = enabled ? '1' : '0.5';
-            card.style.pointerEvents = enabled ? 'auto' : 'none';
-            card.querySelectorAll('input, button').forEach(el => el.disabled = !enabled);
-        };
-        const debounce = (func, delay) => {
-            let timeout;
-            return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); };
-        };
-        const normalizeSku = (sku) => (typeof sku === 'string' ? sku.trim().toUpperCase() : '');
+        // --- FUNCIONES DE UTILIDAD ---
+        const showToast = (message, isError = false) => {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'show error' : 'show success';
+            setTimeout(() => { toast.className = toast.className.replace('show', ''); }, 3000);
+        };
+        const showModal = (message, isConfirm = false, onConfirm = null) => {
+            modalMessage.textContent = message;
+            modalButtons.innerHTML = '';
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Cerrar'; closeBtn.className = 'btn btn-secondary';
+            closeBtn.onclick = () => myModal.style.display = 'none';
+            modalButtons.appendChild(closeBtn);
+            if (isConfirm) {
+                const confirmBtn = document.createElement('button');
+                confirmBtn.textContent = 'Confirmar'; confirmBtn.className = 'btn btn-danger';
+                confirmBtn.onclick = () => { onConfirm(); myModal.style.display = 'none'; };
+                modalButtons.appendChild(confirmBtn);
+            }
+            myModal.style.display = 'flex';
+        };
+        const requestPassword = () => new Promise(resolve => {
+            modalMessage.innerHTML = `<label for="modal-password-input" class="block text-sm font-medium mb-2">Se requiere contraseña de Administrador:</label><input type="password" id="modal-password-input" class="input-field" autocomplete="current-password">`;
+            modalButtons.innerHTML = '';
+            const confirmBtn = document.createElement('button'); confirmBtn.textContent = 'Confirmar'; confirmBtn.className = 'btn btn-primary';
+            const cancelBtn = document.createElement('button'); cancelBtn.textContent = 'Cancelar'; cancelBtn.className = 'btn btn-secondary';
+            const handleConfirm = () => { resolve(document.getElementById('modal-password-input').value); myModal.style.display = 'none'; };
+            const handleCancel = () => { resolve(null); myModal.style.display = 'none'; };
+            confirmBtn.onclick = handleConfirm; cancelBtn.onclick = handleCancel;
+            const passwordInput = modalMessage.querySelector('#modal-password-input');
+            passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); handleConfirm(); } });
+            modalButtons.append(cancelBtn, confirmBtn);
+            myModal.style.display = 'flex';
+            passwordInput.focus();
+        });
+        const downloadCsv = (filename, data) => {
+            const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        const toggleButton = (button, enable) => { button.disabled = !enable; };
+        const formatFirebaseTimestamp = (ts) => {
+            if (!ts) return 'N/A';
+            if (ts instanceof Date) return ts.toLocaleString('es-AR');
+            if (typeof ts.toDate === 'function') return ts.toDate().toLocaleString('es-AR');
+            return 'Fecha inválida';
+        };
+        const validateSku = (sku) => sku && /^[A-Z0-9_-]+$/.test(sku);
+        const setupSkuInputValidation = () => {
+            document.querySelectorAll('.sku-input').forEach(input => {
+                input.addEventListener('input', e => {
+                    const warning = e.target.nextElementSibling;
+                    const hasSpaces = e.target.value.includes(' ');
+                    input.classList.toggle('invalid', hasSpaces);
+                    if (warning) warning.classList.toggle('hidden', !hasSpaces);
+                });
+            });
+        };
+        const setCountingModuleState = (enabled) => {
+            const card = document.getElementById('form-conteo').closest('.card');
+            card.style.opacity = enabled ? '1' : '0.5';
+            card.style.pointerEvents = enabled ? 'auto' : 'none';
+            card.querySelectorAll('input, button').forEach(el => el.disabled = !enabled);
+        };
+        const debounce = (func, delay) => {
+            let timeout;
+            return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); };
+        };
+        const normalizeSku = (sku) => (typeof sku === 'string' ? sku.trim().toUpperCase() : '');
 
-        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA FINAL) ---
-        let memoizedDashboardData = [];
+        // --- LÓGICA DE CÁLCULO DEL DASHBOARD (LÓGICA HÍBRIDA FINAL) ---
+        let memoizedDashboardData = [];
 
-        class SkuData {
-            constructor(sku) { this.sku = sku; this.ventas = []; this.conteos = []; }
+        class SkuData {
+            constructor(sku) { this.sku = sku; this.ventas = []; this.conteos = []; }
 
-            getLatestConteo() {
-                if (this.conteos.length === 0) return null;
-                return this.conteos.reduce((latest, current) => (current.timestamp?.toDate() > latest.timestamp?.toDate() ? current : latest));
-            }
-            
-            calcularEstado(stockTeoricoInicial = 0) {
-                const ultimoConteo = this.getLatestConteo();
+            getLatestConteo() {
+                if (this.conteos.length === 0) return null;
+                return this.conteos.reduce((latest, current) => (current.timestamp?.toDate() > latest.timestamp?.toDate() ? current : latest));
+            }
+            
+            calcularEstado(stockTeoricoInicial = 0) {
+                const ultimoConteo = this.getLatestConteo();
 
-                if (!ultimoConteo) {
-                    const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
-                    const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
-                    return {
-                        sku: this.sku, estado: 'Pendiente', conteo_fisico: 0, stock_teorico_al_contar: null,
-                        diferencia_historica: null, stock_teorico_actual: stockTeoricoInicial - totalVendido,
-                        stock_fisico_proyectado: null, total_vendido: totalVendido, fecha_conteo: null,
-                        counter: 'N/A', saleDate
-                    };
-                }
+                if (!ultimoConteo) {
+                    const totalVendido = this.ventas.reduce((sum, v) => sum + (Number(v.quantity) || 0), 0);
+                    const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
+                    return {
+                        sku: this.sku, estado: 'Pendiente', conteo_fisico: 0, stock_teorico_al_contar: null,
+                        diferencia_historica: null, stock_teorico_actual: stockTeoricoInicial - totalVendido,
+                        stock_fisico_proyectado: null, total_vendido: totalVendido, fecha_conteo: null,
+                        counter: 'N/A', saleDate
+                    };
+                }
 
-                const fechaPrimerConteo = ultimoConteo.timestamp.toDate();
-                const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
-                
-                const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaPrimerConteo);
-                const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaPrimerConteo);
+                const fechaPrimerConteo = ultimoConteo.timestamp.toDate();
+                const conteoFisicoTotal = Number(ultimoConteo.quantity) || 0;
+                
+                const ventasAntesConteo = this.ventas.filter(v => v.timestamp.toDate() < fechaPrimerConteo);
+                const ventasDespuesConteo = this.ventas.filter(v => v.timestamp.toDate() >= fechaPrimerConteo);
 
-                const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
-                const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
-                
-                const stockTeoricoAlContar = stockTeoricoInicial - totalVendidoAntes;
-                const diferenciaHistorica = conteoFisicoTotal - stockTeoricoAlContar;
-                // CORRECCIÓN: Restamos las ventas ocurridas después del conteo.
-                const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
-                const stockTeoricoActual = stockTeoricoInicial - (totalVendidoAntes + totalVendidoDespues);
-                
-                let estado = 'Cuadrado';
-                if (diferenciaHistorica > 0) estado = 'Sobrante';
-                else if (diferenciaHistorica < 0) estado = 'Faltante';
+                const totalVendidoAntes = ventasAntesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
+                const totalVendidoDespues = ventasDespuesConteo.reduce((sum, v) => sum + Number(v.quantity || 0), 0);
+                
+                const stockTeoricoAlContar = stockTeoricoInicial - totalVendidoAntes;
+                const diferenciaHistorica = conteoFisicoTotal - stockTeoricoAlContar;
+                // CORRECCIÓN: Se resta el total de ventas después del conteo del stock físico total contado.
+                const stockFisicoProyectado = conteoFisicoTotal - totalVendidoDespues;
+                const stockTeoricoActual = stockTeoricoInicial - (totalVendidoAntes + totalVendidoDespues);
+                
+                let estado = 'Cuadrado';
+                if (diferenciaHistorica > 0) estado = 'Sobrante';
+                else if (diferenciaHistorica < 0) estado = 'Faltante';
 
-                const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
+                const saleDate = this.ventas.length > 0 ? this.ventas.slice().sort((a,b) => b.timestamp.toDate() - a.timestamp.toDate())[0].timestamp : null;
 
-                return {
-                    sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, stock_teorico_al_contar: stockTeoricoAlContar,
-                    diferencia_historica: diferenciaHistorica, stock_teorico_actual: stockTeoricoActual,
-                    stock_fisico_proyectado: stockFisicoProyectado, total_vendido: totalVendidoAntes + totalVendidoDespues,
-                    fecha_conteo: ultimoConteo.timestamp,
-                    counter: ultimoConteo.counter || 'N/A', saleDate
-                };
-            }
-        }
+                return {
+                    sku: this.sku, estado, conteo_fisico: conteoFisicoTotal, stock_teorico_al_contar: stockTeoricoAlContar,
+                    diferencia_historica: diferenciaHistorica, stock_teorico_actual: stockTeoricoActual,
+                    stock_fisico_proyectado: stockFisicoProyectado, total_vendido: totalVendidoAntes + totalVendidoDespues,
+                    fecha_conteo: ultimoConteo.timestamp,
+                    counter: ultimoConteo.counter || 'N/A', saleDate
+                };
+            }
+        }
 
-        const getDashboardData = () => {
-            const allSkus = new Set([...theoreticalStock.map(p => p.sku), ...salesData.map(s => s.sku), ...countData.map(c => c.sku)]);
-            const dashboardData = [];
-            allSkus.forEach(sku => {
-                if (!sku) return;
-                const skuData = new SkuData(sku);
-                const productoTeorico = theoreticalStock.find(p => p.sku === sku);
-                skuData.ventas = salesData.filter(s => s.sku === sku);
-                skuData.conteos = countData.filter(c => c.sku === sku && c.type === 'conteo');
-                const resultado = skuData.calcularEstado(productoTeorico ? Number(productoTeorico.stock) || 0 : 0);
-                if (!productoTeorico && skuData.ventas.length === 0 && skuData.conteos.length === 0) return;
-                if (!productoTeorico) resultado.estado = 'No en Catálogo';
-                dashboardData.push(resultado);
-            });
-            const prioridad = { 'Faltante': 1, 'Sobrante': 2, 'Pendiente': 3, 'No en Catálogo': 4, 'Cuadrado': 5 };
-            dashboardData.sort((a, b) => (prioridad[a.estado] || 9) - (prioridad[b.estado] || 9) || a.sku.localeCompare(b.sku));
-            memoizedDashboardData = dashboardData;
-            return dashboardData;
-        };
+        const getDashboardData = () => {
+            const allSkus = new Set([...theoreticalStock.map(p => p.sku), ...salesData.map(s => s.sku), ...countData.map(c => c.sku)]);
+            const dashboardData = [];
+            allSkus.forEach(sku => {
+                if (!sku) return;
+                const skuData = new SkuData(sku);
+                const productoTeorico = theoreticalStock.find(p => p.sku === sku);
+                skuData.ventas = salesData.filter(s => s.sku === sku);
+                skuData.conteos = countData.filter(c => c.sku === sku && c.type === 'conteo');
+                const resultado = skuData.calcularEstado(productoTeorico ? Number(productoTeorico.stock) || 0 : 0);
+                if (!productoTeorico && skuData.ventas.length === 0 && skuData.conteos.length === 0) return;
+                if (!productoTeorico) resultado.estado = 'No en Catálogo';
+                dashboardData.push(resultado);
+            });
+            const prioridad = { 'Faltante': 1, 'Sobrante': 2, 'Pendiente': 3, 'No en Catálogo': 4, 'Cuadrado': 5 };
+            dashboardData.sort((a, b) => (prioridad[a.estado] || 9) - (prioridad[b.estado] || 9) || a.sku.localeCompare(b.sku));
+            memoizedDashboardData = dashboardData;
+            return dashboardData;
+        };
 
-        const debouncedRender = debounce(() => renderDashboard(getDashboardData()), 250);
+        const debouncedRender = debounce(() => renderDashboard(getDashboardData()), 250);
 
-        const renderDashboard = (data) => {
-            const searchTerm = searchInput.value.trim().toUpperCase();
-            const filteredData = searchTerm ? data.filter(item => item.sku.includes(searchTerm)) : data;
-            if (filteredData.length === 0) { dashboardBody.innerHTML = `<tr><td colspan="11" class="table-cell text-center">No hay datos para mostrar.</td></tr>`; return; }
-            dashboardBody.innerHTML = filteredData.map(item => {
-                const badgeClass = `badge badge-${item.estado.toLowerCase().replace(/ /g, '-')}`;
-                return `<tr>
-                    <td class="table-cell font-semibold">${item.sku}</td><td class="table-cell"><span class="${badgeClass}">${item.estado}</span></td>
-                    <td class="table-cell text-right font-bold text-blue-600">${item.stock_fisico_proyectado ?? 'N/A'}</td> <td class="table-cell text-right font-bold">${item.diferencia_historica ?? 'N/A'}</td>
-                    <td class="table-cell text-right">${item.conteo_fisico}</td> <td class="table-cell text-right">${item.stock_teorico_al_contar ?? 'N/A'}</td>
-                    <td class="table-cell text-right">${item.stock_teorico_actual}</td> <td class="table-cell text-right">${item.total_vendido}</td>
-                    <td class="table-cell">${item.counter}</td> <td class="table-cell">${formatFirebaseTimestamp(item.fecha_conteo)}</td>
-                    <td class="table-cell">${formatFirebaseTimestamp(item.saleDate)}</td>
-                </tr>`;
-            }).join('');
-        };
-        
-        const renderAdminLog = (logs) => {
-            adminLogBody.innerHTML = logs.map(log => `
-                <tr><td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td><td class="table-cell">${log.type}</td>
-                    <td class="table-cell">${log.sku}</td><td class="table-cell text-right">${log.quantity}</td>
-                    <td class="table-cell">${log.responsible}</td><td class="table-cell">${log.detail || ''}</td></tr>
-            `).join('') || `<tr><td colspan="6" class="table-cell text-center">No hay registros.</td></tr>`;
-        };
-        
-        // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
-        const startFirestoreListeners = () => {
-            if (!BUSINESS_ID) return;
-            const errHandler = (err) => { console.error(err); showToast("Error de sincronización.", true); };
-            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), snap => { theoreticalStock = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
-            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), snap => { salesData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
-            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), snap => { countData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
-            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10)), snap => { auditLog = snap.docs.map(d => d.data()); }, errHandler));
-        };
-        const stopFirestoreListeners = () => { unsubscribes.forEach(unsub => unsub()); unsubscribes = []; };
-        const logAction = async (type, sku, quantity, responsible, detail = '') => {
-            if (!BUSINESS_ID) return;
-            try { await addDoc(collection(db, `businesses/${BUSINESS_ID}/auditLog`), { type, sku, quantity, responsible, detail, timestamp: serverTimestamp() }); } catch (e) { console.error("Log error:", e); }
-        };
+        const renderDashboard = (data) => {
+            const searchTerm = searchInput.value.trim().toUpperCase();
+            const filteredData = searchTerm ? data.filter(item => item.sku.includes(searchTerm)) : data;
+            if (filteredData.length === 0) { dashboardBody.innerHTML = `<tr><td colspan="11" class="table-cell text-center">No hay datos para mostrar.</td></tr>`; return; }
+            dashboardBody.innerHTML = filteredData.map(item => {
+                const badgeClass = `badge badge-${item.estado.toLowerCase().replace(/ /g, '-')}`;
+                return `<tr>
+                    <td class="table-cell font-semibold">${item.sku}</td><td class="table-cell"><span class="${badgeClass}">${item.estado}</span></td>
+                    <td class="table-cell text-right font-bold text-blue-600">${item.stock_fisico_proyectado ?? 'N/A'}</td> <td class="table-cell text-right font-bold">${item.diferencia_historica ?? 'N/A'}</td>
+                    <td class="table-cell text-right">${item.conteo_fisico}</td> <td class="table-cell text-right">${item.stock_teorico_al_contar ?? 'N/A'}</td>
+                    <td class="table-cell text-right">${item.stock_teorico_actual}</td> <td class="table-cell text-right">${item.total_vendido}</td>
+                    <td class="table-cell">${item.counter}</td> <td class="table-cell">${formatFirebaseTimestamp(item.fecha_conteo)}</td>
+                    <td class="table-cell">${formatFirebaseTimestamp(item.saleDate)}</td>
+                </tr>`;
+            }).join('');
+        };
+        
+        const renderAdminLog = (logs) => {
+            adminLogBody.innerHTML = logs.map(log => `
+                <tr><td class="table-cell">${formatFirebaseTimestamp(log.timestamp)}</td><td class="table-cell">${log.type}</td>
+                    <td class="table-cell">${log.sku}</td><td class="table-cell text-right">${log.quantity}</td>
+                    <td class="table-cell">${log.responsible}</td><td class="table-cell">${log.detail || ''}</td></tr>
+            `).join('') || `<tr><td colspan="6" class="table-cell text-center">No hay registros.</td></tr>`;
+        };
+        
+        // --- LÓGICA DE FIREBASE Y SINCRONIZACIÓN ---
+        const startFirestoreListeners = () => {
+            if (!BUSINESS_ID) return;
+            const errHandler = (err) => { console.error(err); showToast("Error de sincronización.", true); };
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), snap => { theoreticalStock = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), snap => { salesData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
+            unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), snap => { countData = snap.docs.map(d => ({ id: d.id, ...d.data() })); debouncedRender(); }, errHandler));
+            unsubscribes.push(onSnapshot(query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), limit(10)), snap => { auditLog = snap.docs.map(d => d.data()); }, errHandler));
+        };
+        const stopFirestoreListeners = () => { unsubscribes.forEach(unsub => unsub()); unsubscribes = []; };
+        const logAction = async (type, sku, quantity, responsible, detail = '') => {
+            if (!BUSINESS_ID) return;
+            try { await addDoc(collection(db, `businesses/${BUSINESS_ID}/auditLog`), { type, sku, quantity, responsible, detail, timestamp: serverTimestamp() }); } catch (e) { console.error("Log error:", e); }
+        };
 
-        // --- LISTENERS DE LA INTERFAZ DE USUARIO ---
-        btnLogin.addEventListener('click', () => signInWithEmailAndPassword(auth, authEmailInput.value, authPasswordInput.value).catch(() => showToast("Error de autenticación.", true)));
-        btnRegister.addEventListener('click', () => createUserWithEmailAndPassword(auth, authEmailInput.value, authPasswordInput.value).catch(() => showToast("Error al crear espacio.", true)));
-        btnLogout.addEventListener('click', () => signOut(auth));
-        btnSaveCounterName.addEventListener('click', () => {
-            const isEditing = !counterNameInput.disabled;
-            if (isEditing) {
-                const newName = counterNameInput.value.trim();
-                if (newName) {
-                    counterName = newName; counterDisplay.textContent = newName; counterNameInput.disabled = true;
-                    btnSaveCounterName.innerHTML = '<i class="fa-solid fa-pencil"></i> Cambiar'; setCountingModuleState(true);
-                    showToast(`Sesión iniciada para: ${counterName}`);
-                } else showToast('Ingrese un nombre válido.', true);
-            } else {
-                counterNameInput.disabled = false; btnSaveCounterName.innerHTML = '<i class="fa-solid fa-user-check"></i> Fijar';
-                counterName = 'N/A'; counterDisplay.textContent = 'N/A'; setCountingModuleState(false);
-            }
-        });
+        // --- LISTENERS DE LA INTERFAZ DE USUARIO ---
+        btnLogin.addEventListener('click', () => signInWithEmailAndPassword(auth, authEmailInput.value, authPasswordInput.value).catch(() => showToast("Error de autenticación.", true)));
+        btnRegister.addEventListener('click', () => createUserWithEmailAndPassword(auth, authEmailInput.value, authPasswordInput.value).catch(() => showToast("Error al crear espacio.", true)));
+        btnLogout.addEventListener('click', () => signOut(auth));
+        btnSaveCounterName.addEventListener('click', () => {
+            const isEditing = !counterNameInput.disabled;
+            if (isEditing) {
+                const newName = counterNameInput.value.trim();
+                if (newName) {
+                    counterName = newName; counterDisplay.textContent = newName; counterNameInput.disabled = true;
+                    btnSaveCounterName.innerHTML = '<i class="fa-solid fa-pencil"></i> Cambiar'; setCountingModuleState(true);
+                    showToast(`Sesión iniciada para: ${counterName}`);
+                } else showToast('Ingrese un nombre válido.', true);
+            } else {
+                counterNameInput.disabled = false; btnSaveCounterName.innerHTML = '<i class="fa-solid fa-user-check"></i> Fijar';
+                counterName = 'N/A'; counterDisplay.textContent = 'N/A'; setCountingModuleState(false);
+            }
+        });
 
-        csvFileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const lines = event.target.result.split(/\r?\n/).filter(line => line.trim());
-                if (lines.length > 0 && lines[0].toUpperCase().includes('SKU;STOCK')) lines.shift();
-                const seenSkus = new Set();
-                const dataToUpload = lines.map(line => {
-                    const [sku, stockStr] = line.split(';');
-                    const normalizedSku = normalizeSku(sku);
-                    if (!validateSku(normalizedSku) || seenSkus.has(normalizedSku)) return null;
-                    seenSkus.add(normalizedSku);
-                    return { sku: normalizedSku, stock: parseFloat(stockStr?.trim().replace(',', '.')) || 0, timestamp: serverTimestamp() };
-                }).filter(Boolean);
-                
-                showModal(`Se cargarán ${dataToUpload.length} SKUs únicos. Esto reemplazará el catálogo teórico actual.`, true, async () => {
-                    const batch = writeBatch(db);
-                    const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
-                    (await getDocs(stockColRef)).forEach(doc => batch.delete(doc.ref));
-                    dataToUpload.forEach(item => batch.set(doc(stockColRef, item.sku), item));
-                    await batch.commit();
-                    showToast(`Catálogo cargado con ${dataToUpload.length} productos.`);
-                    await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail);
-                    e.target.value = '';
-                });
-            };
-            reader.readAsText(file);
-        });
+        csvFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const lines = event.target.result.split(/\r?\n/).filter(line => line.trim());
+                if (lines.length > 0 && lines[0].toUpperCase().includes('SKU;STOCK')) lines.shift();
+                const seenSkus = new Set();
+                const dataToUpload = lines.map(line => {
+                    const [sku, stockStr] = line.split(';');
+                    const normalizedSku = normalizeSku(sku);
+                    if (!validateSku(normalizedSku) || seenSkus.has(normalizedSku)) return null;
+                    seenSkus.add(normalizedSku);
+                    return { sku: normalizedSku, stock: parseFloat(stockStr?.trim().replace(',', '.')) || 0, timestamp: serverTimestamp() };
+                }).filter(Boolean);
+                
+                showModal(`Se cargarán ${dataToUpload.length} SKUs únicos. Esto reemplazará el catálogo teórico actual.`, true, async () => {
+                    const batch = writeBatch(db);
+                    const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
+                    (await getDocs(stockColRef)).forEach(doc => batch.delete(doc.ref));
+                    dataToUpload.forEach(item => batch.set(doc(stockColRef, item.sku), item));
+                    await batch.commit();
+                    showToast(`Catálogo cargado con ${dataToUpload.length} productos.`);
+                    await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail);
+                    e.target.value = '';
+                });
+            };
+            reader.readAsText(file);
+        });
 
-        formSales.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.submitter;
-            const sku = normalizeSku(salesSkuInput.value);
-            const quantity = Number(salesQuantityInput.value);
-            if (!validateSku(sku) || !quantity || quantity <= 0) return showToast("SKU o cantidad inválidos.", true);
-            
-            toggleButton(submitButton, false);
-            submitButton.classList.add('btn-processing');
-            try {
-                await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), { sku, quantity, timestamp: serverTimestamp() });
-                await logAction('Venta', sku, quantity, 'Vendedor');
-                showToast("Venta registrada.");
-                formSales.reset(); salesSkuInput.focus();
-            } catch (error) {
-                showToast("Error al registrar venta.", true);
-                console.error("Error en venta:", error);
-            } finally {
-                toggleButton(submitButton, true);
-                submitButton.classList.remove('btn-processing');
-            }
-        });
+        formSales.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const sku = normalizeSku(salesSkuInput.value);
+            const quantity = Number(salesQuantityInput.value);
+            if (!validateSku(sku) || !quantity || quantity <= 0) return showToast("SKU o cantidad inválidos.", true);
+            
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            try {
+                await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), { sku, quantity, timestamp: serverTimestamp() });
+                await logAction('Venta', sku, quantity, 'Vendedor');
+                showToast("Venta registrada.");
+                formSales.reset(); salesSkuInput.focus();
+            } catch (error) {
+                showToast("Error al registrar venta.", true);
+                console.error("Error en venta:", error);
+            } finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
+        });
 
-        formCount.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.submitter;
-            const sku = normalizeSku(countSkuInput.value);
-            const quantity = Number(countQuantityInput.value);
-            if (!validateSku(sku) || !quantity || quantity <= 0) return showToast("SKU o cantidad inválidos.", true);
-            
-            toggleButton(submitButton, false);
-            submitButton.classList.add('btn-processing');
-            try {
-                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
-                await runTransaction(db, async (transaction) => {
-                    const countDoc = await transaction.get(countDocRef);
-                    const newTotal = (countDoc.exists() ? countDoc.data().quantity : 0) + quantity;
-                    transaction.set(countDocRef, { sku, quantity: newTotal, type: 'conteo', counter: counterName, timestamp: serverTimestamp() });
-                });
-                await logAction('Conteo Físico', sku, quantity, counterName, `Añadidas ${quantity} uds.`);
-                showToast("Conteo actualizado.");
-                formCount.reset(); countSkuInput.focus();
-            } catch (err) { showToast("Error al actualizar conteo.", true); console.error(err); }
-            finally {
-                toggleButton(submitButton, true);
-                submitButton.classList.remove('btn-processing');
-            }
-        });
+        formCount.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const sku = normalizeSku(countSkuInput.value);
+            const quantity = Number(countQuantityInput.value);
+            if (!validateSku(sku) || !quantity || quantity <= 0) return showToast("SKU o cantidad inválidos.", true);
+            
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            try {
+                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
+                await runTransaction(db, async (transaction) => {
+                    const countDoc = await transaction.get(countDocRef);
+                    const newTotal = (countDoc.exists() ? countDoc.data().quantity : 0) + quantity;
+                    transaction.set(countDocRef, { sku, quantity: newTotal, type: 'conteo', counter: counterName, timestamp: serverTimestamp() });
+                });
+                await logAction('Conteo Físico', sku, quantity, counterName, `Añadidas ${quantity} uds.`);
+                showToast("Conteo actualizado.");
+                formCount.reset(); countSkuInput.focus();
+            } catch (err) { showToast("Error al actualizar conteo.", true); console.error(err); }
+            finally {
+                toggleButton(submitButton, true);
+                submitButton.classList.remove('btn-processing');
+            }
+        });
 
-        formCorrectionAdmin.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.submitter;
-            const sku = normalizeSku(correctionSkuInput.value);
-            const quantity = Number(correctionQuantityInput.value);
-            const name = correctionAdminNameInput.value.trim();
-            if (!validateSku(sku) || quantity < 0 || !name) return showToast("Datos inválidos.", true);
-            const password = await requestPassword();
-            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
-            toggleButton(submitButton, false);
-            submitButton.classList.add('btn-processing');
-            try {
-                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
-                await setDoc(countDocRef, { sku, quantity, type: 'conteo', counter: name, timestamp: serverTimestamp() });
-                await logAction('Corrección Admin', sku, quantity, name, `Stock Físico TOTAL fijado a ${quantity}.`);
-                showToast("Stock físico corregido.");
-                formCorrectionAdmin.reset();
-            } catch (err) { showToast("Error al corregir.", true); console.error(err); }
-            finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
-        });
+        formCorrectionAdmin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const sku = normalizeSku(correctionSkuInput.value);
+            const quantity = Number(correctionQuantityInput.value);
+            const name = correctionAdminNameInput.value.trim();
+            if (!validateSku(sku) || quantity < 0 || !name) return showToast("Datos inválidos.", true);
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            try {
+                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, sku);
+                await setDoc(countDocRef, { sku, quantity, type: 'conteo', counter: name, timestamp: serverTimestamp() });
+                await logAction('Corrección Admin', sku, quantity, name, `Stock Físico TOTAL fijado a ${quantity}.`);
+                showToast("Stock físico corregido.");
+                formCorrectionAdmin.reset();
+            } catch (err) { showToast("Error al corregir.", true); console.error(err); }
+            finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
+        });
 
-        formAnulacion.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.submitter;
-            const sku = normalizeSku(cancellationSkuInput.value);
-            const quantity = Number(cancellationQuantityInput.value);
-            const name = cancellationAdminNameInput.value.trim();
-            if (!validateSku(sku) || quantity <= 0 || !name) return showToast("Datos inválidos.", true);
-            const password = await requestPassword();
-            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
-            toggleButton(submitButton, false);
-            submitButton.classList.add('btn-processing');
-            try {
-                await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), { sku, quantity: -quantity, type: 'anulacion', responsible: name, timestamp: serverTimestamp() });
-                await logAction('Anulación', sku, -quantity, name);
-                showToast("Venta anulada.");
-                formAnulacion.reset();
-            } catch (err) { showToast("Error al anular.", true); console.error(err); }
-            finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
-        });
+        formAnulacion.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const sku = normalizeSku(cancellationSkuInput.value);
+            const quantity = Number(cancellationQuantityInput.value);
+            const name = cancellationAdminNameInput.value.trim();
+            if (!validateSku(sku) || quantity <= 0 || !name) return showToast("Datos inválidos.", true);
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            try {
+                await addDoc(collection(db, `businesses/${BUSINESS_ID}/salesData`), { sku, quantity: -quantity, type: 'anulacion', responsible: name, timestamp: serverTimestamp() });
+                await logAction('Anulación', sku, -quantity, name);
+                showToast("Venta anulada.");
+                formAnulacion.reset();
+            } catch (err) { showToast("Error al anular.", true); console.error(err); }
+            finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
+        });
 
-        formReposicionCsv.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitButton = e.submitter;
-            const file = repoCsvInput.files[0];
-            const name = repoAdminNameInput.value.trim();
-            if (!file || !name) return showToast("Complete todos los campos.", true);
-            const password = await requestPassword();
-            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
-            toggleButton(submitButton, false);
-            submitButton.classList.add('btn-processing');
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                try {
-                    const lines = event.target.result.split(/\r?\n/).filter(line => line.trim());
-                    const dataToUpload = lines.map(line => {
-                        const [sku, qtyStr] = line.split(';');
-                        return { sku: normalizeSku(sku), quantity: parseInt(qtyStr?.trim()) || 0 };
-                    }).filter(item => validateSku(item.sku) && item.quantity > 0);
-                    let successCount = 0;
-                    for (const item of dataToUpload) {
-                        try {
-                            await runTransaction(db, async (transaction) => {
-                                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, item.sku);
-                                const countDoc = await transaction.get(countDocRef);
-                                if (countDoc.exists()) {
-                                    const newQty = (countDoc.data().quantity || 0) + item.quantity;
-                                    transaction.update(countDocRef, { quantity: newQty });
-                                    await logAction('Reposición (Físico)', item.sku, item.quantity, name);
-                                } else {
-                                    const stockDocRef = doc(db, `businesses/${BUSINESS_ID}/theoreticalStock`, item.sku);
-                                    const stockDoc = await transaction.get(stockDocRef);
-                                    const newStock = (stockDoc.exists() ? stockDoc.data().stock : 0) + item.quantity;
-                                    transaction.set(stockDocRef, { sku: item.sku, stock: newStock, timestamp: serverTimestamp() }, { merge: true });
-                                    await logAction('Reposición (Teórico)', item.sku, item.quantity, name);
-                                }
-                            });
-                            successCount++;
-                        } catch (err) { console.error(`Error reponiendo ${item.sku}:`, err); }
-                    }
-                    showToast(`Reposición completada. ${successCount}/${dataToUpload.length} SKUs actualizados.`);
-                    formReposicionCsv.reset();
-                } catch (err) { showToast("Error procesando el archivo.", true); console.error(err); }
-                finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
-            };
-            reader.readAsText(file);
-        });
+        formReposicionCsv.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            const file = repoCsvInput.files[0];
+            const name = repoAdminNameInput.value.trim();
+            if (!file || !name) return showToast("Complete todos los campos.", true);
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            toggleButton(submitButton, false);
+            submitButton.classList.add('btn-processing');
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const lines = event.target.result.split(/\r?\n/).filter(line => line.trim());
+                    const dataToUpload = lines.map(line => {
+                        const [sku, qtyStr] = line.split(';');
+                        return { sku: normalizeSku(sku), quantity: parseInt(qtyStr?.trim()) || 0 };
+                    }).filter(item => validateSku(item.sku) && item.quantity > 0);
+                    let successCount = 0;
+                    for (const item of dataToUpload) {
+                        try {
+                            await runTransaction(db, async (transaction) => {
+                                const countDocRef = doc(db, `businesses/${BUSINESS_ID}/countData`, item.sku);
+                                const countDoc = await transaction.get(countDocRef);
+                                if (countDoc.exists()) {
+                                    const newQty = (countDoc.data().quantity || 0) + item.quantity;
+                                    transaction.update(countDocRef, { quantity: newQty });
+                                    await logAction('Reposición (Físico)', item.sku, item.quantity, name);
+                                } else {
+                                    const stockDocRef = doc(db, `businesses/${BUSINESS_ID}/theoreticalStock`, item.sku);
+                                    const stockDoc = await transaction.get(stockDocRef);
+                                    const newStock = (stockDoc.exists() ? stockDoc.data().stock : 0) + item.quantity;
+                                    transaction.set(stockDocRef, { sku: item.sku, stock: newStock, timestamp: serverTimestamp() }, { merge: true });
+                                    await logAction('Reposición (Teórico)', item.sku, item.quantity, name);
+                                }
+                            });
+                            successCount++;
+                        } catch (err) { console.error(`Error reponiendo ${item.sku}:`, err); }
+                    }
+                    showToast(`Reposición completada. ${successCount}/${dataToUpload.length} SKUs actualizados.`);
+                    formReposicionCsv.reset();
+                } catch (err) { showToast("Error procesando el archivo.", true); console.error(err); }
+                finally { toggleButton(submitButton, true); submitButton.classList.remove('btn-processing'); }
+            };
+            reader.readAsText(file);
+        });
 
-        searchInput.addEventListener('input', debouncedRender);
-        btnDownloadCsv.addEventListener('click', () => {
-            if (memoizedDashboardData.length === 0) return showToast("No hay datos para descargar.", true);
-            const headers = ["SKU", "Estado", "Fisico_Proyectado", "Diferencia_Historica", "Fisico_Contado", "Teorico_al_Contar", "Teorico_Actual", "Total_Vendido", "Contado_Por", "Fecha_Conteo", "Fecha_Ultima_Venta"];
-            const csvContent = [headers.join(';'), ...memoizedDashboardData.map(i => [
-                i.sku, i.estado, i.stock_fisico_proyectado ?? 'N/A', i.diferencia_historica ?? 'N/A',
-                i.conteo_fisico, i.stock_teorico_al_contar ?? 'N/A', i.stock_teorico_actual, i.total_vendido,
-                i.counter, formatFirebaseTimestamp(i.fecha_conteo), formatFirebaseTimestamp(i.saleDate)
-            ].join(';'))].join('\n');
-            downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
-        });
+        searchInput.addEventListener('input', debouncedRender);
+        btnDownloadCsv.addEventListener('click', () => {
+            if (memoizedDashboardData.length === 0) return showToast("No hay datos para descargar.", true);
+            const headers = ["SKU", "Estado", "Fisico_Proyectado", "Diferencia_Historica", "Fisico_Contado", "Teorico_al_Contar", "Teorico_Actual", "Total_Vendido", "Contado_Por", "Fecha_Conteo", "Fecha_Ultima_Venta"];
+            const csvContent = [headers.join(';'), ...memoizedDashboardData.map(i => [
+                i.sku, i.estado, i.stock_fisico_proyectado ?? 'N/A', i.diferencia_historica ?? 'N/A',
+                i.conteo_fisico, i.stock_teorico_al_contar ?? 'N/A', i.stock_teorico_actual, i.total_vendido,
+                i.counter, formatFirebaseTimestamp(i.fecha_conteo), formatFirebaseTimestamp(i.saleDate)
+            ].join(';'))].join('\n');
+            downloadCsv(`dashboard_reconciliacion_${new Date().toISOString().slice(0,10)}.csv`, csvContent);
+        });
 
-        btnOpenAdminLog.addEventListener('click', async () => {
-            const password = await requestPassword();
-            if (password !== LOG_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
-            adminLogModal.style.display = 'flex';
-            const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
-            const logsSnapshot = await getDocs(logsQuery);
-            renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
-        });
-        closeAdminLogBtn.addEventListener('click', () => adminLogModal.style.display = 'none');
-        btnClearLog.addEventListener('click', async () => {
-            const password = await requestPassword();
-            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
-            showModal('¿Seguro que desea limpiar el Log de Auditoría?', true, async () => {
-                const logsDocs = await getDocs(collection(db, `businesses/${BUSINESS_ID}/auditLog`));
-                const batch = writeBatch(db);
-                logsDocs.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
-                showToast("Log de auditoría limpiado.");
-            });
-        });
-        logDatePicker.addEventListener('change', async (e) => {
-            const date = e.target.value;
-            const q = date ? query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), where('timestamp', '>=', new Date(date)), where('timestamp', '<=', new Date(`${date}T23:59:59`))) : query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
-            const logsSnapshot = await getDocs(q);
-            renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
-        });
-        btnClearData.addEventListener('click', async () => {
-            const password = await requestPassword();
-            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
-            showModal('¡ATENCIÓN! ¿Desea eliminar todos los datos operativos (stock, ventas, conteos)? Esta acción es irreversible.', true, async () => {
-                const collectionsToClear = ['theoreticalStock', 'salesData', 'countData'];
-                for (const colName of collectionsToClear) {
-                    const docs = await getDocs(collection(db, `businesses/${BUSINESS_ID}/${colName}`));
-                    const batch = writeBatch(db);
-                    docs.forEach(doc => batch.delete(doc.ref));
-                    await batch.commit();
-                }
-                await logAction('Limpieza de Datos', 'SISTEMA', 0, userEmail, 'Se eliminaron todos los datos operativos.');
-                showToast("Todos los datos del negocio han sido eliminados.");
-            });
-        });
+        btnOpenAdminLog.addEventListener('click', async () => {
+            const password = await requestPassword();
+            if (password !== LOG_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            adminLogModal.style.display = 'flex';
+            const logsQuery = query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
+            const logsSnapshot = await getDocs(logsQuery);
+            renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
+        });
+        closeAdminLogBtn.addEventListener('click', () => adminLogModal.style.display = 'none');
+        btnClearLog.addEventListener('click', async () => {
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            showModal('¿Seguro que desea limpiar el Log de Auditoría?', true, async () => {
+                const logsDocs = await getDocs(collection(db, `businesses/${BUSINESS_ID}/auditLog`));
+                const batch = writeBatch(db);
+                logsDocs.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                showToast("Log de auditoría limpiado.");
+            });
+        });
+        logDatePicker.addEventListener('change', async (e) => {
+            const date = e.target.value;
+            const q = date ? query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'), where('timestamp', '>=', new Date(date)), where('timestamp', '<=', new Date(`${date}T23:59:59`))) : query(collection(db, `businesses/${BUSINESS_ID}/auditLog`), orderBy('timestamp', 'desc'));
+            const logsSnapshot = await getDocs(q);
+            renderAdminLog(logsSnapshot.docs.map(doc => doc.data()));
+        });
+        btnClearData.addEventListener('click', async () => {
+            const password = await requestPassword();
+            if (password !== ADMIN_PASSWORD) { if (password !== null) showToast("Contraseña incorrecta.", true); return; }
+            showModal('¡ATENCIÓN! ¿Desea eliminar todos los datos operativos (stock, ventas, conteos)? Esta acción es irreversible.', true, async () => {
+                const collectionsToClear = ['theoreticalStock', 'salesData', 'countData'];
+                for (const colName of collectionsToClear) {
+                    const docs = await getDocs(collection(db, `businesses/${BUSINESS_ID}/${colName}`));
+                    const batch = writeBatch(db);
+                    docs.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+                }
+                await logAction('Limpieza de Datos', 'SISTEMA', 0, userEmail, 'Se eliminaron todos los datos operativos.');
+                showToast("Todos los datos del negocio han sido eliminados.");
+            });
+        });
 
-        // --- INICIALIZACIÓN DE LA APLICACIÓN ---
-        onAuthStateChanged(auth, user => {
-            stopFirestoreListeners();
-            [theoreticalStock, salesData, countData, auditLog] = [[], [], [], []];
-            if (user) {
-                BUSINESS_ID = user.email; userEmail = user.email;
-                userIdDisplay.textContent = user.email;
-                authSection.style.display = 'none'; appContent.style.display = 'block';
-                startFirestoreListeners();
-            } else {
-                BUSINESS_ID = null; userEmail = null;
-                userIdDisplay.textContent = 'No autenticado';
-                authSection.style.display = 'flex'; appContent.style.display = 'none';
-                renderDashboard([]);
-            }
-        });
-        
-        setupSkuInputValidation();
-        setCountingModuleState(false);
-    </script>
+        // --- INICIALIZACIÓN DE LA APLICACIÓN ---
+        onAuthStateChanged(auth, user => {
+            stopFirestoreListeners();
+            [theoreticalStock, salesData, countData, auditLog] = [[], [], [], []];
+            if (user) {
+                BUSINESS_ID = user.email; userEmail = user.email;
+                userIdDisplay.textContent = user.email;
+                authSection.style.display = 'none'; appContent.style.display = 'block';
+                startFirestoreListeners();
+            } else {
+                BUSINESS_ID = null; userEmail = null;
+                userIdDisplay.textContent = 'No autenticado';
+                authSection.style.display = 'flex'; appContent.style.display = 'none';
+                renderDashboard([]);
+            }
+        });
+        
+        setupSkuInputValidation();
+        setCountingModuleState(false);
+    </script>
 </body>
 </html>
