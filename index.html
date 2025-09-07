@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alfa Store HL</title>
+    <title>Sasi Smart Group PPS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,11 +38,8 @@
         .badge-no-en-catalogo { background-color: #9CA3AF; color: #1F2937; }
         .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.625rem 1.25rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s; cursor: pointer; border: 1px solid transparent; }
         .btn:disabled { background-color: #D1D5DB; cursor: not-allowed; opacity: 0.6; }
-        .btn-primary { background-color: var(--primary); color: white; }
         .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-        .btn-danger { background-color: var(--danger); color: #B91C1C; }
         .btn-danger:hover:not(:disabled) { background-color: var(--danger-hover); color: white; }
-        .btn-secondary { background-color: var(--secondary); color: #374151; }
         .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
         .input-field { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: 0.375rem; transition: border-color 0.2s, box-shadow 0.2s; background-color: #fff; }
         .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px #FBCFE8; }
@@ -75,7 +72,7 @@
     <main class="flex-grow">
         <div class="max-w-screen-2xl mx-auto">
             <header class="mb-6 flex flex-wrap justify-between items-center gap-4">
-                <div><h1 class="text-3xl font-bold">Alfa Store HL</h1></div>
+                <div><h1 class="text-3xl font-bold">Sasi Smart Group PPS</h1></div>
                 <div class="flex items-center gap-4">
                     <div class="text-gray-600">Usuario: <span id="user-id-display" class="font-semibold" style="color: var(--primary-hover);">Cargando...</span></div>
                     <div class="text-gray-600">Contador: <span id="contador-display" class="font-semibold text-teal-700">N/A</span></div>
@@ -479,13 +476,11 @@
             const diffMs = Math.abs(date2 - date1);
             return diffMs / (1000 * 60 * 60 * 24);
         }
-
+        
         // --- LÓGICA DE CÁLCULO Y RENDERIZADO DEL DASHBOARD ---
 
-        // SOLUCIÓN AL PARPADEO: Se define aquí para que esté disponible globalmente.
         const debouncedRender = debounce(renderDashboard, 150);
 
-        // --- Clase SkuData enriquecida ---
         class SkuData {
             constructor(sku) {
                 this.sku = sku;
@@ -503,7 +498,7 @@
                     this.errors.push(`Venta sin timestamp válido para SKU ${this.sku}.`);
                     return;
                 }
-                if (venta.quantity === 0) return; // Ignorar ventas con cantidad cero
+                if (venta.quantity === 0) return;
                 this.ventas.push(venta);
             }
 
@@ -516,7 +511,7 @@
                     this.errors.push(`Conteo sin timestamp válido para SKU ${this.sku}.`);
                     return;
                 }
-                if (conteo.quantity === 0) return; // Ignorar conteos con cantidad cero
+                if (conteo.quantity === 0) return;
                 this.conteos.push(conteo);
             }
 
@@ -645,8 +640,6 @@
             }
         }
 
-        // --- Memoización y cache global ---
-
         const memoCache = {
             lastSalesData: null,
             lastCountData: null,
@@ -655,52 +648,38 @@
         };
 
         function deepEqual(a, b) {
-            // Implementa una comparación profunda simple o usa una librería como lodash.isEqual
-            // Aquí un ejemplo simple para arrays y objetos planos:
             try {
                 return JSON.stringify(a) === JSON.stringify(b);
             } catch {
                 return false;
             }
         }
-
-        /**
-         * Función principal con memoización.
-         * Solo recalcula dashboardData si cambian los datos base.
-         * El filtro de búsqueda se aplica sobre el resultado cacheado.
-         */
+        
         function getDashboardData() {
             const searchTerm = (searchInput.value || '').trim().toUpperCase();
 
-            // Si el catálogo está vacío, no recalculamos para evitar borrar el dashboard
             if (!theoreticalStock || theoreticalStock.length === 0) {
                 if (memoCache.cachedDashboardData) {
-                    // Retornamos el último dashboard cacheado para evitar vaciar la UI
                     return memoCache.cachedDashboardData;
                 } else {
-                    // No hay datos para mostrar
                     return [];
                 }
             }
             
-            // Verificar si los datos base cambiaron
             let salesChanged = !deepEqual(salesData, memoCache.lastSalesData);
             let countChanged = !deepEqual(countData, memoCache.lastCountData);
             let stockChanged = !deepEqual(theoreticalStock, memoCache.lastTheoreticalStock);
 
-            // Forzar recálculo si el catálogo cambió de vacío a no vacío o viceversa
             if ((theoreticalStock.length === 0 && memoCache.lastTheoreticalStock?.length > 0) ||
                 (theoreticalStock.length > 0 && memoCache.lastTheoreticalStock?.length === 0)) {
                 stockChanged = true;
             }
 
             if (salesChanged || countChanged || stockChanged || !memoCache.cachedDashboardData) {
-                // Actualizar cache base
                 memoCache.lastSalesData = JSON.parse(JSON.stringify(salesData));
                 memoCache.lastCountData = JSON.parse(JSON.stringify(countData));
                 memoCache.lastTheoreticalStock = JSON.parse(JSON.stringify(theoreticalStock));
 
-                // Construir mapa SKU
                 const skuMap = new Map();
 
                 for (const sale of salesData) {
@@ -744,13 +723,11 @@
                 memoCache.cachedDashboardData = dashboardData;
             }
 
-            // Aplicar filtro de búsqueda sobre cache
             let filtered = memoCache.cachedDashboardData;
             if (searchTerm) {
                 filtered = filtered.filter(d => d.sku.includes(searchTerm));
             }
 
-            // Ordenar
             const prioridadEstado = {
                 'Faltante': 1,
                 'Sobrante': 2,
@@ -766,12 +743,11 @@
                 return a.sku.localeCompare(b.sku);
             });
 
-            // Actualizar UI con alertas visuales y log global de errores
             mostrarAlertasYLogErrores(filtered);
 
             return filtered;
         }
-        
+
         function mostrarAlertasYLogErrores(dashboardData) {
             dashboardData.forEach(item => {
                 const rowElement = document.querySelector(`[data-sku="${item.sku}"]`);
@@ -786,20 +762,17 @@
                 if (item.errors && item.errors.length > 0) {
                     const alertIcon = document.createElement('span');
                     alertIcon.className = 'error-alert';
-                    alertIcon.textContent = ' ⚠️'; // Espacio inicial para separar del SKU
+                    alertIcon.textContent = ' ⚠️';
                     alertIcon.title = item.errors.join('\n');
                     alertIcon.style.cursor = 'help';
                     skuCell.appendChild(alertIcon);
                 }
             });
-            // Opcional: Implementar un log global en la UI si se considera necesario
         }
         
         function renderDashboard() {
-            // Obtenemos el estado anterior del dashboard desde el cache antes de calcular el nuevo
             const oldDataMap = new Map(memoCache.cachedDashboardData?.map(item => [item.sku, item]));
-
-            const data = getDashboardData(); // getDashboardData ahora se encarga de todo el cálculo y cacheo
+            const data = getDashboardData();
             dashboardBody.innerHTML = '';
 
             if (data.length === 0) {
@@ -812,10 +785,8 @@
                 const row = document.createElement('tr');
                 row.dataset.sku = item.sku;
 
-                // Comparamos el estado actual con el anterior
                 const oldItem = oldDataMap.get(item.sku);
                 if (!oldItem || oldItem.estado !== item.estado) {
-                    // Si el item es nuevo o su estado cambió, aplicamos la animación
                     row.classList.add('flash-yellow');
                 }
 
@@ -834,9 +805,6 @@
                 `;
                 dashboardBody.appendChild(row);
             });
-            
-            // La llamada a mostrarAlertasYLogErrores ya está dentro de getDashboardData,
-            // así que no necesitamos llamarla de nuevo aquí.
         }
         
         function renderLastMovements() {
@@ -862,19 +830,16 @@
         function startFirestoreListeners() {
             if (!BUSINESS_ID) return;
             
-            // Suscribirse al stock teórico (catálogo)
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`), (snapshot) => {
                 theoreticalStock = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 debouncedRender();
             }));
 
-            // Suscribirse a los datos de ventas
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/salesData`), (snapshot) => {
                 salesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setTimeout(() => debouncedRender(), 100);
             }));
 
-            // Suscribirse a los datos de conteo
             unsubscribes.push(onSnapshot(collection(db, `businesses/${BUSINESS_ID}/countData`), (snapshot) => {
                 countData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setTimeout(() => debouncedRender(), 100);
@@ -907,7 +872,6 @@
         
         // --- LISTENERS DE LA INTERFAZ DE USUARIO ---
         
-        // Autenticación
         btnLogin.addEventListener('click', async () => {
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
@@ -943,22 +907,18 @@
             toggleButton(btnLogout, true);
         });
 
-        // Configuración de contador
         btnSaveCounterName.addEventListener('click', () => {
             if (counterNameInput.disabled) {
-                // --- MODO "CAMBIAR NOMBRE" ---
                 counterNameInput.disabled = false;
                 counterNameInput.focus();
                 btnSaveCounterName.innerHTML = '<i class="fa-solid fa-user-check"></i> Fijar Nombre';
                 
-                // Resetea el estado y deshabilita el módulo de conteo
                 counterName = 'N/A';
                 counterDisplay.textContent = counterName;
                 setCountingModuleState(false); 
                 showToast('Sesión de conteo terminada. Ingrese un nuevo nombre.', false);
 
             } else {
-                // --- MODO "FIJAR NOMBRE" ---
                 const newName = counterNameInput.value.trim();
                 if (newName) {
                     counterName = newName;
@@ -966,7 +926,6 @@
                     counterNameInput.disabled = true;
                     btnSaveCounterName.innerHTML = '<i class="fa-solid fa-pencil"></i> Cambiar Nombre';
 
-                    // Habilita el módulo de conteo
                     setCountingModuleState(true); 
                     showToast(`Sesión de conteo iniciada para: ${counterName}`, false);
                 } else {
@@ -975,7 +934,6 @@
             }
         });
         
-        // Cargar CSV (Stock Teórico)
         csvFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -985,7 +943,6 @@
                 const text = event.target.result;
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
 
-                // La validación detallada se mantiene para IDENTIFICAR errores
                 const allLinesData = lines.map((line, index) => {
                     const cols = line.split(';');
                     const sku = cols[0]?.trim()?.toUpperCase();
@@ -1003,7 +960,6 @@
                     else if (isNaN(stock)) errors.push('El Stock no es un número. Se asignará 0.');
                     else if (stock < 0) errors.push('El Stock es negativo. Se asignará 0.');
                     
-                    // Sanitización: si el stock es inválido, lo forzamos a 0 para poder cargarlo.
                     if (isNaN(stock) || stock < 0) stock = 0;
 
                     return { sku, stock, originalLine: line, lineNumber: index + 1, errors };
@@ -1024,7 +980,6 @@
                     }
                 });
 
-                // Ahora procesamos TODAS las líneas, no solo las válidas
                 const productosConAdvertencias = allLinesData.filter(item => item.errors.length > 0);
                 let message = `Se procesarán ${allLinesData.length} productos.`;
                 if (productosConAdvertencias.length > 0) {
@@ -1041,14 +996,13 @@
                     const skusAddedToBatch = new Set();
 
                     allLinesData.forEach(item => {
-                        // Solo añadimos el PRIMER SKU válido para evitar duplicar stock
                         if (item.sku && !skusAddedToBatch.has(item.sku)) {
                             const newDocRef = doc(stockTeoricoColRef);
                             batch.set(newDocRef, {
                                 sku: item.sku,
-                                stock: item.errors.some(e => e.includes('duplicado')) ? 0 : item.stock, // Si es duplicado, su stock no suma.
+                                stock: item.errors.some(e => e.includes('duplicado')) ? 0 : item.stock,
                                 timestamp: serverTimestamp(),
-                                errors: item.errors // Guardamos los errores en la base de datos
+                                errors: item.errors
                             });
                             skusAddedToBatch.add(item.sku);
                         }
@@ -1059,7 +1013,6 @@
                         let successMessage = `Catálogo cargado con ${allLinesData.length} productos procesados.`;
                         if (productosConAdvertencias.length > 0) {
                             successMessage += ` Se marcaron ${productosConAdvertencias.length} con advertencias. Revisa el dashboard.`;
-                            // Opcional: Aún podemos descargar el CSV de errores para un reporte separado
                             const errorCsvHeader = ['SKU_Original', 'Stock_Original', 'Motivo_del_Error'];
                             const errorCsvRows = productosConAdvertencias.map(errorItem => {
                                 const originalCols = errorItem.originalLine.split(';');
@@ -1089,26 +1042,18 @@
             reader.readAsText(file);
         });
         
-        // Registrar Venta
         formSales.addEventListener('submit', async (e) => {
             e.preventDefault();
             const sku = salesSkuInput.value.trim().toUpperCase();
             const quantity = Number(salesQuantityInput.value);
             const submitButton = e.target.querySelector('button[type="submit"]');
 
-            if (!validateSku(sku)) {
+            if (!validateSku(sku) || quantity <= 0 || quantity > 99999 || isNaN(quantity)) {
                 salesSkuInput.classList.add('invalid');
-                showToast("SKU inválido.", true);
+                showToast("SKU inválido o cantidad incorrecta.", true);
                 return;
             } else {
                 salesSkuInput.classList.remove('invalid');
-            }
-            if (!quantity || quantity <= 0) {
-                salesQuantityInput.classList.add('invalid');
-                showToast("Cantidad debe ser mayor que cero.", true);
-                return;
-            } else {
-                salesQuantityInput.classList.remove('invalid');
             }
 
             toggleButton(submitButton, false);
@@ -1130,7 +1075,6 @@
             }
         });
         
-        // Añadir Conteo Físico
         formCount.addEventListener('submit', async (e) => {
             e.preventDefault();
             const skuInput = countSkuInput;
@@ -1143,25 +1087,17 @@
                 showToast("Por favor, fije un nombre de contador primero.", true);
                 return;
             }
-            if (!validateSku(sku)) {
+            if (!validateSku(sku) || quantity <= 0 || quantity > 99999 || isNaN(quantity)) {
                 skuInput.classList.add('invalid');
-                showToast("SKU inválido.", true);
+                showToast("SKU inválido o cantidad incorrecta.", true);
                 return;
             } else {
                 skuInput.classList.remove('invalid');
-            }
-            if (!quantity || quantity <= 0) {
-                quantityInput.classList.add('invalid');
-                showToast("Cantidad debe ser mayor que cero.", true);
-                return;
-            } else {
-                quantityInput.classList.remove('invalid');
             }
 
             const originalButtonText = submitButton.textContent;
             toggleButton(submitButton, false);
             submitButton.textContent = 'Añadiendo...';
-            showToast("Aún no se ha guardado el producto, espera un momento.", false);
 
             try {
                 const countColRef = collection(db, `businesses/${BUSINESS_ID}/countData`);
@@ -1204,42 +1140,6 @@
             }
         });
         
-        // Búsqueda en el Dashboard
-        searchInput.addEventListener('input', renderDashboard);
-        
-        // Descargar CSV
-        btnDownloadCsv.addEventListener('click', () => {
-            const data = getDashboardData();
-            if (data.length === 0) {
-                showToast("No hay datos para descargar.", true);
-                return;
-            }
-
-            const header = ['Prioridad', 'SKU', 'Estado', 'Físico Proyectado', 'Dif. (Histórica)', 'Físico Contado', 'Teórico (al Contar)', 'Teórico (Actual)', 'Total Vendido', 'Contado por', 'Fecha Conteo', 'Fecha Venta'];
-            const rows = data.map(item => [
-                item.sku,
-                item.estado,
-                item.stock_fisico_proyectado !== null ? item.stock_fisico_proyectado : 'N/A',
-                item.diferencia_historica !== null ? item.diferencia_historica : 'N/A',
-                item.conteo_fisico,
-                item.stock_teorico_al_contar !== null ? item.stock_teorico_al_contar : 'N/A',
-                item.stock_teorico_actual,
-                item.total_vendido,
-                `"${item.counter}"`,
-                item.fecha_conteo ? item.fecha_conteo.toISOString() : 'N/A',
-                item.saleDate ? item.saleDate.toISOString() : 'N/A'
-            ]);
-            
-            const csvContent = [
-                header.join(';'),
-                ...rows.map(e => e.join(';'))
-            ].join('\n');
-            
-            downloadCsv(`dashboard_sasi_${new Date().toISOString()}.csv`, csvContent);
-            showToast("CSV descargado con éxito.", false);
-        });
-
-        // Operaciones de Administrador
         formCorrectionAdmin.addEventListener('submit', async (e) => {
             e.preventDefault();
             const sku = correctionSkuInput.value.trim().toUpperCase();
@@ -1247,26 +1147,12 @@
             const name = correctionAdminNameInput.value.trim();
             const submitButton = e.target.querySelector('button[type="submit"]');
             
-            if (!validateSku(sku)) {
+            if (!validateSku(sku) || quantity < 0 || isNaN(quantity) || !name) {
                 correctionSkuInput.classList.add('invalid');
-                showToast("SKU inválido.", true);
+                showToast("SKU, cantidad o nombre inválidos.", true);
                 return;
             } else {
                 correctionSkuInput.classList.remove('invalid');
-            }
-            if (quantity < 0 || isNaN(quantity)) {
-                correctionQuantityInput.classList.add('invalid');
-                showToast("Cantidad debe ser 0 o mayor.", true);
-                return;
-            } else {
-                correctionQuantityInput.classList.remove('invalid');
-            }
-            if (!name) {
-                correctionAdminNameInput.classList.add('invalid');
-                showToast("Debe ingresar su nombre para auditoría.", true);
-                return;
-            } else {
-                correctionAdminNameInput.classList.remove('invalid');
             }
             
             toggleButton(submitButton, false);
@@ -1316,7 +1202,6 @@
             }
         });
         
-        // Anular Venta
         formCancellation.addEventListener('submit', async (e) => {
             e.preventDefault();
             const sku = cancellationSkuInput.value.trim().toUpperCase();
@@ -1362,7 +1247,6 @@
             }
         });
         
-        // Reposición de Stock (CSV)
         formReposicionCsv.addEventListener('submit', async function(e) {
             e.preventDefault();
             const file = repoCsvInput.files[0];
@@ -1377,7 +1261,7 @@
             toggleButton(submitButton, false);
 
             try {
-                const password = await requestPassword(); // Usamos el nuevo modal
+                const password = await requestPassword();
 
                 if (password !== ADMIN_PASSWORD) {
                     showToast("Contraseña incorrecta. Operación cancelada.", true);
@@ -1385,7 +1269,6 @@
                     return;
                 }
 
-                // Si la contraseña es correcta, leemos el archivo
                 const reader = new FileReader();
                 reader.onload = async function(event) {
                     const text = event.target.result;
@@ -1411,7 +1294,6 @@
                         let successCount = 0;
                         let errorCount = 0;
                         
-                        // LÓGICA CORRECTA: Actualiza el stock teórico
                         for (const item of dataToUpload) {
                             const stockColRef = collection(db, `businesses/${BUSINESS_ID}/theoreticalStock`);
                             try {
@@ -1420,14 +1302,12 @@
                                     const theoreticalStockSnapshot = await transaction.get(q);
 
                                     if (theoreticalStockSnapshot.empty) {
-                                        // Si el producto no existe, lo crea
                                         transaction.set(doc(stockColRef), {
                                             sku: item.sku,
                                             stock: item.quantity,
                                             timestamp: serverTimestamp()
                                         });
                                     } else {
-                                        // Si existe, actualiza el stock
                                         const existingDoc = theoreticalStockSnapshot.docs[0];
                                         const newStock = (existingDoc.data().stock || 0) + item.quantity;
                                         transaction.update(existingDoc.ref, { stock: newStock });
@@ -1452,14 +1332,12 @@
                 reader.readAsText(file);
 
             } catch (error) {
-                // Esto se ejecuta si el usuario cancela el modal de contraseña
                 showToast("Operación cancelada.", true);
             } finally {
                 toggleButton(submitButton, true);
             }
         });
 
-        // Log de Auditoría
         btnOpenAdminLog.addEventListener('click', async () => {
             try {
                 const password = await requestPassword();
@@ -1605,9 +1483,7 @@
             }
         });
         
-        // Llamada inicial para configurar la validación de los inputs
         setupSkuInputValidation();
-        // Deshabilitar el módulo de conteo por defecto al cargar la app
         setCountingModuleState(false);
     </script>
 </body>
