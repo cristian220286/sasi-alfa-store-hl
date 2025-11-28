@@ -812,22 +812,31 @@
                 const text = await file.text();
                 const lines = text.split(/\r?\n/).filter(line => line.trim());
                 if (lines.length > 0 && lines[0].toUpperCase().includes('SKU;STOCK')) lines.shift();
+                
                 const dataToUpload = [];
+                const errorsWithDirtySkus = [];
+                
                 lines.forEach((line, index) => {
                     const [skuRaw, stockRaw] = line.split(';');
                     const sku = normalizeSku(skuRaw);
                     const lineNumber = index + 1;
                     if (!sku || sku.length === 0) return;
-                    if (isSkuDirty(sku)) { console.warn(`SKU con formato inusual línea ${lineNumber}: ${sku}`); }
+                    
+                    if (isSkuDirty(sku)) {
+                        errorsWithDirtySkus.push({ linea: lineNumber, sku: skuRaw, motivo: 'Formato inusual (Espacios o Puntos)' });
+                    }
+                    
                     let stock = parseFloat(stockRaw?.trim().replace(',', '.'));
                     if (isNaN(stock)) stock = 0;
                     dataToUpload.push({ sku, stock, timestamp: serverTimestamp() });
                 });
+                
                 if (dataToUpload.length === 0) {
                     showToast("El archivo está vacío o no tiene datos válidos.", true);
                     e.target.value = '';
                     return;
                 }
+                
                 showModal(
                     `Se cargarán ${dataToUpload.length} SKUs. Esto reemplazará el catálogo teórico actual.`,
                     true,
@@ -840,6 +849,16 @@
                         await batch.commit();
                         showToast(`Catálogo cargado con ${dataToUpload.length} productos.`);
                         await logAction('Catálogo', 'N/A', dataToUpload.length, userEmail);
+                        
+                        if (errorsWithDirtySkus.length > 0) {
+                            const errorHeaders = ["Linea", "SKU_Original", "Motivo"];
+                            const csvContent = [
+                                errorHeaders.join(';'),
+                                ...errorsWithDirtySkus.map(e => [e.linea, e.sku, e.motivo].join(';'))
+                            ].join('\n');
+                            downloadCsv(`reporte_skus_para_corregir_${new Date().toISOString().slice(0, 10)}.csv`, csvContent);
+                            showToast("Se descargó un reporte con SKUs para revisar.");
+                        }
                         e.target.value = '';
                     }
                 );
